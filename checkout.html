@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Personalized Weight Loss Plan</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #FAF6F1;
+      color: #2D2A26;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== NAV ===== */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(250,246,241,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #E8E0D8;
+      padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 600px; margin: 0 auto;
+    }
+    .nav-logo { font-size: 18px; font-weight: 800; }
+    .nav-logo span { color: #C07A5C; }
+    .nav-cta {
+      background: #C07A5C; color: #fff; border: none; padding: 10px 20px;
+      border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: #a8654a; }
+
+    /* ===== CONTAINER ===== */
+    .page { max-width: 600px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 40px 0; }
+
+    /* ===== WEIGHT PROGRESS ===== */
+    .weight-section { text-align: center; padding-top: 32px; }
+    .weight-labels { display: flex; justify-content: center; gap: 0; margin-bottom: 24px; }
+    .weight-label {
+      padding: 10px 32px; font-size: 14px; font-weight: 600;
+      background: #EDE8E2; color: #8A8279; cursor: pointer;
+      transition: background 0.25s, color 0.25s;
+    }
+    .weight-label:first-child { border-radius: 10px 0 0 10px; }
+    .weight-label:last-child { border-radius: 0 10px 10px 0; }
+    .weight-label.active { background: #C07A5C; color: #fff; }
+
+    .weight-graph {
+      position: relative; height: 200px; margin: 0 auto 20px;
+      max-width: 460px;
+    }
+    .weight-graph svg { width: 100%; height: 100%; }
+    .weight-graph .curve {
+      fill: none; stroke: #C07A5C; stroke-width: 3;
+      stroke-dasharray: 400; stroke-dashoffset: 400;
+      animation: drawCurve 2s ease forwards 0.5s;
+    }
+    .weight-graph .curve-fill {
+      fill: url(#curveGrad); opacity: 0;
+      animation: fadeIn 1s ease forwards 1.5s;
+    }
+    .weight-graph .dot-start, .weight-graph .dot-end {
+      r: 6; fill: #C07A5C; opacity: 0;
+    }
+    .weight-graph .dot-start { animation: fadeIn 0.4s ease forwards 0.5s; }
+    .weight-graph .dot-end { animation: fadeIn 0.4s ease forwards 2.2s; }
+    .weight-graph .weight-val {
+      font-size: 14px; font-weight: 700; fill: #2D2A26; opacity: 0;
+    }
+    .weight-graph .val-start { animation: fadeIn 0.4s ease forwards 0.6s; transition: font-size 0.3s, fill 0.3s; }
+    .weight-graph .val-end { animation: fadeIn 0.4s ease forwards 2.3s; transition: font-size 0.3s, fill 0.3s; }
+    /* Toggle highlight states */
+    .weight-graph .weight-val.highlighted { font-size: 18px; fill: #C07A5C; font-weight: 800; }
+    .weight-graph .weight-val.dimmed { font-size: 12px; fill: #B8AFA6; font-weight: 600; }
+    .weight-graph .dot-start.highlighted, .weight-graph .dot-end.highlighted { r: 8; fill: #C07A5C; }
+    .weight-graph .dot-start.dimmed, .weight-graph .dot-end.dimmed { r: 4; fill: #B8AFA6; }
+    .weight-graph .goal-line {
+      stroke: #C07A5C; stroke-width: 1; stroke-dasharray: 4,4; opacity: 0.4;
+    }
+    .weight-graph .month-labels text {
+      font-size: 11px; fill: #B8AFA6; font-weight: 500;
+    }
+    @keyframes drawCurve { to { stroke-dashoffset: 0; } }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .weight-stats {
+      display: flex; justify-content: center; gap: 24px;
+      margin-top: 8px;
+    }
+    .weight-stat { text-align: center; }
+    .weight-stat .num {
+      font-size: 28px; font-weight: 800; color: #C07A5C;
+      opacity: 0; animation: fadeIn 0.5s ease forwards 2.5s;
+    }
+    .weight-stat .lbl { font-size: 12px; color: #8A8279; margin-top: 2px; }
+
+    /* ===== PLAN READY ===== */
+    .plan-ready { text-align: center; }
+    .plan-ready h2 { font-size: 24px; font-weight: 800; margin-bottom: 16px; }
+    .plan-meta {
+      display: flex; justify-content: center; gap: 32px;
+      margin-bottom: 20px;
+    }
+    .plan-meta-item { text-align: center; }
+    .plan-meta-item .meta-label { font-size: 12px; color: #8A8279; margin-bottom: 4px; }
+    .plan-meta-item .meta-value {
+      font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; justify-content: center;
+    }
+
+    /* ===== PRICING ===== */
+    .pricing-section { padding-bottom: 24px; }
+    .pricing-section h3 { font-size: 13px; color: #8A8279; margin-bottom: 10px; }
+    .plan-option {
+      border: 2px solid #E8E0D8; border-radius: 14px;
+      padding: 18px 20px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: all 0.2s; position: relative;
+      background: #fff;
+    }
+    .plan-option:hover { border-color: #C07A5C; }
+    .plan-option.selected { border-color: #C07A5C; background: #FDF0E8; }
+    .plan-option .radio {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid #E0D6CC; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .plan-option.selected .radio {
+      border-color: #C07A5C; background: #C07A5C;
+    }
+    .plan-option.selected .radio::after {
+      content: ''; width: 8px; height: 8px;
+      background: #fff; border-radius: 50%;
+    }
+    .plan-option .plan-info { flex: 1; }
+    .plan-option .plan-name { font-size: 15px; font-weight: 700; }
+    .plan-option .plan-sub { font-size: 12px; color: #8A8279; margin-top: 2px; }
+    .plan-option .plan-badge {
+      font-size: 10px; font-weight: 700; background: #C07A5C;
+      color: #fff; padding: 3px 8px; border-radius: 4px;
+      display: inline-block; margin-top: 4px;
+    }
+    .plan-option .plan-price { text-align: right; flex-shrink: 0; }
+    .plan-option .price-old {
+      font-size: 13px; color: #B8AFA6;
+      text-decoration: line-through;
+    }
+    .plan-option .price-new { font-size: 13px; font-weight: 600; }
+    .plan-option .price-per-day {
+      background: #EDE8E2; border-radius: 8px;
+      padding: 6px 10px; text-align: center; margin-top: 4px;
+    }
+    .plan-option.selected .price-per-day { background: #fff; }
+    .plan-option .price-per-day .big {
+      font-size: 22px; font-weight: 900; color: #C07A5C;
+    }
+    .plan-option .price-per-day .small { font-size: 10px; color: #8A8279; }
+
+    .plan-tag {
+      position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+      background: #C07A5C; color: #fff; font-size: 10px; font-weight: 700;
+      padding: 3px 14px; border-radius: 10px; letter-spacing: 0.5px;
+      text-transform: uppercase; white-space: nowrap;
+    }
+
+    .cta-btn {
+      display: block; width: 100%; padding: 18px;
+      background: #C07A5C; color: #fff; border: none;
+      border-radius: 12px; font-size: 17px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+      font-family: inherit; margin-top: 16px;
+    }
+    .cta-btn:hover { background: #a8654a; }
+    .guarantee-link {
+      text-align: center; margin-top: 12px;
+      font-size: 13px; color: #8A8279;
+    }
+    .guarantee-link a { color: #C07A5C; }
+
+    /* ===== CALENDAR ===== */
+    .calendar-section {
+      position: relative; overflow: hidden;
+      border-radius: 20px; background: #2D2A26;
+      padding: 0 0 32px; margin-bottom: 0;
+    }
+    .calendar-section .cal-title {
+      font-size: 26px; font-weight: 800; color: #FAF6F1;
+      padding: 32px 24px 4px; text-align: center;
+    }
+    .calendar-section .cal-title span { color: #C07A5C; }
+    .calendar-section .cal-subtitle {
+      font-size: 13px; color: #8A8279; text-align: center;
+      padding: 0 24px 24px; line-height: 1.5;
+    }
+    .cal-underline {
+      width: 60px; height: 3px; background: #C07A5C;
+      border-radius: 2px; margin: 0 auto 8px;
+    }
+
+    /* Unified grid — all 4 weeks */
+    .cal-grid {
+      display: grid; grid-template-columns: 36px repeat(7, minmax(0, 1fr));
+      gap: 5px; padding: 0 57px 0 16px; position: relative;
+      box-sizing: border-box;
+    }
+    .cal-grid .g-header {
+      font-size: 11px; font-weight: 700; color: #C07A5C;
+      text-align: center; padding: 8px 4px; border-radius: 10px;
+      border: 1.5px solid rgba(192,122,92,0.35);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      background: rgba(192,122,92,0.08);
+    }
+    .cal-grid .g-corner { /* top-left empty cell */ }
+    .cal-grid .g-week {
+      font-size: 10px; font-weight: 700; color: #8A8279;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 6px; text-transform: uppercase; letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    /* Individual day cell */
+    .cal-grid .g-cell {
+      background: rgba(250,246,241,0.06); border-radius: 8px;
+      padding: 10px 6px; text-align: center;
+      border: 1px solid rgba(250,246,241,0.08);
+      min-height: 56px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; cursor: default;
+      transition: all 0.2s;
+    }
+    .cal-grid .g-cell .g-val {
+      font-size: 15px; font-weight: 800; color: #FAF6F1; line-height: 1.1;
+    }
+    .cal-grid .g-cell .g-name {
+      font-size: 8px; font-weight: 600; color: #8A8279;
+      text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px;
+    }
+    .cal-grid .g-cell .g-icon {
+      font-size: 10px; margin-bottom: 3px;
+    }
+
+    /* Rest cells */
+    .cal-grid .g-cell.g-rest {
+      background: rgba(138,130,121,0.07);
+      border: 1px dashed rgba(138,130,121,0.18);
+    }
+    .cal-grid .g-cell.g-rest .g-val { font-size: 10px; color: #8A8279; font-weight: 700; }
+
+    /* Highlight cells */
+    .cal-grid .g-cell.g-hl {
+      background: rgba(192,122,92,0.12);
+      border-color: rgba(192,122,92,0.25);
+    }
+    .cal-grid .g-cell.g-hl .g-val { color: #C07A5C; }
+
+    /* ===== FIRST CELL UNLOCKED (free preview) ===== */
+    .cal-grid .g-cell.g-unlocked {
+      background: rgba(192,122,92,0.18);
+      border: 1.5px solid rgba(192,122,92,0.5);
+      cursor: default;
+    }
+    .cal-grid .g-cell.g-unlocked .g-val { color: #FAF6F1; }
+    .g-free-tag {
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      background: #66BB6A; color: #fff; font-size: 7px; font-weight: 700;
+      padding: 2px 6px; border-radius: 6px; text-transform: uppercase;
+      letter-spacing: 0.5px; white-space: nowrap;
+    }
+
+    /* ===== LOCKED / BLURRED CELLS ===== */
+    .cal-grid .g-cell.g-locked {
+      cursor: pointer;
+    }
+    .cal-grid .g-cell.g-locked .g-val,
+    .cal-grid .g-cell.g-locked .g-name,
+    .cal-grid .g-cell.g-locked .g-icon {
+      filter: blur(5px); user-select: none;
+      -webkit-user-select: none;
+    }
+    .cal-grid .g-cell.g-locked .g-lock-icon {
+      position: absolute; inset: 0; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 14px; opacity: 0; transition: opacity 0.2s;
+    }
+    .cal-grid .g-cell.g-locked:hover .g-lock-icon { opacity: 1; }
+    .cal-grid .g-cell.g-locked:hover {
+      background: rgba(250,246,241,0.1);
+      border-color: rgba(192,122,92,0.35);
+    }
+
+    /* ===== HOVER TOOLTIP ===== */
+    .g-tooltip {
+      display: none; position: absolute; z-index: 20;
+      bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+      background: #FAF6F1; color: #2D2A26; border-radius: 12px;
+      padding: 14px 16px; width: 200px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+      pointer-events: none;
+    }
+    .g-tooltip::after {
+      content: ''; position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 7px solid transparent; border-top-color: #FAF6F1;
+    }
+    .cal-grid .g-cell:hover .g-tooltip { display: block; }
+    .g-tooltip .tt-day { font-size: 10px; font-weight: 700; color: #C07A5C; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .g-tooltip .tt-exercise { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+    .g-tooltip .tt-detail { font-size: 11px; color: #8A8279; line-height: 1.5; }
+    .g-tooltip .tt-locked { font-size: 11px; color: #C07A5C; font-weight: 600; margin-top: 6px; }
+
+    /* Unlock CTA banner */
+    .cal-unlock-cta {
+      text-align: center; margin-top: 20px; padding: 0 16px;
+    }
+    .cal-unlock-cta p {
+      font-size: 13px; color: #8A8279; margin-bottom: 10px;
+    }
+    .cal-unlock-cta .unlock-btn {
+      display: inline-block; padding: 12px 32px;
+      background: #C07A5C; color: #fff; border: none;
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.2s; text-decoration: none;
+    }
+    .cal-unlock-cta .unlock-btn:hover { background: #a8654a; }
+
+    /* ===== MOBILE ADJUSTMENTS ===== */
+    @media (max-width: 620px) {
+      .cal-grid { gap: 3px; padding: 0 41px 0 10px; grid-template-columns: 28px repeat(7, minmax(0, 1fr)); }
+      .cal-grid .g-header { font-size: 8px; padding: 6px 2px; border-radius: 6px; letter-spacing: 0; }
+      .cal-grid .g-week { font-size: 7px; padding: 0 3px; letter-spacing: 0; }
+      .cal-grid .g-cell { padding: 6px 3px; min-height: 40px; border-radius: 6px; }
+      .cal-grid .g-cell .g-val { font-size: 11px; }
+      .cal-grid .g-cell .g-name { font-size: 6px; }
+      .cal-grid .g-cell .g-icon { font-size: 8px; margin-bottom: 1px; }
+      .cal-grid .g-cell.g-locked .g-val,
+      .cal-grid .g-cell.g-locked .g-name,
+      .cal-grid .g-cell.g-locked .g-icon { filter: blur(4px); }
+      .cal-grid .g-cell.g-locked .g-lock-icon { font-size: 10px; }
+      .g-tooltip { width: 160px; padding: 10px 12px; bottom: calc(100% + 8px); }
+      .g-tooltip .tt-exercise { font-size: 14px; }
+      .calendar-section .cal-title { font-size: 22px; padding-top: 24px; }
+      .calendar-section .cal-subtitle { font-size: 12px; padding-bottom: 16px; }
+      .g-free-tag { font-size: 6px; top: -6px; padding: 1px 4px; }
+    }
+
+    /* ===== WHAT YOU GET ===== */
+    .whatyouget-section h3 {
+      font-size: 22px; font-weight: 800; margin-bottom: 8px;
+    }
+    .whatyouget-section p.sub {
+      font-size: 14px; color: #8A8279; margin-bottom: 24px; line-height: 1.6;
+    }
+    .check-list { list-style: none; }
+    .check-list li {
+      display: flex; gap: 12px; align-items: flex-start;
+      margin-bottom: 16px; font-size: 15px; line-height: 1.5;
+    }
+    .check-list .check-icon {
+      color: #C07A5C; font-size: 18px; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials-section h3 {
+      font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 20px;
+    }
+    .review-card {
+      border: 1px solid #E8E0D8; border-radius: 14px;
+      padding: 20px; margin-bottom: 12px; background: #fff;
+    }
+    .review-stars { color: #F59E0B; font-size: 14px; margin-bottom: 8px; letter-spacing: 2px; }
+    .review-text { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+    .review-author { font-size: 13px; color: #8A8279; font-weight: 500; }
+
+    /* ===== GUARANTEE ===== */
+    .guarantee-section { text-align: center; padding: 40px 0; }
+    .guarantee-badge { font-size: 64px; margin-bottom: 12px; }
+    .guarantee-section h3 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+    .guarantee-section p { font-size: 14px; color: #8A8279; line-height: 1.7; max-width: 480px; margin: 0 auto; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center; padding: 24px 0 32px;
+      border-top: 1px solid #E8E0D8;
+    }
+    .footer-links { margin-bottom: 12px; }
+    .footer-links a {
+      color: #8A8279; font-size: 12px; text-decoration: none;
+      margin: 0 8px;
+    }
+    .footer-links a:hover { color: #C07A5C; }
+    .payment-icons {
+      display: flex; justify-content: center; gap: 12px;
+      align-items: center; margin-bottom: 10px;
+    }
+    .payment-icons span {
+      font-size: 12px; font-weight: 700; color: #8A8279;
+      background: #EDE8E2; padding: 4px 10px; border-radius: 4px;
+    }
+    .footer .safe { font-size: 12px; color: #B8AFA6; margin-bottom: 8px; }
+    .footer .company { font-size: 11px; color: #B8AFA6; }
+
+    /* ===== MOBILE (non-calendar) ===== */
+    @media (max-width: 620px) {
+      .weight-graph { height: 160px; }
+      .plan-option { padding: 14px 16px; }
+    }
+
+    /* ===== FLOATING iMESSAGE BUBBLE ===== */
+    .sms-fab {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      width: 60px; height: 60px; border-radius: 16px;
+      background: linear-gradient(180deg, #5EF67E 0%, #34C759 100%);
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(52,199,89,0.4);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+    }
+    .sms-fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(52,199,89,0.5);
+    }
+    .sms-fab svg { width: 34px; height: 34px; }
+
+    /* Notification dot */
+    .sms-fab-dot {
+      position: absolute; top: -3px; right: -3px;
+      width: 18px; height: 18px; background: #FF3B30;
+      border-radius: 50%; border: 2.5px solid #FAF6F1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff;
+      animation: dotPulse 2s infinite;
+    }
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    @media (max-width: 620px) {
+      .sms-fab { width: 52px; height: 52px; bottom: 18px; right: 16px; border-radius: 14px; }
+      .sms-fab svg { width: 30px; height: 30px; }
+      .sms-fab-dot { width: 16px; height: 16px; font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-logo">Slim<span>Bloom</span></div>
+  <a href="funnel.html" class="nav-cta">Take the Quiz</a>
+</div>
+
+<div class="page">
+
+  <!-- ===== WEIGHT PROGRESS ===== -->
+  <section class="weight-section">
+    <div class="weight-labels">
+      <div class="weight-label" onclick="toggleWeight('now')">Now</div>
+      <div class="weight-label active" onclick="toggleWeight('goal')">Goal</div>
+    </div>
+    <div class="weight-graph">
+      <svg viewBox="0 0 460 180">
+        <defs>
+          <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#C07A5C" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#C07A5C" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- month labels -->
+        <g class="month-labels">
+          <text x="40" y="175">Today</text>
+          <text x="140" y="175">Month 1</text>
+          <text x="260" y="175">Month 2</text>
+          <text x="380" y="175">Month 3</text>
+        </g>
+        <!-- goal line -->
+        <line class="goal-line" x1="30" y1="130" x2="430" y2="130"/>
+        <!-- curve -->
+        <path class="curve-fill" d="M40,30 Q140,35 220,70 Q300,105 420,125 L420,155 L40,155 Z"/>
+        <path class="curve" d="M40,30 Q140,35 220,70 Q300,105 420,125"/>
+        <!-- dots -->
+        <circle class="dot-start" cx="40" cy="30"/>
+        <circle class="dot-end" cx="420" cy="125"/>
+        <!-- labels -->
+        <text class="weight-val val-start" x="55" y="12">187 lbs</text>
+        <text class="weight-val val-end" x="380" y="100">155 lbs</text>
+        <text x="432" y="134" font-size="10" fill="#C07A5C" font-weight="600" opacity="0.6">goal</text>
+      </svg>
+    </div>
+    <div class="weight-stats">
+      <div class="weight-stat">
+        <div class="num">-32</div>
+        <div class="lbl">lbs to lose</div>
+      </div>
+      <div class="weight-stat">
+        <div class="num">12</div>
+        <div class="lbl">weeks</div>
+      </div>
+      <div class="weight-stat">
+        <div class="num">93%</div>
+        <div class="lbl">success rate</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PLAN READY ===== -->
+  <section class="plan-ready">
+    <h2>Your personal weight loss plan is ready!</h2>
+    <div class="plan-meta">
+      <div class="plan-meta-item">
+        <div class="meta-label">Level</div>
+        <div class="meta-value">📊 Beginner</div>
+      </div>
+      <div class="plan-meta-item">
+        <div class="meta-label">Target weight</div>
+        <div class="meta-value">🎯 155 lbs</div>
+      </div>
+      <div class="plan-meta-item">
+        <div class="meta-label">Daily time</div>
+        <div class="meta-value">⏱️ 15 min</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PRICING PLANS ===== -->
+  <section class="pricing-section" id="pricing">
+    <h3>Start your positive change</h3>
+    <div class="plan-option" onclick="selectPlan(this)">
+      <div class="radio"></div>
+      <div class="plan-info">
+        <div class="plan-name">4-WEEK PLAN</div>
+        <div class="plan-sub">Quick start to build habits</div>
+      </div>
+      <div class="plan-price">
+        <div class="price-old">$39.99</div>
+        <div class="price-new">$19.99</div>
+        <div class="price-per-day"><span class="big">$0</span><span class="small">.71/day</span></div>
+      </div>
+    </div>
+
+    <h3>Get visible results in 12 weeks</h3>
+    <div class="plan-option selected" onclick="selectPlan(this)">
+      <div class="plan-tag">MOST POPULAR</div>
+      <div class="radio"></div>
+      <div class="plan-info">
+        <div class="plan-name">12-WEEK PLAN</div>
+        <div class="plan-badge">Save 55%</div>
+        <div class="plan-sub">Best for lasting results</div>
+      </div>
+      <div class="plan-price">
+        <div class="price-old">$89.99</div>
+        <div class="price-new">$39.99</div>
+        <div class="price-per-day"><span class="big">$0</span><span class="small">.47/day</span></div>
+      </div>
+    </div>
+
+    <h3>Long-term transformation</h3>
+    <div class="plan-option" onclick="selectPlan(this)">
+      <div class="plan-tag" style="background:#2D2A26;">RECOMMENDED FOR YOU</div>
+      <div class="radio"></div>
+      <div class="plan-info">
+        <div class="plan-name">24-WEEK PLAN</div>
+        <div class="plan-badge">Save 65%</div>
+        <div class="plan-sub">Complete body transformation</div>
+      </div>
+      <div class="plan-price">
+        <div class="price-old">$149.99</div>
+        <div class="price-new">$59.99</div>
+        <div class="price-per-day"><span class="big">$0</span><span class="small">.35/day</span></div>
+      </div>
+    </div>
+
+    <div class="guarantee-link">🏆 <a href="#">Weight loss guarantee — we stick with you</a></div>
+    <button class="cta-btn" onclick="alert('Redirecting to payment...')">GET MY PLAN</button>
+  </section>
+
+  <!-- ===== CALENDAR / WEEKLY PLAN ===== -->
+  <section>
+    <div class="calendar-section">
+      <h3 class="cal-title">Your <span>Workout</span> Calendar</h3>
+      <div class="cal-underline"></div>
+      <p class="cal-subtitle">Your personalized 4-week exercise schedule. Hover over any day to preview your action plan.</p>
+
+      <div class="cal-grid">
+        <!-- Header row -->
+        <div class="g-corner"></div>
+        <div class="g-header">Mon</div>
+        <div class="g-header">Tue</div>
+        <div class="g-header">Wed</div>
+        <div class="g-header">Thu</div>
+        <div class="g-header">Fri</div>
+        <div class="g-header">Sat</div>
+        <div class="g-header">Sun</div>
+
+        <!-- WEEK 1 -->
+        <div class="g-week">Wk 1</div>
+        <!-- W1 Mon — UNLOCKED (free preview) -->
+        <div class="g-cell g-unlocked">
+          <span class="g-free-tag">Free Preview</span>
+          <div class="g-icon">🚶</div><div class="g-val">20min</div><div class="g-name">Walk</div>
+          <div class="g-tooltip">
+            <div class="tt-day">Monday &bull; Week 1</div>
+            <div class="tt-exercise">20min Walk</div>
+            <div class="tt-detail">Easy-pace morning walk. Focus on steady breathing and posture. Great for warming up your body.</div>
+          </div>
+        </div>
+        <!-- W1 Tue -->
+        <div class="g-cell g-hl g-locked">
+          <div class="g-icon">🧘</div><div class="g-val">x8</div><div class="g-name">Yoga</div>
+          <div class="g-lock-icon">🔒</div>
+          <div class="g-tooltip">
+            <div class="tt-day">Tuesday &bull; Week 1</div>
+            <div class="tt-exercise">x8 Yoga Flow</div>
+            <div class="tt-locked">🔒 Get your plan to unlock full details</div>
+          </div>
+        </div>
+        <!-- W1 Wed -->
+        <div class="g-cell g-rest g-locked">
+          <div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div>
+          <div class="g-lock-icon">🔒</div>
+          <div class="g-tooltip">
+            <div class="tt-day">Wednesday &bull; Week 1</div>
+            <div class="tt-exercise">Rest Day</div>
+            <div class="tt-locked">🔒 Get your plan to unlock full details</div>
+          </div>
+        </div>
+        <!-- W1 Thu -->
+        <div class="g-cell g-locked">
+          <div class="g-icon">🤸</div><div class="g-val">15min</div><div class="g-name">Stretch</div>
+          <div class="g-lock-icon">🔒</div>
+          <div class="g-tooltip">
+            <div class="tt-day">Thursday &bull; Week 1</div>
+            <div class="tt-exercise">15min Stretch</div>
+            <div class="tt-locked">🔒 Get your plan to unlock full details</div>
+          </div>
+        </div>
+        <!-- W1 Fri -->
+        <div class="g-cell g-hl g-locked">
+          <div class="g-icon">💪</div><div class="g-val">x10</div><div class="g-name">Squats</div>
+          <div class="g-lock-icon">🔒</div>
+          <div class="g-tooltip">
+            <div class="tt-day">Friday &bull; Week 1</div>
+            <div class="tt-exercise">x10 Squats</div>
+            <div class="tt-locked">🔒 Get your plan to unlock full details</div>
+          </div>
+        </div>
+        <!-- W1 Sat -->
+        <div class="g-cell g-rest g-locked">
+          <div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div>
+          <div class="g-lock-icon">🔒</div>
+          <div class="g-tooltip">
+            <div class="tt-day">Saturday &bull; Week 1</div>
+            <div class="tt-exercise">Rest Day</div>
+            <div class="tt-locked">🔒 Get your plan to unlock full details</div>
+          </div>
+        </div>
+        <!-- W1 Sun -->
+        <div class="g-cell g-locked">
+          <div class="g-icon">🚶</div><div class="g-val">25min</div><div class="g-name">Walk</div>
+          <div class="g-lock-icon">🔒</div>
+          <div class="g-tooltip">
+            <div class="tt-day">Sunday &bull; Week 1</div>
+            <div class="tt-exercise">25min Walk</div>
+            <div class="tt-locked">🔒 Get your plan to unlock full details</div>
+          </div>
+        </div>
+
+        <!-- WEEK 2 -->
+        <div class="g-week">Wk 2</div>
+        <div class="g-cell g-hl g-locked"><div class="g-icon">💪</div><div class="g-val">x12</div><div class="g-name">Squats</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Monday &bull; Week 2</div><div class="tt-exercise">x12 Squats</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">🚶</div><div class="g-val">20min</div><div class="g-name">Walk</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Tuesday &bull; Week 2</div><div class="tt-exercise">20min Walk</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">🧘</div><div class="g-val">x10</div><div class="g-name">Yoga</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Wednesday &bull; Week 2</div><div class="tt-exercise">x10 Yoga Flow</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-rest g-locked"><div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Thursday &bull; Week 2</div><div class="tt-exercise">Rest Day</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">🚶</div><div class="g-val">30min</div><div class="g-name">Walk</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Friday &bull; Week 2</div><div class="tt-exercise">30min Walk</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-hl g-locked"><div class="g-icon">💪</div><div class="g-val">45s</div><div class="g-name">Plank</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Saturday &bull; Week 2</div><div class="tt-exercise">45s Plank</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-rest g-locked"><div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Sunday &bull; Week 2</div><div class="tt-exercise">Rest Day</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+
+        <!-- WEEK 3 -->
+        <div class="g-week">Wk 3</div>
+        <div class="g-cell g-rest g-locked"><div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Monday &bull; Week 3</div><div class="tt-exercise">Rest Day</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">💪</div><div class="g-val">x15</div><div class="g-name">Squats</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Tuesday &bull; Week 3</div><div class="tt-exercise">x15 Squats</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-hl g-locked"><div class="g-icon">🏊</div><div class="g-val">25min</div><div class="g-name">Swim</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Wednesday &bull; Week 3</div><div class="tt-exercise">25min Swim</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">🧘</div><div class="g-val">x12</div><div class="g-name">Yoga</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Thursday &bull; Week 3</div><div class="tt-exercise">x12 Yoga Flow</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-rest g-locked"><div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Friday &bull; Week 3</div><div class="tt-exercise">Rest Day</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-hl g-locked"><div class="g-icon">💪</div><div class="g-val">60s</div><div class="g-name">Plank</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Saturday &bull; Week 3</div><div class="tt-exercise">60s Plank</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">💪</div><div class="g-val">x15</div><div class="g-name">Lunges</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Sunday &bull; Week 3</div><div class="tt-exercise">x15 Lunges</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+
+        <!-- WEEK 4 -->
+        <div class="g-week">Wk 4</div>
+        <div class="g-cell g-locked"><div class="g-icon">🚶</div><div class="g-val">30min</div><div class="g-name">Walk</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Monday &bull; Week 4</div><div class="tt-exercise">30min Walk</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-hl g-locked"><div class="g-icon">💪</div><div class="g-val">x18</div><div class="g-name">Squats</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Tuesday &bull; Week 4</div><div class="tt-exercise">x18 Squats</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">🧘</div><div class="g-val">x12</div><div class="g-name">Yoga</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Wednesday &bull; Week 4</div><div class="tt-exercise">x12 Yoga Flow</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-rest g-locked"><div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Thursday &bull; Week 4</div><div class="tt-exercise">Rest Day</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-hl g-locked"><div class="g-icon">💪</div><div class="g-val">90s</div><div class="g-name">Plank</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Friday &bull; Week 4</div><div class="tt-exercise">90s Plank</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-locked"><div class="g-icon">🚶</div><div class="g-val">35min</div><div class="g-name">Walk</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Saturday &bull; Week 4</div><div class="tt-exercise">35min Walk</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+        <div class="g-cell g-rest g-locked"><div class="g-icon">😴</div><div class="g-val">REST</div><div class="g-name">Recovery</div><div class="g-lock-icon">🔒</div><div class="g-tooltip"><div class="tt-day">Sunday &bull; Week 4</div><div class="tt-exercise">Rest Day</div><div class="tt-locked">🔒 Get your plan to unlock full details</div></div></div>
+      </div>
+
+      <!-- Unlock CTA -->
+      <div class="cal-unlock-cta">
+        <p>🔒 27 workouts are locked. Get your plan to unlock your full personalized schedule.</p>
+        <a href="#pricing" class="unlock-btn">Unlock My Full Plan</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WHAT YOU GET ===== -->
+  <section class="whatyouget-section">
+    <h3>What you get</h3>
+    <p class="sub">Our smart algorithm created a personalized weight loss plan based on your goals, age, and health profile.</p>
+    <ul class="check-list">
+      <li><span class="check-icon">✓</span> Personalized meal plans with 100+ recipes designed for women 45+</li>
+      <li><span class="check-icon">✓</span> Gentle, joint-friendly exercise routines — just 15 minutes a day</li>
+      <li><span class="check-icon">✓</span> Weekly progress tracking and plan adjustments</li>
+      <li><span class="check-icon">✓</span> Nutrition guides for menopause-related weight management</li>
+      <li><span class="check-icon">✓</span> Community support from women on the same journey</li>
+    </ul>
+  </section>
+
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="testimonials-section">
+    <h3>Hear success stories from our members</h3>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">I've tried every diet and nothing stuck. This plan actually fits my life — I'm down 14 lbs in 6 weeks and I never feel deprived.</div>
+      <div class="review-author">Margaret S., age 58</div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">After menopause I thought losing weight was impossible. The gentle exercises are perfect for my joints and I'm seeing real results.</div>
+      <div class="review-author">Linda K., age 63</div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">The meal plans are delicious and so easy to follow. My energy is through the roof and my doctor is thrilled with my progress!</div>
+      <div class="review-author">Susan W., age 52</div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">I love that it's made for women my age. No crazy workouts, just smart, sustainable changes. 10 lbs down in 4 weeks!</div>
+      <div class="review-author">Patricia M., age 67</div>
+    </div>
+  </section>
+
+  <!-- ===== GUARANTEE ===== -->
+  <section class="guarantee-section">
+    <div class="guarantee-badge">🏆</div>
+    <h3>Weight Loss Guarantee</h3>
+    <p>We're committed to your results. If you follow the plan and don't see visible progress, we'll stick with you — extending your plan at no extra charge until you do. Your transformation is our promise.</p>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<div class="page">
+  <div class="footer">
+    <div class="footer-links">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-use.html">Terms of Use</a>
+      <a href="refund-policy.html">Refund Policy</a>
+    </div>
+    <div class="payment-icons">
+      <span>VISA</span>
+      <span>Mastercard</span>
+      <span>Stripe</span>
+      <span>Apple Pay</span>
+    </div>
+    <div class="safe">Guaranteed Safe Checkout ✅</div>
+    <div class="company">SlimBloom Inc.</div>
+  </div>
+</div>
+
+<!-- ===== FLOATING iMESSAGE BUBBLE ===== -->
+<a class="sms-fab" href="sms:&body=I%20have%20a%20question%20about%20weight%20loss" aria-label="Text us">
+  <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 8C16.2 8 5 17.4 5 29c0 4.8 1.9 9.2 5.1 12.8L7 49.5c-.3.7.1 1.5.8 1.8.3.1.5.1.8 0l10-4.2C22 48.7 25.9 50 30 50c13.8 0 25-9.4 25-21S43.8 8 30 8z" fill="#fff"/>
+  </svg>
+  <div class="sms-fab-dot">1</div>
+</a>
+
+<script>
+function selectPlan(el) {
+  const section = el.closest('.pricing-section');
+  section.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleWeight(mode) {
+  var labels = document.querySelectorAll('.weight-label');
+  var valStart = document.querySelector('.val-start');
+  var valEnd = document.querySelector('.val-end');
+  var dotStart = document.querySelector('.dot-start');
+  var dotEnd = document.querySelector('.dot-end');
+
+  labels.forEach(function(l) { l.classList.remove('active'); });
+
+  if (mode === 'now') {
+    labels[0].classList.add('active');
+    valStart.classList.add('highlighted');
+    valStart.classList.remove('dimmed');
+    valEnd.classList.add('dimmed');
+    valEnd.classList.remove('highlighted');
+    dotStart.classList.add('highlighted');
+    dotStart.classList.remove('dimmed');
+    dotEnd.classList.add('dimmed');
+    dotEnd.classList.remove('highlighted');
+  } else {
+    labels[1].classList.add('active');
+    valEnd.classList.add('highlighted');
+    valEnd.classList.remove('dimmed');
+    valStart.classList.add('dimmed');
+    valStart.classList.remove('highlighted');
+    dotEnd.classList.add('highlighted');
+    dotEnd.classList.remove('dimmed');
+    dotStart.classList.add('dimmed');
+    dotStart.classList.remove('highlighted');
+  }
+}
+</script>
+</body>
+</html>

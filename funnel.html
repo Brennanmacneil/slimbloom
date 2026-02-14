@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personalized Weight Loss Plan</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #FAF6F1;
+    color: #2D2A26;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .funnel-container {
+    width: 100%;
+    max-width: 500px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+    position: relative;
+  }
+  .header .back-btn {
+    background: none;
+    border: none;
+    color: #2D2A26;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.8;
+  }
+  .header .back-btn:hover { opacity: 1; }
+  .header .brand {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .header .step-count {
+    font-size: 13px;
+    color: #9B9590;
+  }
+  .skip-btn {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    background: rgba(45, 42, 38, 0.08);
+    color: #8A8279;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    z-index: 99;
+    transition: all 0.2s;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .skip-btn:hover {
+    background: rgba(45, 42, 38, 0.15);
+    color: #2D2A26;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: #E8E0D8;
+    margin-bottom: 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #C07A5C;
+    transition: width 0.4s ease;
+  }
+
+  /* Category Label */
+  .category-label {
+    text-align: center;
+    padding: 12px 0 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9B9590;
+  }
+
+  /* Step Content */
+  .step {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 30px;
+    flex: 1;
+    animation: fadeIn 0.3s ease;
+  }
+  .step.active { display: flex; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step h2 {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin: 20px 0 8px;
+    line-height: 1.3;
+  }
+  .step .subtitle {
+    font-size: 14px;
+    color: #8A8279;
+    text-align: center;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* Option Cards (single select - click to advance) */
+  .option-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 500;
+    min-height: 58px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .option-card:hover { background: #F5EEE6; border-color: #C9BFB3; }
+  .option-card.selected { background: #FDF0E8; border-color: #C07A5C; }
+  .option-card .icon { font-size: 22px; margin-left: 12px; }
+
+  /* Radio Option Cards (select + continue) */
+  .radio-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 16px;
+    font-weight: 500;
+    min-height: 58px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .radio-card:hover { background: #F5EEE6; border-color: #C9BFB3; }
+  .radio-card.selected { background: #FDF0E8; border-color: #C07A5C; }
+  .radio-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #C9BFB3;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .radio-card.selected .radio-circle {
+    border-color: #C07A5C;
+    background: #C07A5C;
+  }
+  .radio-card.selected .radio-circle::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  /* Chip/Tag Multi-Select */
+  .chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    width: 100%;
+  }
+  .chip {
+    padding: 10px 18px;
+    border-radius: 25px;
+    background: #FFFFFF;
+    border: 1px solid #D4CAC0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .chip:hover { background: #F5EEE6; border-color: #B8AFA5; }
+  .chip.selected { background: #FDF0E8; border-color: #C07A5C; color: #8B5A3C; }
+
+  /* Multi-Select Body Zone */
+  .zone-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .zone-figure {
+    font-size: 120px;
+    line-height: 1;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .zone-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+  .zone-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #FFFFFF;
+    border: 1px solid #D4CAC0;
+    color: #2D2A26;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .zone-btn:hover { background: #F5EEE6; border-color: #B8AFA5; }
+  .zone-btn.selected { background: #FDF0E8; border-color: #C07A5C; }
+
+  /* Continue Button */
+  .continue-btn {
+    width: 100%;
+    padding: 18px;
+    background: #C07A5C;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: auto;
+  }
+  .continue-btn:hover { background: #A8674E; }
+  .continue-btn:disabled { background: #E0D6CC; color: #A09891; cursor: not-allowed; }
+
+  /* Social Proof */
+  .social-proof {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .social-proof .big-number {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .social-proof .big-sub {
+    font-size: 16px;
+    color: #8A8279;
+    margin-bottom: 24px;
+  }
+  .social-proof .proof-img {
+    width: 280px;
+    height: 280px;
+    background: linear-gradient(135deg, #F5EEE6 0%, #FDE8DC 100%);
+    border-radius: 16px;
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+  }
+
+  /* Results/Summary Card */
+  .results-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .results-card .score-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .results-card .score-number {
+    font-size: 40px;
+    font-weight: 800;
+  }
+  .results-card .score-badge {
+    background: #FDF0E8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #8B5A3C;
+  }
+  .results-card .score-desc {
+    font-size: 14px;
+    color: #8A8279;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .score-bar-group { margin-bottom: 14px; }
+  .score-bar-group .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .score-bar-group .bar-label .bar-score { color: #ef4444; }
+  .score-bar {
+    height: 8px;
+    background: #E8E0D8;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  /* Numeric Input */
+  .numeric-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  .unit-toggle {
+    display: flex;
+    background: #FFFFFF;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .unit-toggle button {
+    padding: 8px 24px;
+    background: transparent;
+    border: none;
+    color: #8A8279;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .unit-toggle button.active {
+    background: #C07A5C;
+    color: #fff;
+    border-radius: 25px;
+  }
+  .numeric-display {
+    font-size: 64px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .numeric-unit {
+    font-size: 16px;
+    color: #9B9590;
+    margin-bottom: 16px;
+  }
+  .numeric-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: #E8E0D8;
+    border-radius: 2px;
+    outline: none;
+    margin-bottom: 20px;
+  }
+  .numeric-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #C07A5C;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(192,122,92,0.3);
+  }
+  .info-box {
+    width: 100%;
+    background: #F5EEE6;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .info-box .info-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .info-box .info-desc {
+    font-size: 13px;
+    color: #8A8279;
+    line-height: 1.5;
+  }
+
+  /* Landing (Step 1) */
+  .landing-title {
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    margin: 40px 0 8px;
+    line-height: 1.3;
+  }
+  .landing-subtitle {
+    font-size: 15px;
+    color: #8A8279;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .age-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .age-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #E0D6CC;
+  }
+  .age-card:hover { border-color: #C07A5C; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .age-card-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    background: linear-gradient(135deg, #F5EEE6, #FDF0E8);
+  }
+  .age-card-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #C07A5C;
+    color: #fff;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+  }
+  .age-card-btn span { margin-left: 6px; }
+  .terms-text {
+    font-size: 11px;
+    color: #9B9590;
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+  .terms-text a { color: #7A756F; text-decoration: underline; }
+
+  /* Testimonial */
+  .testimonial-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .testimonial-stars { color: #facc15; font-size: 18px; margin-bottom: 10px; }
+  .testimonial-text {
+    font-size: 14px;
+    color: #5A554F;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .testimonial-author {
+    font-size: 13px;
+    font-weight: 600;
+    color: #7A756F;
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 400px) {
+    .step h2 { font-size: 21px; }
+    .landing-title { font-size: 24px; }
+    .option-card { padding: 15px 16px; font-size: 15px; min-height: 52px; }
+    .radio-card { padding: 15px 16px; font-size: 15px; min-height: 52px; }
+    .continue-btn { padding: 16px; font-size: 15px; }
+    .numeric-display { font-size: 52px; }
+    .age-grid { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="checkout.html" class="skip-btn" id="skip-btn">Skip to plan &rarr;</a>
+
+<div class="funnel-container" id="funnel">
+
+  <!-- ========== STEP 1: Landing / Age Selection ========== -->
+  <div class="step active" data-step="1">
+    <div style="padding: 16px 20px;">
+      <div style="text-align:center;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;">Fit & Fabulous</div>
+    </div>
+    <div style="padding: 0 20px; width:100%;">
+      <h2 class="landing-title">Personalized weight loss plan for your age</h2>
+      <p class="landing-subtitle">Select your age group</p>
+      <div class="age-grid">
+        <div class="age-card" onclick="selectAndAdvance(1, '45-54')">
+          <div class="age-card-img">&#128105;&#8205;&#129309;</div>
+          <button class="age-card-btn">45-54 <span>&#10095;</span></button>
+        </div>
+        <div class="age-card" onclick="selectAndAdvance(1, '55-64')">
+          <div class="age-card-img">&#128105;&#8205;&#129457;</div>
+          <button class="age-card-btn">55-64 <span>&#10095;</span></button>
+        </div>
+        <div class="age-card" onclick="selectAndAdvance(1, '65-74')">
+          <div class="age-card-img">&#129489;&#8205;&#129309;</div>
+          <button class="age-card-btn">65-74 <span>&#10095;</span></button>
+        </div>
+        <div class="age-card" onclick="selectAndAdvance(1, '75+')">
+          <div class="age-card-img">&#128116;</div>
+          <button class="age-card-btn">75+ <span>&#10095;</span></button>
+        </div>
+      </div>
+      <p class="terms-text">By continuing, you confirm that you have read, understood, and agreed to our <a href="#">Terms of Use</a>, <a href="#">Privacy Policy</a>, and <a href="#">Refund Policy</a>.</p>
+    </div>
+  </div>
+
+  <!-- ========== STEP 2: Social Proof ========== -->
+  <div class="step" data-step="2">
+    <div class="social-proof" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div class="big-number">2 Million+</div>
+      <div class="big-sub">women over 45 trust our plans</div>
+      <div class="proof-img">&#128170;&#128105;</div>
+      <button class="continue-btn" onclick="goToStep(3)">CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 3: Primary Goal ========== -->
+  <div class="step" data-step="3" data-category="GOALS">
+    <h2>What is your primary goal?</h2>
+    <p class="subtitle">This helps us personalize your plan</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(3, 'lose_weight')">
+        <span>Lose weight &amp; burn fat</span>
+        <span class="icon">&#127947;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(3, 'tone_up')">
+        <span>Tone up &amp; feel firmer</span>
+        <span class="icon">&#128170;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(3, 'improve_health')">
+        <span>Improve overall health</span>
+        <span class="icon">&#129505;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(3, 'boost_energy')">
+        <span>Boost energy &amp; vitality</span>
+        <span class="icon">&#9889;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 4: Body Type ========== -->
+  <div class="step" data-step="4" data-category="GOALS">
+    <h2>Choose your current body type</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(4, 'slim')">
+        <span>Slim but want to tone</span>
+        <span class="icon">&#129485;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(4, 'average')">
+        <span>Average with some extra weight</span>
+        <span class="icon">&#128105;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(4, 'overweight')">
+        <span>Overweight</span>
+        <span class="icon">&#128105;&#8205;&#129309;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(4, 'very_overweight')">
+        <span>Significantly overweight</span>
+        <span class="icon">&#129489;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 5: Target Body ========== -->
+  <div class="step" data-step="5" data-category="GOALS">
+    <h2>What would you like to achieve?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(5, 'slim_toned')">
+        <span>Slim &amp; toned</span>
+        <span class="icon">&#10024;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(5, 'healthy_weight')">
+        <span>Healthy weight for my age</span>
+        <span class="icon">&#9989;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(5, 'more_energy')">
+        <span>More energy &amp; mobility</span>
+        <span class="icon">&#127939;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(5, 'feel_confident')">
+        <span>Feel confident in my clothes</span>
+        <span class="icon">&#128087;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 6: Motivation (Radio + Continue) ========== -->
+  <div class="step" data-step="6" data-category="MOTIVATION">
+    <h2>What motivates you to lose weight?</h2>
+    <p class="subtitle">Select the most important reason</p>
+    <div class="options-list" style="width:100%">
+      <div class="radio-card" onclick="selectRadio(this, 6)">
+        <div class="radio-circle"></div>
+        <span>Feel great and more confident</span>
+      </div>
+      <div class="radio-card" onclick="selectRadio(this, 6)">
+        <div class="radio-circle"></div>
+        <span>Improve my health &amp; reduce pain</span>
+      </div>
+      <div class="radio-card" onclick="selectRadio(this, 6)">
+        <div class="radio-circle"></div>
+        <span>Have more energy for my family</span>
+      </div>
+      <div class="radio-card" onclick="selectRadio(this, 6)">
+        <div class="radio-circle"></div>
+        <span>Keep up with grandchildren</span>
+      </div>
+      <div class="radio-card" onclick="selectRadio(this, 6)">
+        <div class="radio-circle"></div>
+        <span>Doctor recommended weight loss</span>
+      </div>
+    </div>
+    <button class="continue-btn" id="continue-6" disabled onclick="goToStep(7)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 7: Target Zones (Multi-Select) ========== -->
+  <div class="step" data-step="7" data-category="GOALS">
+    <h2>Choose your target areas</h2>
+    <p class="subtitle">Select all that apply</p>
+    <div class="zone-container">
+      <div class="zone-figure">&#128105;</div>
+      <div class="zone-buttons">
+        <div class="zone-btn" onclick="toggleZone(this)">Arms</div>
+        <div class="zone-btn" onclick="toggleZone(this)">Belly</div>
+        <div class="zone-btn" onclick="toggleZone(this)">Back</div>
+        <div class="zone-btn" onclick="toggleZone(this)">Hips &amp; thighs</div>
+        <div class="zone-btn" onclick="toggleZone(this)">Legs</div>
+        <div class="zone-btn" onclick="toggleZone(this)">Whole body</div>
+      </div>
+    </div>
+    <button class="continue-btn" id="continue-7" disabled onclick="goToStep(8)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 8: Last Perfect Weight ========== -->
+  <div class="step" data-step="8" data-category="GOALS">
+    <h2>When were you last at your ideal weight?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(8, 'recent')">Less than 1 year ago</div>
+      <div class="option-card" onclick="selectAndAdvance(8, '1_3')">1 - 3 years ago</div>
+      <div class="option-card" onclick="selectAndAdvance(8, '3_5')">3 - 5 years ago</div>
+      <div class="option-card" onclick="selectAndAdvance(8, '5_10')">5 - 10 years ago</div>
+      <div class="option-card" onclick="selectAndAdvance(8, 'more_10')">More than 10 years ago</div>
+      <div class="option-card" onclick="selectAndAdvance(8, 'never')">I can't remember</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 9: Interests (Chip Multi-Select) ========== -->
+  <div class="step" data-step="9" data-category="GOALS">
+    <h2>What are you interested in?</h2>
+    <p class="subtitle">Select all that apply</p>
+    <div class="chips-container">
+      <div class="chip" onclick="toggleChip(this)">Weight loss</div>
+      <div class="chip" onclick="toggleChip(this)">Reduced bloating</div>
+      <div class="chip" onclick="toggleChip(this)">Less joint pain</div>
+      <div class="chip" onclick="toggleChip(this)">Better sleep</div>
+      <div class="chip" onclick="toggleChip(this)">Heart health</div>
+      <div class="chip" onclick="toggleChip(this)">Bone strength</div>
+      <div class="chip" onclick="toggleChip(this)">Flexibility</div>
+      <div class="chip" onclick="toggleChip(this)">Balance</div>
+      <div class="chip" onclick="toggleChip(this)">Stress relief</div>
+      <div class="chip" onclick="toggleChip(this)">Menopause support</div>
+      <div class="chip" onclick="toggleChip(this)">Energy boost</div>
+      <div class="chip" onclick="toggleChip(this)">Healthy eating</div>
+      <div class="chip" onclick="toggleChip(this)">Mobility</div>
+      <div class="chip" onclick="toggleChip(this)">Mental clarity</div>
+    </div>
+    <button class="continue-btn" id="continue-9" disabled onclick="goToStep(10)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 10: Exercise Frequency ========== -->
+  <div class="step" data-step="10" data-category="FITNESS LEVEL">
+    <h2>How regularly do you exercise?</h2>
+    <p class="subtitle">This helps us set your starting level</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(10, 'never')">I rarely or never exercise</div>
+      <div class="option-card" onclick="selectAndAdvance(10, 'sometimes')">Occasionally (walks, light activity)</div>
+      <div class="option-card" onclick="selectAndAdvance(10, 'regular')">Regularly - 2+ times per week</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 11: Sedentary Lifestyle ========== -->
+  <div class="step" data-step="11" data-category="LIFESTYLE">
+    <h2>Do you have a mostly sedentary lifestyle?</h2>
+    <p class="subtitle">Sitting most of the day at home or work</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(11, 'yes')">Yes, I sit most of the day</div>
+      <div class="option-card" onclick="selectAndAdvance(11, 'no')">No, I'm fairly active</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 12: Walking ========== -->
+  <div class="step" data-step="12" data-category="FITNESS LEVEL">
+    <h2>How much do you walk daily?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(12, 'less_30')">Less than 30 minutes</div>
+      <div class="option-card" onclick="selectAndAdvance(12, '30_60')">30 minutes to 1 hour</div>
+      <div class="option-card" onclick="selectAndAdvance(12, 'more_60')">More than 1 hour</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 13: Stairs Feeling ========== -->
+  <div class="step" data-step="13" data-category="FITNESS LEVEL">
+    <h2>How do you feel after climbing stairs?</h2>
+    <p class="subtitle">This helps us gauge your cardiovascular fitness</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(13, 'breath')">
+        <span>Out of breath</span>
+        <span class="icon">&#128548;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(13, 'tired')">
+        <span>A little tired, but okay</span>
+        <span class="icon">&#128528;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(13, 'fine')">
+        <span>Totally fine</span>
+        <span class="icon">&#128522;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 14: Between Meals ========== -->
+  <div class="step" data-step="14" data-category="LIFESTYLE">
+    <h2>How do you feel between meals?</h2>
+    <p class="subtitle">Understanding your energy patterns helps personalize your plan</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(14, 'hungry')">I get hungry &amp; snack often</div>
+      <div class="option-card" onclick="selectAndAdvance(14, 'tired')">I feel tired &amp; low energy</div>
+      <div class="option-card" onclick="selectAndAdvance(14, 'fine')">I feel fine until the next meal</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 15: Sleep ========== -->
+  <div class="step" data-step="15" data-category="LIFESTYLE">
+    <h2>How much sleep do you get?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(15, 'less5')">Fewer than 5 hours</div>
+      <div class="option-card" onclick="selectAndAdvance(15, '5_6')">Between 5 and 6 hours</div>
+      <div class="option-card" onclick="selectAndAdvance(15, '7_8')">Between 7 and 8 hours</div>
+      <div class="option-card" onclick="selectAndAdvance(15, 'more8')">Over 8 hours</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 16: Water Consumption ========== -->
+  <div class="step" data-step="16" data-category="LIFESTYLE">
+    <h2>What's your water consumption like?</h2>
+    <p class="subtitle">Staying hydrated is essential for weight loss</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(16, 'tea')">Mostly tea and coffee</div>
+      <div class="option-card" onclick="selectAndAdvance(16, 'less2')">Less than 2 glasses of water</div>
+      <div class="option-card" onclick="selectAndAdvance(16, '2_6')">2 to 6 glasses of water</div>
+      <div class="option-card" onclick="selectAndAdvance(16, '7plus')">7 or more glasses of water</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 17: Health Conditions ========== -->
+  <div class="step" data-step="17" data-category="HEALTH">
+    <h2>Do you experience any of these?</h2>
+    <p class="subtitle">Select all that apply so we can adapt your plan</p>
+    <div class="chips-container">
+      <div class="chip" onclick="toggleChip(this)">Joint pain</div>
+      <div class="chip" onclick="toggleChip(this)">Back pain</div>
+      <div class="chip" onclick="toggleChip(this)">Knee problems</div>
+      <div class="chip" onclick="toggleChip(this)">Hot flashes</div>
+      <div class="chip" onclick="toggleChip(this)">Trouble sleeping</div>
+      <div class="chip" onclick="toggleChip(this)">Low energy</div>
+      <div class="chip" onclick="toggleChip(this)">High blood pressure</div>
+      <div class="chip" onclick="toggleChip(this)">Diabetes/pre-diabetes</div>
+      <div class="chip" onclick="toggleChip(this)">None of these</div>
+    </div>
+    <button class="continue-btn" id="continue-17" disabled onclick="goToStep(18)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 18: Diet Preference ========== -->
+  <div class="step" data-step="18" data-category="NUTRITION">
+    <h2>Do you follow a specific diet?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(18, 'none')">No specific diet</div>
+      <div class="option-card" onclick="selectAndAdvance(18, 'low_carb')">Low carb / Keto</div>
+      <div class="option-card" onclick="selectAndAdvance(18, 'vegetarian')">Vegetarian</div>
+      <div class="option-card" onclick="selectAndAdvance(18, 'mediterranean')">Mediterranean</div>
+      <div class="option-card" onclick="selectAndAdvance(18, 'other')">Other</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 19: Eating Habits ========== -->
+  <div class="step" data-step="19" data-category="NUTRITION">
+    <h2>What's your biggest eating challenge?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(19, 'portions')">Portion control</div>
+      <div class="option-card" onclick="selectAndAdvance(19, 'sweets')">Sweet cravings</div>
+      <div class="option-card" onclick="selectAndAdvance(19, 'night')">Late night snacking</div>
+      <div class="option-card" onclick="selectAndAdvance(19, 'emotional')">Emotional eating</div>
+      <div class="option-card" onclick="selectAndAdvance(19, 'cooking')">Not knowing what to cook</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 20: Meals Per Day ========== -->
+  <div class="step" data-step="20" data-category="NUTRITION">
+    <h2>How many meals do you eat per day?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(20, '1_2')">1-2 meals</div>
+      <div class="option-card" onclick="selectAndAdvance(20, '3')">3 meals</div>
+      <div class="option-card" onclick="selectAndAdvance(20, '3_plus')">3 meals + snacks</div>
+      <div class="option-card" onclick="selectAndAdvance(20, 'irregular')">Irregular / no routine</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 21: Fitness Score Results ========== -->
+  <div class="step" data-step="21" data-category="FITNESS LEVEL">
+    <h2>Your wellness profile is <span style="color:#C07A5C;">ready</span></h2>
+    <div class="results-card">
+      <div class="score-header">
+        <div class="score-number">35</div>
+        <div class="score-badge">&#128075; Great start!</div>
+      </div>
+      <div class="score-desc">Your personalized plan will include gentle exercises and nutrition guidance tailored for women over 45.</div>
+      <hr style="border-color:#E0D6CC;margin-bottom:16px;">
+      <div class="score-bar-group">
+        <div class="bar-label"><span>Metabolism</span><span class="bar-score">12/30</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:40%;background:#ef4444;"></div></div>
+      </div>
+      <div class="score-bar-group">
+        <div class="bar-label"><span>Activity Level</span><span class="bar-score" style="color:#22c55e;">10/30</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:33%;background:#22c55e;"></div></div>
+      </div>
+      <div class="score-bar-group">
+        <div class="bar-label"><span>Nutrition</span><span class="bar-score" style="color:#3b82f6;">13/30</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:43%;background:#3b82f6;"></div></div>
+      </div>
+    </div>
+    <button class="continue-btn" onclick="goToStep(22)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 22: Height ========== -->
+  <div class="step" data-step="22" data-category="PERSONAL DETAILS">
+    <h2>How tall are you?</h2>
+    <div class="numeric-input-group">
+      <div class="unit-toggle">
+        <button class="active" onclick="switchUnit(this,'ft')">ft</button>
+        <button onclick="switchUnit(this,'cm')">cm</button>
+      </div>
+      <div class="numeric-display" id="height-display">5'4"</div>
+      <input type="range" class="numeric-slider" id="height-slider" min="48" max="78" value="64" oninput="updateHeight(this.value)">
+      <div class="info-box">
+        <div class="info-title">&#9757; Why we ask</div>
+        <div class="info-desc">Your height helps us calculate your BMI and set realistic weight loss targets.</div>
+      </div>
+    </div>
+    <button class="continue-btn" onclick="goToStep(23)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 23: Current Weight ========== -->
+  <div class="step" data-step="23" data-category="PERSONAL DETAILS">
+    <h2>What's your current weight?</h2>
+    <div class="numeric-input-group">
+      <div class="unit-toggle">
+        <button class="active" onclick="switchWeightUnit(this,'lbs')">lbs</button>
+        <button onclick="switchWeightUnit(this,'kg')">kg</button>
+      </div>
+      <div class="numeric-display" id="weight-display">165</div>
+      <div class="numeric-unit" id="weight-unit">lbs</div>
+      <input type="range" class="numeric-slider" id="weight-slider" min="90" max="350" value="165" oninput="updateWeight(this.value)">
+    </div>
+    <button class="continue-btn" onclick="goToStep(24)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 24: Target Weight ========== -->
+  <div class="step" data-step="24" data-category="PERSONAL DETAILS">
+    <h2>What's your target weight?</h2>
+    <div class="numeric-input-group">
+      <div class="unit-toggle">
+        <button class="active" onclick="switchTargetUnit(this,'lbs')">lbs</button>
+        <button onclick="switchTargetUnit(this,'kg')">kg</button>
+      </div>
+      <div class="numeric-display" id="target-display">140</div>
+      <div class="numeric-unit" id="target-unit">lbs</div>
+      <input type="range" class="numeric-slider" id="target-slider" min="80" max="300" value="140" oninput="updateTarget(this.value)">
+      <div class="info-box">
+        <div class="info-title">&#128161; Tip</div>
+        <div class="info-desc">A safe and sustainable weight loss goal is 1-2 lbs per week. We'll help you get there at a pace that's right for your body.</div>
+      </div>
+    </div>
+    <button class="continue-btn" onclick="goToStep(25)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 25: Age Input ========== -->
+  <div class="step" data-step="25" data-category="PERSONAL DETAILS">
+    <h2>What is your exact age?</h2>
+    <p class="subtitle">This helps us factor in metabolic changes</p>
+    <div class="numeric-input-group">
+      <div class="numeric-display" id="age-display">58</div>
+      <div class="numeric-unit">years old</div>
+      <input type="range" class="numeric-slider" id="age-slider" min="40" max="90" value="58" oninput="document.getElementById('age-display').textContent=this.value">
+    </div>
+    <button class="continue-btn" onclick="goToStep(26)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 26: Workout Preference ========== -->
+  <div class="step" data-step="26" data-category="PREFERENCES">
+    <h2>What type of exercise do you prefer?</h2>
+    <p class="subtitle">We'll customize your plan accordingly</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(26, 'walking')">
+        <span>Walking &amp; light cardio</span>
+        <span class="icon">&#128694;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(26, 'home')">
+        <span>Home workouts (no equipment)</span>
+        <span class="icon">&#127968;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(26, 'yoga')">
+        <span>Yoga &amp; stretching</span>
+        <span class="icon">&#129495;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(26, 'swimming')">
+        <span>Swimming or water exercises</span>
+        <span class="icon">&#127946;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(26, 'mix')">
+        <span>A mix of everything</span>
+        <span class="icon">&#127775;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 27: Workout Duration ========== -->
+  <div class="step" data-step="27" data-category="PREFERENCES">
+    <h2>How long would you like to exercise?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(27, '10_15')">10-15 minutes</div>
+      <div class="option-card" onclick="selectAndAdvance(27, '15_30')">15-30 minutes</div>
+      <div class="option-card" onclick="selectAndAdvance(27, '30_45')">30-45 minutes</div>
+      <div class="option-card" onclick="selectAndAdvance(27, '45_plus')">45+ minutes</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 28: Workout Frequency ========== -->
+  <div class="step" data-step="28" data-category="PREFERENCES">
+    <h2>How often can you exercise per week?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(28, '2_3')">2-3 times</div>
+      <div class="option-card" onclick="selectAndAdvance(28, '4_5')">4-5 times</div>
+      <div class="option-card" onclick="selectAndAdvance(28, 'daily')">Every day</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 29: Testimonial ========== -->
+  <div class="step" data-step="29" data-category="SUCCESS STORIES">
+    <h2>Women like you are seeing results</h2>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+      <div class="testimonial-text">"I started at 62 and lost 23 pounds in 4 months. The exercises are gentle on my knees and the meal plans are simple to follow. I feel 10 years younger!"</div>
+      <div class="testimonial-author">- Margaret, 62</div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+      <div class="testimonial-text">"After menopause I thought losing weight was impossible. This plan proved me wrong. Down 18 lbs and my doctor is thrilled!"</div>
+      <div class="testimonial-author">- Linda, 57</div>
+    </div>
+    <button class="continue-btn" onclick="goToStep(30)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 30: Menopause Status ========== -->
+  <div class="step" data-step="30" data-category="HEALTH">
+    <h2>What is your menopause status?</h2>
+    <p class="subtitle">Hormonal changes affect metabolism and weight loss</p>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(30, 'peri')">Perimenopause</div>
+      <div class="option-card" onclick="selectAndAdvance(30, 'in_meno')">Currently in menopause</div>
+      <div class="option-card" onclick="selectAndAdvance(30, 'post')">Post-menopause</div>
+      <div class="option-card" onclick="selectAndAdvance(30, 'unsure')">I'm not sure</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 31: Previous Attempts ========== -->
+  <div class="step" data-step="31" data-category="HISTORY">
+    <h2>Have you tried losing weight before?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(31, 'many')">Yes, many times</div>
+      <div class="option-card" onclick="selectAndAdvance(31, 'few')">A few times</div>
+      <div class="option-card" onclick="selectAndAdvance(31, 'first')">This is my first time</div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 32: What Stopped You ========== -->
+  <div class="step" data-step="32" data-category="HISTORY">
+    <h2>What usually stops you?</h2>
+    <p class="subtitle">Understanding your barriers helps us plan better</p>
+    <div class="chips-container">
+      <div class="chip" onclick="toggleChip(this)">Lack of motivation</div>
+      <div class="chip" onclick="toggleChip(this)">Too busy</div>
+      <div class="chip" onclick="toggleChip(this)">Physical limitations</div>
+      <div class="chip" onclick="toggleChip(this)">Confusing advice</div>
+      <div class="chip" onclick="toggleChip(this)">Slow results</div>
+      <div class="chip" onclick="toggleChip(this)">Hard to stick to diets</div>
+      <div class="chip" onclick="toggleChip(this)">Stress or emotions</div>
+      <div class="chip" onclick="toggleChip(this)">No support system</div>
+    </div>
+    <button class="continue-btn" id="continue-32" disabled onclick="goToStep(33)">CONTINUE</button>
+  </div>
+
+  <!-- ========== STEP 33: Preferred Time ========== -->
+  <div class="step" data-step="33" data-category="PREFERENCES">
+    <h2>When do you prefer to exercise?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(33, 'morning')">
+        <span>Morning</span>
+        <span class="icon">&#127748;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(33, 'afternoon')">
+        <span>Afternoon</span>
+        <span class="icon">&#9728;&#65039;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(33, 'evening')">
+        <span>Evening</span>
+        <span class="icon">&#127753;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(33, 'flexible')">
+        <span>Flexible / No preference</span>
+        <span class="icon">&#128260;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 34: Commitment ========== -->
+  <div class="step" data-step="34" data-category="COMMITMENT">
+    <h2>How committed are you to making a change?</h2>
+    <div class="options-list" style="width:100%">
+      <div class="option-card" onclick="selectAndAdvance(34, 'very')">
+        <span>100% - I'm ready!</span>
+        <span class="icon">&#128293;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(34, 'mostly')">
+        <span>Mostly committed</span>
+        <span class="icon">&#128170;</span>
+      </div>
+      <div class="option-card" onclick="selectAndAdvance(34, 'exploring')">
+        <span>Just exploring for now</span>
+        <span class="icon">&#128064;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 35: Loading / Generating Plan ========== -->
+  <div class="step" data-step="35" data-category="YOUR PLAN">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 0;">
+      <div style="font-size:64px;margin-bottom:20px;" id="loading-icon">&#9203;</div>
+      <h2>Creating your personalized plan...</h2>
+      <p class="subtitle" style="margin-top:12px;">Analyzing your answers to build the perfect weight loss program for you</p>
+      <div style="width:100%;max-width:300px;margin-top:30px;">
+        <div class="progress-bar" style="height:6px;border-radius:3px;">
+          <div class="progress-fill" id="loading-bar" style="width:0%;border-radius:3px;transition:width 3s ease;"></div>
+        </div>
+        <div style="margin-top:16px;font-size:13px;color:#888;" id="loading-text">Analyzing your profile...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 36: Final Results / CTA ========== -->
+  <div class="step" data-step="36" data-category="YOUR PLAN">
+    <h2>Your plan is ready! &#127881;</h2>
+    <p class="subtitle">Based on your answers, here's what we've prepared</p>
+    <div class="results-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:10px;">&#127947;&#65039;</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:6px;">Weight Loss Plan</div>
+      <div style="font-size:14px;color:#999;margin-bottom:16px;">Customized for women 45+</div>
+      <hr style="border-color:#E0D6CC;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:16px;">
+        <div>
+          <div style="font-size:24px;font-weight:800;color:#C07A5C;">4</div>
+          <div style="font-size:12px;color:#888;">weeks</div>
+        </div>
+        <div>
+          <div style="font-size:24px;font-weight:800;color:#22c55e;">3x</div>
+          <div style="font-size:12px;color:#888;">per week</div>
+        </div>
+        <div>
+          <div style="font-size:24px;font-weight:800;color:#f59e0b;">15</div>
+          <div style="font-size:12px;color:#888;">min/day</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card" style="margin-bottom:20px;">
+      <div style="text-align:center;font-size:14px;color:#999;margin-bottom:10px;">Based on your profile, women like you typically lose</div>
+      <div style="text-align:center;font-size:36px;font-weight:800;color:#22c55e;">8-15 lbs</div>
+      <div style="text-align:center;font-size:14px;color:#999;">in the first month</div>
+    </div>
+    <button class="continue-btn" onclick="window.location.href='checkout.html'">GET MY PLAN</button>
+  </div>
+
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 36;
+  const answers = {};
+
+  function goToStep(step) {
+    const current = document.querySelector('.step.active');
+    if (current) current.classList.remove('active');
+
+    const next = document.querySelector(`[data-step="${step}"]`);
+    if (next) {
+      next.classList.add('active');
+      currentStep = step;
+      updateHeader();
+
+      // Trigger loading animation on step 35
+      if (step === 35) {
+        startLoadingAnimation();
+      }
+
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function updateHeader() {
+    const headerEl = document.getElementById('funnel-header');
+    const progressEl = document.getElementById('main-progress');
+    const stepCountEl = document.getElementById('step-count');
+    const categoryEl = document.getElementById('category-label');
+    const backBtn = document.getElementById('back-btn');
+
+    if (currentStep === 1) {
+      headerEl.style.display = 'none';
+      document.getElementById('main-progress-bar').style.display = 'none';
+      categoryEl.style.display = 'none';
+    } else {
+      headerEl.style.display = 'flex';
+      document.getElementById('main-progress-bar').style.display = 'block';
+      stepCountEl.textContent = `${currentStep} / ${totalSteps}`;
+      progressEl.style.width = `${(currentStep / totalSteps) * 100}%`;
+
+      const activeStep = document.querySelector('.step.active');
+      const cat = activeStep ? activeStep.dataset.category : '';
+      if (cat) {
+        categoryEl.style.display = 'block';
+        categoryEl.textContent = cat;
+      } else {
+        categoryEl.style.display = 'none';
+      }
+    }
+  }
+
+  function selectAndAdvance(step, value) {
+    answers[step] = value;
+    goToStep(step + 1);
+  }
+
+  function selectRadio(el, step) {
+    const parent = el.closest('.step');
+    parent.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const btn = document.getElementById(`continue-${step}`);
+    if (btn) btn.disabled = false;
+  }
+
+  function toggleZone(el) {
+    el.classList.toggle('selected');
+    const step = el.closest('.step');
+    const selected = step.querySelectorAll('.zone-btn.selected').length;
+    const stepNum = step.dataset.step;
+    const btn = document.getElementById(`continue-${stepNum}`);
+    if (btn) btn.disabled = selected === 0;
+  }
+
+  function toggleChip(el) {
+    el.classList.toggle('selected');
+    const step = el.closest('.step');
+    const selected = step.querySelectorAll('.chip.selected').length;
+    const stepNum = step.dataset.step;
+    const btn = document.getElementById(`continue-${stepNum}`);
+    if (btn) btn.disabled = selected === 0;
+  }
+
+  function switchUnit(el, unit) {
+    el.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    updateHeight(document.getElementById('height-slider').value);
+  }
+
+  function updateHeight(val) {
+    const activeUnit = document.querySelector('[data-step="22"] .unit-toggle .active');
+    const isFt = activeUnit && activeUnit.textContent.trim() === 'ft';
+    if (isFt) {
+      const feet = Math.floor(val / 12);
+      const inches = val % 12;
+      document.getElementById('height-display').textContent = `${feet}'${inches}"`;
+    } else {
+      const cm = Math.round(val * 2.54);
+      document.getElementById('height-display').textContent = `${cm} cm`;
+    }
+  }
+
+  function switchWeightUnit(el, unit) {
+    el.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    updateWeight(document.getElementById('weight-slider').value);
+  }
+
+  function updateWeight(val) {
+    const activeUnit = document.querySelector('[data-step="23"] .unit-toggle .active');
+    const isLbs = activeUnit && activeUnit.textContent.trim() === 'lbs';
+    if (isLbs) {
+      document.getElementById('weight-display').textContent = val;
+      document.getElementById('weight-unit').textContent = 'lbs';
+    } else {
+      document.getElementById('weight-display').textContent = Math.round(val * 0.453592);
+      document.getElementById('weight-unit').textContent = 'kg';
+    }
+  }
+
+  function switchTargetUnit(el, unit) {
+    el.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    updateTarget(document.getElementById('target-slider').value);
+  }
+
+  function updateTarget(val) {
+    const activeUnit = document.querySelector('[data-step="24"] .unit-toggle .active');
+    const isLbs = activeUnit && activeUnit.textContent.trim() === 'lbs';
+    if (isLbs) {
+      document.getElementById('target-display').textContent = val;
+      document.getElementById('target-unit').textContent = 'lbs';
+    } else {
+      document.getElementById('target-display').textContent = Math.round(val * 0.453592);
+      document.getElementById('target-unit').textContent = 'kg';
+    }
+  }
+
+  function goBack() {
+    if (currentStep > 1) {
+      goToStep(currentStep - 1);
+    }
+  }
+
+  function startLoadingAnimation() {
+    const bar = document.getElementById('loading-bar');
+    const text = document.getElementById('loading-text');
+    const icon = document.getElementById('loading-icon');
+
+    setTimeout(() => { bar.style.width = '30%'; text.textContent = 'Calculating your metabolism...'; }, 100);
+    setTimeout(() => { bar.style.width = '60%'; text.textContent = 'Building your exercise plan...'; }, 1200);
+    setTimeout(() => { bar.style.width = '85%'; text.textContent = 'Preparing nutrition guide...'; }, 2200);
+    setTimeout(() => { bar.style.width = '100%'; text.textContent = 'Done!'; icon.textContent = '✅'; }, 3200);
+    setTimeout(() => { goToStep(36); }, 4000);
+  }
+
+  // Insert header into DOM
+  document.getElementById('funnel').insertAdjacentHTML('afterbegin', `
+    <div id="funnel-header" class="header" style="display:none;">
+      <button class="back-btn" id="back-btn" onclick="goBack()">&#8592;</button>
+      <div class="brand">Fit &amp; Fabulous</div>
+      <div class="step-count" id="step-count">2 / 36</div>
+    </div>
+    <div id="main-progress-bar" class="progress-bar" style="display:none;">
+      <div class="progress-fill" id="main-progress" style="width:0%"></div>
+    </div>
+    <div class="category-label" id="category-label" style="display:none;"></div>
+  `);
+
+  // Init
+  updateHeader();
+</script>
+
+</body>
+</html>
