@@ -794,7 +794,7 @@ function renderLibrary() {
     html += '<div class="form-row full">';
     html += '<div class="form-group"><label class="form-label">Video URL</label>';
     html += '<div class="video-url-row">';
-    html += '<input class="form-input" data-lib="' + i + '" data-field="videoUrl" value="' + escHtml(w.videoUrl || '') + '" placeholder="YouTube or Vimeo URL" onchange="updateLibraryField(this)" oninput="validateLibVideoInput(this,' + i + ')">';
+    html += '<input class="form-input" data-lib="' + i + '" data-field="videoUrl" value="' + escHtml(w.videoUrl || '') + '" placeholder="Cloudinary / MP4 / YouTube URL" onchange="updateLibraryField(this)" oninput="validateLibVideoInput(this,' + i + ')">';
     html += '<span class="video-url-status" id="lib-vid-status-' + i + '">' + videoStatusIcon(w.videoUrl || '') + '</span>';
     html += '</div></div>';
     html += '</div>';
@@ -866,7 +866,7 @@ function renderExercises() {
     html += '<div class="form-row full">';
     html += '<div class="form-group"><label class="form-label">Video URL</label>';
     html += '<div class="video-url-row">';
-    html += '<input class="form-input" data-ex="' + i + '" data-field="videoUrl" value="' + escHtml(ex.videoUrl || '') + '" placeholder="YouTube or Vimeo URL" onchange="updateExerciseField(this)" oninput="validateVideoInput(this)">';
+    html += '<input class="form-input" data-ex="' + i + '" data-field="videoUrl" value="' + escHtml(ex.videoUrl || '') + '" placeholder="Cloudinary / MP4 / YouTube URL" onchange="updateExerciseField(this)" oninput="validateVideoInput(this)">';
     html += '<span class="video-url-status" id="vid-status-' + i + '">' + videoStatusIcon(ex.videoUrl || '') + '</span>';
     html += '</div></div>';
     html += '</div>';
@@ -898,6 +898,10 @@ function removeExercise(idx) {
 // ===== VIDEO URL VALIDATION =====
 function parseVideoUrl(url) {
   if (!url) return null;
+  // Direct video file (MP4, WebM, Cloudinary, etc.)
+  if (/\.(mp4|webm|mov|m3u8)(\?|$)/i.test(url) || /res\.cloudinary\.com/i.test(url)) {
+    return { type: 'direct', url: url };
+  }
   var ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
   if (ytMatch) return { type: 'youtube', id: ytMatch[1] };
   var viMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
