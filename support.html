@@ -2,356 +2,230 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Figma Help Center — Business Blueprints</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Help Center — Lazy Weight Loss</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: #ffffff;
-      color: #211a28;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #FAF6F1;
+      color: #2D2A26;
       -webkit-font-smoothing: antialiased;
       line-height: 1.6;
-      letter-spacing: -0.3px;
     }
 
     /* ===== NAV ===== */
     .nav {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid #E5E5E5;
-      padding: 16px 24px;
+      background: rgba(250,246,241,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid #E8E0D8;
+      padding: 14px 20px;
     }
     .nav-inner {
-      max-width: 800px; margin: 0 auto;
+      max-width: 600px; margin: 0 auto;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo {
-      font-size: 20px; font-weight: 700; letter-spacing: -1px;
-      color: #211a28;
-    }
-    .nav-logo span {
-      font-style: italic; font-weight: 300;
-    }
+    .nav-logo { font-size: 18px; font-weight: 800; }
+    .nav-logo span { color: #C07A5C; }
     .nav-back {
-      font-size: 13px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 1px; color: #707070;
-      text-decoration: none; transition: color 0.2s;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: #C07A5C;
+      text-decoration: none; transition: opacity 0.2s;
     }
-    .nav-back:hover { color: #4a6de6; }
+    .nav-back:hover { opacity: 0.8; }
 
     /* ===== HERO ===== */
     .hero {
-      background: linear-gradient(165deg, #211a28 0%, #2a2440 40%, #3a3a7a 70%, #4a6de6 100%);
-      padding: 64px 24px 56px; text-align: center;
-      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #2D2A26 0%, #3D3630 50%, #5A4A3E 100%);
+      padding: 48px 20px 40px; text-align: center;
     }
-    .hero::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 70% 20%, rgba(74,109,230,0.25) 0%, transparent 60%);
-    }
-    .hero-inner {
-      max-width: 620px; margin: 0 auto; position: relative; z-index: 1;
-    }
+    .hero-inner { max-width: 500px; margin: 0 auto; }
     .hero-badge {
-      display: inline-block; padding: 6px 16px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 40px;
-      font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 1.5px; color: rgba(255,255,255,0.8);
-      margin-bottom: 20px;
-    }
-
-    /* ===== VIDEO ===== */
-    .hero-video {
-      max-width: 520px; margin: 0 auto 28px;
-      border-radius: 14px; overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.15);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      aspect-ratio: 16 / 9;
-      background: rgba(0,0,0,0.3);
-      position: relative;
-    }
-    .hero-video iframe,
-    .hero-video video {
-      width: 100%; height: 100%;
-      display: block; border: none;
-    }
-    /* Placeholder state — remove when you embed a real video */
-    .hero-video-placeholder {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 10px; cursor: pointer;
-      transition: background 0.25s;
-    }
-    .hero-video-placeholder:hover {
-      background: rgba(255,255,255,0.06);
-    }
-    .hero-video-placeholder .play-icon {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.3);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.25s;
-    }
-    .hero-video-placeholder:hover .play-icon {
-      background: rgba(74,109,230,0.5);
-      border-color: rgba(255,255,255,0.5);
-      transform: scale(1.08);
-    }
-    .hero-video-placeholder .play-icon svg {
-      margin-left: 3px;
-    }
-    .hero-video-placeholder span {
-      font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55);
-      letter-spacing: 0.5px; text-transform: uppercase;
+      display: inline-block; padding: 5px 14px;
+      background: rgba(192,122,92,0.2);
+      border: 1px solid rgba(192,122,92,0.3);
+      border-radius: 25px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: #C07A5C;
+      margin-bottom: 16px;
     }
     .hero h1 {
-      font-size: 38px; font-weight: 700; line-height: 1.15;
-      color: #fff; margin-bottom: 12px; letter-spacing: -1.5px;
-    }
-    .hero h1 em {
-      font-style: italic; font-weight: 300;
-      background: linear-gradient(135deg, #8ba4f0, #c0cfff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 28px; font-weight: 800; color: #FFFFFF;
+      margin-bottom: 8px; letter-spacing: -0.5px;
     }
     .hero p {
-      font-size: 16px; color: rgba(255,255,255,0.65);
-      max-width: 460px; margin: 0 auto 32px;
-      line-height: 1.6;
+      font-size: 15px; color: rgba(255,255,255,0.6);
+      max-width: 400px; margin: 0 auto 24px;
     }
 
     /* ===== SEARCH ===== */
     .search-wrap {
-      max-width: 500px; margin: 0 auto; position: relative;
+      max-width: 420px; margin: 0 auto; position: relative;
     }
-    .search-wrap svg {
-      position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-      color: #999;
+    .search-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; color: #8A8279;
     }
     .search-input {
-      width: 100%; padding: 16px 20px 16px 50px;
-      border: 2px solid rgba(255,255,255,0.15);
-      border-radius: 40px;
+      width: 100%; padding: 14px 18px 14px 44px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
       font-size: 15px; font-family: inherit;
       background: rgba(255,255,255,0.1);
-      color: #fff; letter-spacing: -0.3px;
-      transition: all 0.3s; outline: none;
-      backdrop-filter: blur(8px);
+      color: #FFFFFF; outline: none;
+      transition: all 0.2s;
     }
-    .search-input::placeholder { color: rgba(255,255,255,0.45); }
+    .search-input::placeholder { color: rgba(255,255,255,0.4); }
     .search-input:focus {
-      border-color: rgba(255,255,255,0.4);
+      border-color: #C07A5C;
       background: rgba(255,255,255,0.15);
-      box-shadow: 0 4px 24px rgba(74,109,230,0.2);
     }
 
     /* ===== QUICK LINKS ===== */
     .quick-links {
-      max-width: 800px; margin: 0 auto;
-      padding: 28px 24px 12px;
+      max-width: 600px; margin: 0 auto;
+      padding: 20px 20px 8px;
       display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
     }
     .quick-link {
-      padding: 10px 20px; border-radius: 40px;
-      background: #f5f5f5; color: #707070;
+      padding: 8px 16px; border-radius: 25px;
+      background: #FFFFFF; color: #8A8279;
       font-size: 13px; font-weight: 600; cursor: pointer;
-      border: 1px solid #E5E5E5; font-family: inherit;
-      transition: all 0.2s; text-transform: uppercase;
-      letter-spacing: 0.5px;
+      border: 1px solid #E0D6CC; font-family: inherit;
+      transition: all 0.2s; white-space: nowrap;
     }
-    .quick-link:hover {
-      background: #211a28; color: #fff;
-      border-color: #211a28;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(33,26,40,0.15);
-    }
-    .quick-link.active {
-      background: #4a6de6; color: #fff;
-      border-color: #4a6de6;
-    }
+    .quick-link:hover { background: #F5EEE6; border-color: #C9BFB3; }
+    .quick-link.active { background: #FDF0E8; border-color: #C07A5C; color: #8B5A3C; }
 
     /* ===== CONTENT ===== */
-    .content { max-width: 800px; margin: 0 auto; padding: 16px 24px 80px; }
+    .content { max-width: 600px; margin: 0 auto; padding: 12px 20px 60px; }
 
     /* ===== CATEGORY ===== */
-    .category { margin-bottom: 40px; }
+    .category { margin-bottom: 32px; }
     .category-header {
-      display: flex; align-items: center; gap: 14px;
-      margin-bottom: 18px; padding-bottom: 14px;
-      border-bottom: 2px solid #E5E5E5;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid #E0D6CC;
     }
     .category-icon {
-      width: 44px; height: 44px; border-radius: 12px;
+      width: 40px; height: 40px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; flex-shrink: 0;
-      background: #f5f5f5;
+      font-size: 20px; flex-shrink: 0;
+      background: linear-gradient(135deg, #F5EEE6, #FDE8DC);
     }
-    .cat-getting-started .category-icon { background: #eef2ff; }
-    .cat-duplicating .category-icon { background: #e8f4fd; }
-    .cat-editing .category-icon { background: #fef9ec; }
-    .cat-sharing .category-icon { background: #fce8ea; }
-    .cat-exporting .category-icon { background: #f0ebf8; }
-    .cat-troubleshooting .category-icon { background: #e8f6f3; }
     .category-title {
-      font-size: 22px; font-weight: 700; letter-spacing: -0.8px;
-      color: #211a28;
+      font-size: 18px; font-weight: 700; letter-spacing: -0.3px;
     }
 
     /* ===== FAQ ITEM ===== */
     .faq-item {
-      background: #fff;
-      border: 1px solid #E5E5E5;
-      border-radius: 16px;
-      margin-bottom: 10px;
+      background: #FFFFFF;
+      border: 1px solid #E0D6CC;
+      border-radius: 14px;
+      margin-bottom: 8px;
       overflow: hidden;
-      transition: all 0.25s;
+      transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
-    .faq-item:hover {
-      border-color: #ccc;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-    }
+    .faq-item:hover { border-color: #C9BFB3; }
     .faq-item.open {
-      border-color: #4a6de6;
-      box-shadow: 0 4px 20px rgba(74,109,230,0.08);
+      border-color: #C07A5C;
+      box-shadow: 0 2px 12px rgba(192,122,92,0.1);
     }
-
     .faq-question {
-      width: 100%; padding: 20px 22px;
+      width: 100%; padding: 16px 18px;
       background: none; border: none;
       display: flex; align-items: center; justify-content: space-between;
       cursor: pointer; font-family: inherit;
-      text-align: left; gap: 14px;
+      text-align: left; gap: 12px;
     }
     .faq-question span {
-      font-size: 15px; font-weight: 600; color: #211a28;
-      line-height: 1.4; letter-spacing: -0.3px;
+      font-size: 15px; font-weight: 600; color: #2D2A26;
+      line-height: 1.4;
     }
     .faq-chevron {
-      flex-shrink: 0; width: 22px; height: 22px;
-      color: #bbb; transition: all 0.3s;
+      flex-shrink: 0; font-size: 18px; color: #C9BFB3;
+      transition: all 0.3s; font-weight: 300;
     }
     .faq-item.open .faq-chevron {
-      transform: rotate(180deg); color: #4a6de6;
+      transform: rotate(180deg); color: #C07A5C;
     }
-
     .faq-answer {
       max-height: 0; overflow: hidden;
       transition: max-height 0.4s ease;
     }
     .faq-answer-inner {
-      padding: 0 22px 22px;
-      font-size: 14px; color: #555; line-height: 1.75;
+      padding: 0 18px 18px;
+      font-size: 14px; color: #5A554F; line-height: 1.7;
     }
     .faq-answer-inner ol, .faq-answer-inner ul {
-      padding-left: 20px; margin: 8px 0;
+      padding-left: 18px; margin: 8px 0;
     }
-    .faq-answer-inner li { margin-bottom: 6px; }
-    .faq-answer-inner strong { color: #211a28; }
-
+    .faq-answer-inner li { margin-bottom: 4px; }
+    .faq-answer-inner strong { color: #2D2A26; }
     .faq-answer-inner .tip {
-      background: #f0f3ff;
-      border-left: 3px solid #4a6de6;
-      padding: 14px 18px; border-radius: 0 12px 12px 0;
-      margin: 14px 0; font-size: 13px;
+      background: #FDF0E8;
+      border-left: 3px solid #C07A5C;
+      padding: 12px 16px; border-radius: 0 10px 10px 0;
+      margin: 12px 0; font-size: 13px; color: #5A554F;
     }
-    .faq-answer-inner .tip strong { color: #4a6de6; }
-
-    .faq-answer-inner .steps {
-      background: #fafafa; border-radius: 12px;
-      padding: 18px; margin: 14px 0;
-      border: 1px solid #eee;
-    }
-    .faq-answer-inner .steps li { padding: 4px 0; }
-
-    .faq-answer-inner kbd {
-      background: #f0f0f0; border: 1px solid #ddd;
-      border-radius: 6px; padding: 2px 8px;
-      font-size: 12px; font-family: inherit; font-weight: 700;
-      color: #211a28; letter-spacing: 0;
-    }
-    .faq-answer-inner .warning {
-      background: #fef9ec; border-left: 3px solid #e6a817;
-      padding: 14px 18px; border-radius: 0 12px 12px 0;
-      margin: 14px 0; font-size: 13px;
-    }
-
-    /* ===== STILL STUCK ===== */
-    .still-stuck {
-      text-align: center; padding: 48px 32px;
-      background: linear-gradient(165deg, #211a28 0%, #2a2440 40%, #3a3a7a 70%, #4a6de6 100%);
-      border-radius: 20px; margin-top: 20px;
-      position: relative; overflow: hidden;
-    }
-    .still-stuck::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 30% 80%, rgba(74,109,230,0.2) 0%, transparent 60%);
-    }
-    .still-stuck * { position: relative; z-index: 1; }
-    .still-stuck h3 {
-      font-size: 24px; font-weight: 700; color: #fff;
-      margin-bottom: 8px; letter-spacing: -0.8px;
-    }
-    .still-stuck p {
-      color: rgba(255,255,255,0.65); font-size: 15px;
-      margin-bottom: 24px;
-    }
-    .still-stuck-btn {
-      display: inline-block; padding: 18px 40px;
-      background: #fff; color: #211a28;
-      border: none; border-radius: 40px;
-      font-size: 15px; font-weight: 700;
-      cursor: pointer; font-family: inherit;
-      text-decoration: none; text-transform: uppercase;
-      letter-spacing: -0.5px;
-      transition: all 0.25s;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    }
-    .still-stuck-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-    }
-
-    /* ===== FOOTER ===== */
-    .footer {
-      background: #000; color: rgba(255,255,255,0.5);
-      text-align: center; padding: 32px 24px;
-      font-size: 13px; letter-spacing: -0.2px;
-      margin-top: 0;
-    }
-    .footer-logo {
-      font-size: 18px; font-weight: 700; color: #fff;
-      margin-bottom: 8px; letter-spacing: -0.8px;
-    }
-    .footer-logo span { font-style: italic; font-weight: 300; }
+    .faq-answer-inner .tip strong { color: #C07A5C; }
 
     /* ===== NO RESULTS ===== */
     .no-results {
-      text-align: center; padding: 48px 20px;
-      display: none; color: #707070;
+      text-align: center; padding: 40px 20px;
+      display: none; color: #8A8279;
     }
     .no-results.visible { display: block; }
 
+    /* ===== STILL STUCK ===== */
+    .still-stuck {
+      text-align: center; padding: 40px 24px;
+      background: linear-gradient(135deg, #2D2A26, #3D3630);
+      border-radius: 16px; margin-top: 12px;
+    }
+    .still-stuck h3 {
+      font-size: 20px; font-weight: 700; color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+    .still-stuck p {
+      color: rgba(255,255,255,0.6); font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .still-stuck-btn {
+      display: inline-block; padding: 14px 32px;
+      background: #C07A5C; color: #FFFFFF;
+      border: none; border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .still-stuck-btn:hover { background: #A8674E; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: #2D2A26; color: rgba(255,255,255,0.5);
+      text-align: center; padding: 28px 20px;
+      font-size: 12px;
+    }
+    .footer-logo {
+      font-size: 16px; font-weight: 800; color: #FFFFFF;
+      margin-bottom: 4px;
+    }
+    .footer-logo span { color: #C07A5C; }
+
     /* ===== RESPONSIVE ===== */
-    @media (max-width: 600px) {
-      .hero { padding: 48px 20px 40px; }
-      .hero h1 { font-size: 28px; letter-spacing: -1px; }
-      .hero-video { max-width: 100%; border-radius: 10px; }
-      .hero p { font-size: 14px; }
-      .quick-links { padding: 20px 16px 8px; gap: 6px; }
-      .quick-link { padding: 8px 14px; font-size: 11px; }
-      .content { padding: 12px 16px 60px; }
-      .category-title { font-size: 18px; }
+    @media (max-width: 400px) {
+      .hero { padding: 36px 16px 32px; }
+      .hero h1 { font-size: 24px; }
+      .quick-links { gap: 6px; }
+      .quick-link { padding: 7px 12px; font-size: 12px; }
+      .content { padding: 10px 16px 48px; }
       .faq-question span { font-size: 14px; }
-      .still-stuck { padding: 36px 24px; }
-      .still-stuck h3 { font-size: 20px; }
-      .still-stuck-btn { padding: 16px 32px; font-size: 14px; }
     }
   </style>
 </head>
@@ -360,37 +234,19 @@
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-inner">
-      <div class="nav-logo">Business <span>Blueprints</span></div>
-      <a href="https://www.business-blueprints.com" class="nav-back">Back to Store</a>
+      <div class="nav-logo">Lazy<span>WeightLoss</span></div>
+      <a href="dashboard.html" class="nav-back">&#8249; Back to Dashboard</a>
     </div>
   </nav>
 
   <!-- HERO -->
   <div class="hero">
     <div class="hero-inner">
-      <div class="hero-badge">Support Center</div>
-
-      <!-- VIDEO EMBED — Replace the placeholder below with your video -->
-      <div class="hero-video">
-        <!-- OPTION 1: Paste a YouTube/Vimeo/Loom iframe here and delete the placeholder -->
-        <!-- <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
-
-        <!-- OPTION 2: Use an mp4 file -->
-        <!-- <video controls poster="your-thumbnail.jpg"><source src="your-video.mp4" type="video/mp4"></video> -->
-
-        <!-- Placeholder — delete this div once you add a real video above -->
-        <div class="hero-video-placeholder">
-          <div class="play-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
-          </div>
-          <span>Watch the quick start guide</span>
-        </div>
-      </div>
-
-      <h1>How can we <em>help</em> you?</h1>
-      <p>Find answers to common Figma questions below. We've got you covered from opening your file to exporting your designs.</p>
+      <div class="hero-badge">Help Center</div>
+      <h1>How can we help you?</h1>
+      <p>Find answers to common questions about your workout plan, account, and more.</p>
       <div class="search-wrap">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="search-icon">&#128269;</span>
         <input type="text" class="search-input" placeholder="Search for help..." id="searchInput">
       </div>
     </div>
@@ -399,18 +255,17 @@
   <!-- QUICK LINKS -->
   <div class="quick-links">
     <button class="quick-link" data-filter="getting-started">Getting Started</button>
-    <button class="quick-link" data-filter="duplicating">Duplicating Files</button>
-    <button class="quick-link" data-filter="editing">Editing</button>
-    <button class="quick-link" data-filter="sharing">Sharing</button>
-    <button class="quick-link" data-filter="exporting">Exporting</button>
+    <button class="quick-link" data-filter="workouts">Workouts</button>
+    <button class="quick-link" data-filter="account">Account</button>
+    <button class="quick-link" data-filter="billing">Billing</button>
     <button class="quick-link" data-filter="troubleshooting">Troubleshooting</button>
     <button class="quick-link" data-filter="all">Show All</button>
   </div>
 
   <!-- NO RESULTS -->
   <div class="no-results" id="noResults">
-    <p style="font-size:36px;margin-bottom:12px;">&#128269;</p>
-    <p style="font-size:16px;font-weight:700;color:#211a28;margin-bottom:4px;">No results found</p>
+    <p style="font-size:36px;margin-bottom:10px;">&#128269;</p>
+    <p style="font-size:15px;font-weight:600;color:#2D2A26;margin-bottom:4px;">No results found</p>
     <p>Try a different search term or browse the categories below.</p>
   </div>
 
@@ -418,515 +273,366 @@
   <div class="content" id="faqContent">
 
     <!-- GETTING STARTED -->
-    <div class="category cat-getting-started" data-category="getting-started">
+    <div class="category" data-category="getting-started">
       <div class="category-header">
-        <div class="category-icon">&#128640;</div>
+        <div class="category-icon">&#127919;</div>
         <h2 class="category-title">Getting Started</h2>
       </div>
 
-      <div class="faq-item" data-keywords="account sign up create figma free">
+      <div class="faq-item" data-keywords="start begin program plan how does work">
         <button class="faq-question">
-          <span>Do I need a Figma account to view my file?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>How does the 12-week program work?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p><strong>To view a file:</strong> No account needed! Just click the link we sent you.</p>
-          <p><strong>To duplicate or edit:</strong> Yes, you'll need a free Figma account.</p>
-          <div class="steps">
-            <ol>
-              <li>Go to <strong>figma.com</strong> and click <strong>"Sign up"</strong></li>
-              <li>Use your email or sign in with Google</li>
-              <li>Choose the <strong>free plan</strong> (it has everything you need)</li>
-              <li>Go back to the file link we sent you</li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> The free Figma plan is all you need. You do NOT need to pay for anything.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="open file link not working browser">
-        <button class="faq-question">
-          <span>I clicked the link but the file won't open</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Here are common reasons and fixes:</p>
+          <p>Your 12-week program is designed specifically for women 45+ who want gentle, effective workouts.</p>
           <ul>
-            <li><strong>Try a different browser</strong> — Figma works best in Chrome, Edge, or Firefox</li>
-            <li><strong>Clear your cache</strong> — Sometimes old data blocks the page from loading</li>
-            <li><strong>Disable VPN</strong> — Some VPNs block Figma's servers</li>
-            <li><strong>Check your internet</strong> — Figma needs a stable connection to load files</li>
-            <li><strong>Make sure you're signed in</strong> — You may need to log in before the file will open</li>
+            <li><strong>7 workouts per week</strong> — each day has a different focus (yoga, walking, cardio, etc.)</li>
+            <li><strong>Built-in rest days</strong> — your body needs time to recover</li>
+            <li><strong>10-25 minutes each</strong> — short enough to fit any schedule</li>
+            <li><strong>Progressive difficulty</strong> — starts easy and gradually builds</li>
           </ul>
-          <div class="warning"><strong>Still not working?</strong> Send us a screenshot of what you see and we'll help you troubleshoot.</div>
+          <p>Simply open your dashboard each day, tap <strong>Start Workout</strong>, and follow along!</p>
         </div></div>
       </div>
 
-      <div class="faq-item" data-keywords="app desktop download browser web">
+      <div class="faq-item" data-keywords="dashboard navigate use app tabs">
         <button class="faq-question">
-          <span>Do I need to download the Figma app?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>How do I navigate the dashboard?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p><strong>No!</strong> Figma works entirely in your web browser. There's nothing to install.</p>
-          <p>Just open the link in <strong>Chrome, Firefox, or Edge</strong> and you're good to go.</p>
-          <div class="tip"><strong>Tip:</strong> There is a desktop app available, but it's completely optional. The browser version has 100% of the same features.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="navigate move around zoom pan scroll interface">
-        <button class="faq-question">
-          <span>How do I move around / zoom in the file?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Navigating in Figma is simple once you know the controls:</p>
+          <p>Your dashboard has 3 main tabs at the bottom:</p>
           <ul>
-            <li><strong>Zoom in/out:</strong> Hold <kbd>Ctrl</kbd> (or <kbd>&#8984;</kbd> on Mac) and scroll your mouse wheel</li>
-            <li><strong>Pan around:</strong> Hold <kbd>Space</kbd> and drag with your mouse</li>
-            <li><strong>Zoom to fit:</strong> Press <kbd>Shift</kbd> + <kbd>1</kbd> to see the full design</li>
-            <li><strong>Zoom to selection:</strong> Press <kbd>Shift</kbd> + <kbd>2</kbd> to zoom into what you've selected</li>
+            <li><strong>My Plan</strong> — Your daily workout, weekly schedule, and progress stats</li>
+            <li><strong>Workouts</strong> — Browse all 21+ workouts in the library by category</li>
+            <li><strong>Profile</strong> — Your goals, settings, and account info</li>
           </ul>
-          <div class="tip"><strong>Tip:</strong> If you're on a trackpad, you can pinch to zoom and two-finger scroll to pan around — just like on a map.</div>
+          <p>Tap the week strip at the top to see workouts for different days. Each day is tailored for you!</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" data-keywords="equipment need gear mat weights supplies">
+        <button class="faq-question">
+          <span>Do I need any equipment?</span>
+          <span class="faq-chevron">&#8964;</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p><strong>No equipment needed!</strong> All workouts use just your body weight.</p>
+          <p>For chair workouts, you'll need a <strong>sturdy chair</strong> — any dining or kitchen chair works perfectly.</p>
+          <div class="tip"><strong>Tip:</strong> A yoga mat is nice to have for floor exercises but isn't required. A carpet or thick towel works fine too.</div>
+        </div></div>
+      </div>
+
+      <div class="faq-item" data-keywords="difficulty level beginner easy moderate hard too">
+        <button class="faq-question">
+          <span>What if the workouts are too easy or too hard?</span>
+          <span class="faq-chevron">&#8964;</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>You can adjust your difficulty level anytime:</p>
+          <ul>
+            <li>Go to <strong>Profile</strong> tab</li>
+            <li>Tap <strong>Update Goals</strong></li>
+            <li>Change your <strong>Difficulty Level</strong> to Easy, Beginner, or Moderate</li>
+          </ul>
+          <p>Remember: <strong>listen to your body</strong>. It's always okay to pause, take breaks, or skip an exercise. The best workout is the one you actually do!</p>
         </div></div>
       </div>
     </div>
 
-    <!-- DUPLICATING FILES -->
-    <div class="category cat-duplicating" data-category="duplicating">
+    <!-- WORKOUTS -->
+    <div class="category" data-category="workouts">
       <div class="category-header">
-        <div class="category-icon">&#128203;</div>
-        <h2 class="category-title">Duplicating Files</h2>
+        <div class="category-icon">&#128170;</div>
+        <h2 class="category-title">Workouts</h2>
       </div>
 
-      <div class="faq-item" data-keywords="duplicate copy file how to my drafts">
+      <div class="faq-item" data-keywords="start workout play begin exercise how to">
         <button class="faq-question">
-          <span>How do I duplicate the file to my account?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>How do I start a workout?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Duplicating creates your own personal copy that you can fully edit.</p>
-          <div class="steps">
-            <ol>
-              <li>Open the file link we sent you</li>
-              <li>Make sure you are <strong>signed into Figma</strong></li>
-              <li>Click the <strong>Figma logo</strong> (top-left corner) or go to <strong>File</strong> in the menu</li>
-              <li>Click <strong>"Duplicate to your drafts"</strong></li>
-              <li>A new tab will open with your own copy — this is yours to edit!</li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> Your duplicated file lives in your <strong>"Drafts"</strong> folder. You can always find it by going to figma.com and clicking "Drafts" in the left sidebar.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="duplicate option missing greyed grayed out cant can't find button">
-        <button class="faq-question">
-          <span>I can't find the "Duplicate" option</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>If you don't see the duplicate option, try these fixes:</p>
+          <p>There are two ways to start a workout:</p>
           <ul>
-            <li><strong>Sign in first</strong> — You must be logged into a Figma account to duplicate</li>
-            <li><strong>Look in the right place</strong> — Click the Figma logo (&#9776;) in the <strong>top-left corner</strong>, then look for "Duplicate to your drafts"</li>
-            <li><strong>Try right-clicking the file name</strong> in the toolbar at the top — a menu with duplicate should appear</li>
-            <li><strong>Check if you already duplicated it</strong> — Look in your Drafts at figma.com</li>
+            <li><strong>Today's workout:</strong> On the My Plan tab, tap the orange <strong>Start Workout</strong> button</li>
+            <li><strong>From the library:</strong> Go to the Workouts tab, browse by category, and tap any workout card</li>
           </ul>
-          <div class="warning"><strong>Note:</strong> If the file owner has restricted permissions, duplicating may be disabled. Reach out to us if this is the case.</div>
+          <p>A 3-second countdown will begin, then the workout player guides you through each exercise with a timer.</p>
         </div></div>
       </div>
 
-      <div class="faq-item" data-keywords="duplicate where drafts find copy went">
+      <div class="faq-item" data-keywords="pause stop resume workout middle break">
         <button class="faq-question">
-          <span>I duplicated the file — where did it go?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>Can I pause or stop a workout?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Your duplicated file is in your <strong>Drafts</strong> folder.</p>
-          <div class="steps">
-            <ol>
-              <li>Go to <strong>figma.com</strong></li>
-              <li>In the left sidebar, click <strong>"Drafts"</strong></li>
-              <li>Your duplicated file will be at the top — it'll have the same name with "(Copy)" added</li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> You can rename the file by double-clicking its name at the top of the editor, or right-clicking it in the Drafts list.</div>
+          <p><strong>Yes!</strong> During any workout you can:</p>
+          <ul>
+            <li>Tap the <strong>pause button</strong> to take a break — resume when ready</li>
+            <li>Tap <strong>&#9198;&#65039;</strong> or <strong>&#9197;&#65039;</strong> to skip forward or go back to a previous exercise</li>
+            <li>Tap the <strong>X button</strong> (top-left) to exit the workout entirely</li>
+          </ul>
+          <div class="tip"><strong>Tip:</strong> If you complete a workout, your progress (calories, minutes, exercises) is automatically tracked!</div>
         </div></div>
       </div>
 
-      <div class="faq-item" data-keywords="editing original not mine changes view only duplicate first">
+      <div class="faq-item" data-keywords="category type yoga walking stretching cardio chair pilates">
         <button class="faq-question">
-          <span>I'm making changes but nothing is saving / it says "view only"</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>What types of workouts are available?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p><strong>You're probably still looking at the original file, not your copy.</strong></p>
-          <p>The link we sent you is a <strong>view-only</strong> version. You need to duplicate it first to make any changes.</p>
-          <div class="steps">
-            <ol>
-              <li>Go back to the original link</li>
-              <li>Click the <strong>Figma logo</strong> (top-left) &#8594; <strong>"Duplicate to your drafts"</strong></li>
-              <li>Now open the duplicated version from your <strong>Drafts</strong></li>
-              <li>You should now be able to edit freely</li>
-            </ol>
-          </div>
-          <div class="tip"><strong>How to tell:</strong> If you see a gray "view only" badge at the top of the screen, you're on the original. Your duplicated copy won't have this badge.</div>
+          <p>Your program includes 6 workout categories:</p>
+          <ul>
+            <li><strong>&#129496; Yoga</strong> — Flexibility, balance, and calm breathing</li>
+            <li><strong>&#128694; Walking</strong> — Brisk walks with intervals and arm movement</li>
+            <li><strong>&#129336; Stretching</strong> — Head-to-toe flexibility and stiffness relief</li>
+            <li><strong>&#10084;&#65039; Cardio</strong> — Low-impact heart-pumping movements</li>
+            <li><strong>&#129682; Chair</strong> — Seated and supported exercises for safety</li>
+            <li><strong>&#127947;&#65039; Pilates</strong> — Core-strengthening with controlled movements</li>
+          </ul>
+          <p>Browse all 21+ workouts in the <strong>Workouts tab</strong> and filter by category.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" data-keywords="rest day skip recovery day off">
+        <button class="faq-question">
+          <span>Why is there a rest day? Can I skip it?</span>
+          <span class="faq-chevron">&#8964;</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p><strong>Rest days are built in for a reason!</strong> Your muscles need recovery time to rebuild and get stronger.</p>
+          <p>On rest days, the program includes gentle stretching and deep breathing — just 10 minutes of active recovery.</p>
+          <p>If you're feeling energized, you can always pick a workout from the library — but don't push yourself too hard. Consistency beats intensity!</p>
         </div></div>
       </div>
     </div>
 
-    <!-- EDITING -->
-    <div class="category cat-editing" data-category="editing">
+    <!-- ACCOUNT -->
+    <div class="category" data-category="account">
       <div class="category-header">
-        <div class="category-icon">&#9998;&#65039;</div>
-        <h2 class="category-title">Editing Your File</h2>
+        <div class="category-icon">&#128100;</div>
+        <h2 class="category-title">Account & Profile</h2>
       </div>
 
-      <div class="faq-item" data-keywords="edit text change words content type">
+      <div class="faq-item" data-keywords="login sign in password email account access">
         <button class="faq-question">
-          <span>How do I change text in the design?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>How do I log in to my account?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Editing text is straightforward:</p>
-          <div class="steps">
-            <ol>
-              <li><strong>Double-click</strong> on any text in the design</li>
-              <li>The text will become editable — type your new content</li>
-              <li>Click anywhere outside the text when you're done</li>
-            </ol>
-          </div>
-          <p>If double-clicking doesn't work, you may need to double-click <strong>multiple times</strong> to "drill into" grouped layers. Keep double-clicking until the text highlights.</p>
-          <div class="tip"><strong>Tip:</strong> You can change the font, size, and color in the <strong>right sidebar</strong> under "Text" once the text is selected.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="image photo swap replace change picture">
-        <button class="faq-question">
-          <span>How do I replace an image or photo?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>To swap out an image:</p>
-          <div class="steps">
-            <ol>
-              <li><strong>Click</strong> on the image you want to replace</li>
-              <li>In the right sidebar, look for the <strong>"Fill"</strong> section</li>
-              <li>Click the <strong>image thumbnail</strong> in the fill section</li>
-              <li>Click <strong>"Choose image"</strong> and select your new photo from your computer</li>
-            </ol>
-          </div>
-          <p><strong>Alternative method:</strong> Copy an image to your clipboard, select the image frame in Figma, and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> (or <kbd>&#8984;</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> on Mac) to paste it as a fill.</p>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="color change background brand colours">
-        <button class="faq-question">
-          <span>How do I change colors in the design?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <div class="steps">
-            <ol>
-              <li><strong>Click</strong> on the element you want to recolor</li>
-              <li>In the right sidebar, find the <strong>"Fill"</strong> section</li>
-              <li>Click the <strong>colored square</strong> to open the color picker</li>
-              <li>Pick a new color or type in a <strong>hex code</strong> (e.g., #FF5733)</li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> If you have a brand color, paste the hex code directly into the color field at the bottom of the picker — it's the fastest way.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="font missing text wrong looks different typeface">
-        <button class="faq-question">
-          <span>Fonts look wrong or are missing</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>If you see a &#9888;&#65039; warning icon next to text or fonts look different than expected, the file uses fonts you don't have.</p>
-          <p><strong>Most fonts will load automatically</strong> in Figma since they include Google Fonts. But if a custom font is used:</p>
-          <div class="steps">
-            <ol>
-              <li>Look for a <strong>yellow warning banner</strong> at the top — click it to see which fonts are missing</li>
-              <li>If we provided the font files, <strong>install them on your computer</strong> then refresh Figma</li>
-              <li>Or download the <strong>Figma Font Helper</strong> (a small app that lets Figma access your installed fonts in the browser)</li>
-              <li>After installing, <strong>refresh the page</strong> and fonts should appear correctly</li>
-            </ol>
-          </div>
-          <div class="warning"><strong>Don't have the fonts?</strong> Message us and we'll send you the font files or suggest a free alternative.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="undo mistake redo accidentally deleted">
-        <button class="faq-question">
-          <span>I accidentally deleted or changed something — how do I undo?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Don't panic! Figma has unlimited undo:</p>
+          <p>To log in:</p>
           <ul>
-            <li>Press <kbd>Ctrl</kbd>+<kbd>Z</kbd> (or <kbd>&#8984;</kbd>+<kbd>Z</kbd> on Mac) to <strong>undo</strong></li>
-            <li>Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> to <strong>redo</strong></li>
+            <li>Go to <strong>lazyweightloss.com</strong></li>
+            <li>Click the <strong>Log In</strong> button in the top right</li>
+            <li>Enter your <strong>email and password</strong></li>
+            <li>You'll be redirected to your dashboard</li>
           </ul>
-          <p>You can also access <strong>Version History</strong> to go back to any previous state:</p>
-          <div class="steps">
-            <ol>
-              <li>Click the <strong>Figma logo</strong> (top-left)</li>
-              <li>Go to <strong>File &#8594; Show Version History</strong></li>
-              <li>Browse through past versions on the right sidebar</li>
-              <li>Click any version to preview it, then click <strong>"Restore this version"</strong></li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> Figma auto-saves every change, so your work is never lost. Version history lets you travel back in time to any point.</div>
+          <div class="tip"><strong>Forgot your password?</strong> We're working on adding password reset. For now, please contact us and we'll help you regain access.</div>
         </div></div>
       </div>
 
-      <div class="faq-item" data-keywords="layers panel select hidden behind cant click">
+      <div class="faq-item" data-keywords="change name update profile personal info edit">
         <button class="faq-question">
-          <span>I can't select the element I want to edit</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>How do I update my profile or display name?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Elements in Figma are often grouped or layered. Here's how to get to the one you need:</p>
+          <p>To update your profile:</p>
           <ul>
-            <li><strong>Double-click repeatedly</strong> to drill into groups until you reach the specific element</li>
-            <li>Hold <kbd>Ctrl</kbd> (or <kbd>&#8984;</kbd>) and click to <strong>select through groups</strong> directly</li>
-            <li>Use the <strong>Layers panel</strong> (left sidebar) to find and click on the exact layer</li>
+            <li>Go to the <strong>Profile</strong> tab</li>
+            <li>Tap <strong>Personal Info</strong></li>
+            <li>Update your display name, age, or height</li>
+            <li>Tap <strong>Save Changes</strong></li>
           </ul>
-          <div class="tip"><strong>Tip:</strong> If something is behind another element, right-click and choose <strong>"Select layer"</strong> to pick from overlapping items.</div>
+          <p>Your display name will appear in the greeting at the top of your dashboard.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" data-keywords="goals weight change update target goal current">
+        <button class="faq-question">
+          <span>How do I change my weight goals?</span>
+          <span class="faq-chevron">&#8964;</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>You can update your goals anytime:</p>
+          <ul>
+            <li>Go to the <strong>Profile</strong> tab</li>
+            <li>Tap <strong>Update Goals</strong></li>
+            <li>Adjust your current weight, goal weight, daily workout time, and more</li>
+            <li>Tap <strong>Save Changes</strong></li>
+          </ul>
+          <p>Your profile stats will update immediately to reflect the changes.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" data-keywords="progress history track streak workout completed">
+        <button class="faq-question">
+          <span>Where can I see my workout history?</span>
+          <span class="faq-chevron">&#8964;</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>Your complete workout history is available in the Profile tab:</p>
+          <ul>
+            <li>Tap <strong>Progress History</strong></li>
+            <li>See your <strong>total workouts, minutes, calories, and streak</strong></li>
+            <li>Browse your <strong>recent activity</strong> with dates and details</li>
+          </ul>
+          <p>Every completed workout is automatically logged — just finish the workout and tap <strong>Done</strong> to save it.</p>
         </div></div>
       </div>
     </div>
 
-    <!-- SHARING & COLLABORATION -->
-    <div class="category cat-sharing" data-category="sharing">
+    <!-- BILLING -->
+    <div class="category" data-category="billing">
       <div class="category-header">
-        <div class="category-icon">&#128279;</div>
-        <h2 class="category-title">Sharing &amp; Collaboration</h2>
+        <div class="category-icon">&#128179;</div>
+        <h2 class="category-title">Billing & Subscription</h2>
       </div>
 
-      <div class="faq-item" data-keywords="share link send someone else collaborate team">
+      <div class="faq-item" data-keywords="subscription plan what included features access">
         <button class="faq-question">
-          <span>How do I share my file with someone else?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>What's included in my plan?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <div class="steps">
-            <ol>
-              <li>Click the <strong>"Share"</strong> button in the top-right corner</li>
-              <li>Type in their <strong>email address</strong></li>
-              <li>Choose their permission level: <strong>"Can view"</strong> or <strong>"Can edit"</strong></li>
-              <li>Click <strong>"Send invite"</strong></li>
-            </ol>
-          </div>
-          <p>Or simply <strong>copy the link</strong> and send it to them. You can adjust whether anyone with the link can view or edit.</p>
+          <p>Your 12-Week Program ($39.99 one-time payment) includes:</p>
+          <ul>
+            <li>Personalized workout plan tailored for women 45+</li>
+            <li>21+ guided workouts across 6 categories</li>
+            <li>Video exercise demonstrations</li>
+            <li>Progress tracking with stats and streaks</li>
+            <li>Daily motivation and tips</li>
+            <li>Full access for 12 weeks from your start date</li>
+          </ul>
+          <div class="tip"><strong>Note:</strong> This is a one-time payment — no recurring charges or surprise fees.</div>
         </div></div>
       </div>
 
-      <div class="faq-item" data-keywords="comment feedback leave note annotation">
+      <div class="faq-item" data-keywords="refund money back cancel return payment">
         <button class="faq-question">
-          <span>How do I leave feedback or comments on the design?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>What is your refund policy?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <div class="steps">
-            <ol>
-              <li>Press <kbd>C</kbd> on your keyboard (or click the <strong>&#128172; comment icon</strong> in the toolbar)</li>
-              <li>Click anywhere on the design where you want to leave feedback</li>
-              <li>Type your comment and press <strong>Enter</strong> to post</li>
-            </ol>
-          </div>
-          <p>Comments are visible to everyone with access to the file. You can also <strong>@mention</strong> people and <strong>reply</strong> to start threads.</p>
-          <div class="tip"><strong>Tip:</strong> This is a great way to give us feedback directly on the design without needing to describe locations in a message.</div>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- EXPORTING -->
-    <div class="category cat-exporting" data-category="exporting">
-      <div class="category-header">
-        <div class="category-icon">&#128229;</div>
-        <h2 class="category-title">Exporting &amp; Downloading</h2>
-      </div>
-
-      <div class="faq-item" data-keywords="export download save image png jpg svg pdf">
-        <button class="faq-question">
-          <span>How do I download / export my design as an image or PDF?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <div class="steps">
-            <ol>
-              <li><strong>Select</strong> the frame or element you want to export (click on it)</li>
-              <li>In the right sidebar, scroll down to the <strong>"Export"</strong> section</li>
-              <li>Click the <strong>"+"</strong> button to add an export setting</li>
-              <li>Choose your format: <strong>PNG</strong> (images), <strong>SVG</strong> (vector), <strong>PDF</strong> (documents)</li>
-              <li>Click <strong>"Export [name]"</strong> to download</li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> For high-quality images, change the export size to <strong>2x</strong> or <strong>3x</strong> before exporting. This gives you a higher resolution image.</div>
+          <p>We want you to be happy with your program! If you're not satisfied within the first <strong>7 days</strong>, contact us for a full refund.</p>
+          <p>To request a refund, email <strong>support@lazyweightloss.com</strong> with your account email and we'll process it within 2-3 business days.</p>
         </div></div>
       </div>
 
-      <div class="faq-item" data-keywords="export whole page all frames everything">
+      <div class="faq-item" data-keywords="access how long expire when end">
         <button class="faq-question">
-          <span>How do I export the entire page at once?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>How long do I have access?</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p>To export multiple frames or the entire page:</p>
-          <div class="steps">
-            <ol>
-              <li>Select all the frames you want — use <kbd>Ctrl</kbd>+<kbd>A</kbd> (or <kbd>&#8984;</kbd>+<kbd>A</kbd>) to select all</li>
-              <li>Or hold <kbd>Shift</kbd> and click each frame you want</li>
-              <li>Go to <strong>File &#8594; Export&#8230;</strong> (or press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>)</li>
-              <li>Review the export list, pick your format, and click <strong>"Export"</strong></li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> Export as <strong>PDF</strong> if you need the whole design in a single document (great for presentations or printing).</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="copy css code inspect developer handoff">
-        <button class="faq-question">
-          <span>How do I get the CSS or code from the design?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <div class="steps">
-            <ol>
-              <li><strong>Click</strong> on any element in the design</li>
-              <li>In the right sidebar, look for the <strong>"Inspect"</strong> tab (or click the <strong>code icon &lt;/&gt;</strong>)</li>
-              <li>You'll see CSS properties, colors, fonts, and spacing values</li>
-              <li>Click to <strong>copy</strong> any value</li>
-            </ol>
-          </div>
-          <p>This is great for developers who need exact colors, font sizes, or spacing from the design.</p>
+          <p>You have <strong>full access for 12 weeks</strong> from the day you sign up.</p>
+          <p>To see your exact access end date, go to <strong>Profile > Subscription</strong>.</p>
+          <p>After 12 weeks, you can renew your plan or continue using the workout library on your own.</p>
         </div></div>
       </div>
     </div>
 
     <!-- TROUBLESHOOTING -->
-    <div class="category cat-troubleshooting" data-category="troubleshooting">
+    <div class="category" data-category="troubleshooting">
       <div class="category-header">
         <div class="category-icon">&#128295;</div>
         <h2 class="category-title">Troubleshooting</h2>
       </div>
 
-      <div class="faq-item" data-keywords="slow loading lag performance freeze crash">
+      <div class="faq-item" data-keywords="video not playing loading broken exercise">
         <button class="faq-question">
-          <span>Figma is running slow or freezing</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>Exercise video isn't playing</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Large design files can sometimes be demanding. Try these fixes:</p>
+          <p>If an exercise video isn't loading, try these steps:</p>
           <ul>
-            <li><strong>Close other browser tabs</strong> — Figma uses a lot of memory</li>
-            <li><strong>Use Chrome</strong> — It has the best performance with Figma</li>
-            <li><strong>Zoom out</strong> — Rendering fewer details speeds things up</li>
-            <li><strong>Avoid browser extensions</strong> — Ad blockers and other extensions can interfere</li>
-            <li><strong>Restart your browser</strong> — A fresh start often fixes lag issues</li>
+            <li><strong>Check your internet connection</strong> — videos need a stable connection to stream</li>
+            <li><strong>Refresh the page</strong> — sometimes a quick reload fixes loading issues</li>
+            <li><strong>Try a different browser</strong> — Chrome and Safari work best</li>
+            <li><strong>Disable ad blockers</strong> — they can sometimes block video embeds</li>
           </ul>
-          <div class="tip"><strong>Tip:</strong> If the file has a lot of pages, only work on the page you need. Switching between pages helps reduce memory usage.</div>
+          <p>Don't worry — if a video can't load, the workout still works! You'll see an animated emoji guide showing each exercise.</p>
         </div></div>
       </div>
 
-      <div class="faq-item" data-keywords="page multiple designs screens tabs frames navigate pages">
+      <div class="faq-item" data-keywords="not saving progress lost data gone reset">
         <button class="faq-question">
-          <span>I can only see one page — where are the other designs?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <span>My progress isn't saving</span>
+          <span class="faq-chevron">&#8964;</span>
         </button>
         <div class="faq-answer"><div class="faq-answer-inner">
-          <p>Figma files can have <strong>multiple pages</strong>. To switch between them:</p>
-          <div class="steps">
-            <ol>
-              <li>Look at the <strong>top of the left sidebar</strong> (Layers panel)</li>
-              <li>You'll see page names listed there (e.g., "Page 1", "Desktop", "Mobile")</li>
-              <li><strong>Click on a page name</strong> to switch to it</li>
-            </ol>
-          </div>
-          <p>If you don't see the sidebar, click the <strong>Layers icon</strong> (stacked squares) on the left toolbar to open it.</p>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="prototype play interact click through animation preview">
-        <button class="faq-question">
-          <span>How do I view the interactive prototype?</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>If the file includes an interactive prototype (clickable demo), here's how to view it:</p>
-          <div class="steps">
-            <ol>
-              <li>Click the <strong>&#9654; Play button</strong> in the top-right corner of the editor</li>
-              <li>A new tab will open with the prototype view</li>
-              <li><strong>Click around</strong> to interact with the design — buttons, links, and navigation should work</li>
-              <li>Press <kbd>R</kbd> to restart the prototype from the beginning</li>
-            </ol>
-          </div>
-          <div class="tip"><strong>Tip:</strong> Blue highlighted areas show you what's clickable. If nothing seems to happen when you click, the prototype might not have interactions set up for that element.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="save auto where saved cloud backup">
-        <button class="faq-question">
-          <span>How do I save my work? I don't see a save button</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p><strong>Figma saves automatically!</strong> There's no save button because every change is saved in real time to the cloud.</p>
-          <p>You'll see a small <strong>cloud icon with a checkmark</strong> in the toolbar — that means everything is saved.</p>
-          <p>If you see a <strong>cloud with an X</strong>, it means Figma lost connection. Don't worry — your changes will sync once you're back online.</p>
-          <div class="tip"><strong>Tip:</strong> If you want to save a specific "checkpoint" of your design, go to <strong>File &#8594; Save to Version History</strong> and add a description. This is like creating a named bookmark you can return to later.</div>
-        </div></div>
-      </div>
-
-      <div class="faq-item" data-keywords="component instance detach override locked editing component">
-        <button class="faq-question">
-          <span>I can't edit something — it seems locked or linked</span>
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer"><div class="faq-answer-inner">
-          <p>This usually means the element is a <strong>component instance</strong> (a reusable design block) or it's been <strong>locked</strong>.</p>
-          <p><strong>If it's locked:</strong></p>
+          <p>Your progress and settings are saved in your browser. If things aren't saving:</p>
           <ul>
-            <li>Select the element, then press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> (or <kbd>&#8984;</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd>) to unlock it</li>
-            <li>Or right-click &#8594; <strong>"Unlock"</strong></li>
+            <li><strong>Make sure you complete workouts</strong> — tap the "Done" button at the end to log it</li>
+            <li><strong>Don't use private/incognito mode</strong> — data isn't saved between sessions in private browsing</li>
+            <li><strong>Use the same browser</strong> — progress is stored per browser, so switching between Chrome and Safari means separate data</li>
+            <li><strong>Don't clear browser data</strong> — clearing cookies/storage will erase your saved progress</li>
           </ul>
-          <p><strong>If it's a component instance:</strong></p>
+          <div class="tip"><strong>Tip:</strong> Your login session is separate from workout data. Even if you log in on a new device, workout history may not transfer since it's stored locally.</div>
+        </div></div>
+      </div>
+
+      <div class="faq-item" data-keywords="page not loading blank white error broken dashboard">
+        <button class="faq-question">
+          <span>The page isn't loading or shows an error</span>
+          <span class="faq-chevron">&#8964;</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>If the dashboard or workout page isn't loading:</p>
           <ul>
-            <li>Right-click the element &#8594; <strong>"Detach instance"</strong></li>
-            <li>This breaks the link and lets you freely edit everything inside</li>
+            <li><strong>Hard refresh</strong> — Press Ctrl+Shift+R (or Cmd+Shift+R on Mac)</li>
+            <li><strong>Check if you're logged in</strong> — You may need to sign in again</li>
+            <li><strong>Try a different device</strong> — Open lazyweightloss.com on your phone or tablet</li>
+            <li><strong>Wait a moment</strong> — Occasionally there may be brief downtime during updates</li>
           </ul>
-          <div class="tip"><strong>Tip:</strong> Detaching an instance is totally fine for your personal copy. It just means the element won't auto-update if the original component changes.</div>
+          <p>If the problem persists, please contact us with a screenshot and we'll help right away.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item" data-keywords="mobile phone tablet responsive screen size small">
+        <button class="faq-question">
+          <span>Does it work on my phone?</span>
+          <span class="faq-chevron">&#8964;</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p><strong>Yes!</strong> Lazy Weight Loss is designed mobile-first and works great on:</p>
+          <ul>
+            <li>iPhone and Android phones</li>
+            <li>iPads and tablets</li>
+            <li>Laptops and desktops</li>
+          </ul>
+          <p>For the best workout experience, we recommend using your <strong>phone in portrait mode</strong> so you can follow along while exercising.</p>
         </div></div>
       </div>
     </div>
 
     <!-- STILL STUCK -->
     <div class="still-stuck">
-      <h3>Still stuck?</h3>
-      <p>No worries — we're here to help. Send us a message and we'll walk you through it.</p>
-      <a href="mailto:support@example.com" class="still-stuck-btn">Contact Support</a>
+      <h3>Still need help?</h3>
+      <p>Our team is here for you. Send us a message and we'll get back within 24 hours.</p>
+      <a href="mailto:support@lazyweightloss.com" class="still-stuck-btn">Email Support</a>
     </div>
 
-  </div><!-- /content -->
+  </div>
 
   <!-- FOOTER -->
   <footer class="footer">
-    <div class="footer-logo">Business <span>Blueprints</span></div>
-    <p>&copy; 2021-2026 Blueprints. All rights reserved.</p>
+    <div class="footer-logo">Lazy<span>WeightLoss</span></div>
+    <p>&copy; 2025 Lazy Weight Loss. All rights reserved.</p>
   </footer>
 
   <script>
     // FAQ Toggle
-    document.querySelectorAll('.faq-question').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const item = btn.closest('.faq-item');
-        const answer = item.querySelector('.faq-answer');
-        const isOpen = item.classList.contains('open');
-
+    document.querySelectorAll('.faq-question').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.closest('.faq-item');
+        var answer = item.querySelector('.faq-answer');
+        var isOpen = item.classList.contains('open');
         if (isOpen) {
           answer.style.maxHeight = null;
           item.classList.remove('open');
@@ -938,54 +644,55 @@
     });
 
     // Search
-    const searchInput = document.getElementById('searchInput');
-    const noResults = document.getElementById('noResults');
-    const faqContent = document.getElementById('faqContent');
+    var searchInput = document.getElementById('searchInput');
+    var noResults = document.getElementById('noResults');
 
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.toLowerCase().trim();
-      let anyVisible = false;
+    searchInput.addEventListener('input', function() {
+      var query = searchInput.value.toLowerCase().trim();
+      var anyVisible = false;
 
-      document.querySelectorAll('.category').forEach(cat => {
-        let catVisible = false;
-        cat.querySelectorAll('.faq-item').forEach(item => {
-          const text = item.textContent.toLowerCase();
-          const keywords = (item.dataset.keywords || '').toLowerCase();
-          const match = !query || text.includes(query) || keywords.includes(query);
+      document.querySelectorAll('.category').forEach(function(cat) {
+        var catVisible = false;
+        cat.querySelectorAll('.faq-item').forEach(function(item) {
+          var text = item.textContent.toLowerCase();
+          var keywords = (item.dataset.keywords || '').toLowerCase();
+          var match = !query || text.indexOf(query) !== -1 || keywords.indexOf(query) !== -1;
           item.style.display = match ? '' : 'none';
           if (match) { catVisible = true; anyVisible = true; }
         });
         cat.style.display = catVisible ? '' : 'none';
       });
 
-      noResults.classList.toggle('visible', !anyVisible && query.length > 0);
+      if (!anyVisible && query.length > 0) {
+        noResults.classList.add('visible');
+      } else {
+        noResults.classList.remove('visible');
+      }
     });
 
     // Quick link filters
-    document.querySelectorAll('.quick-link').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const filter = btn.dataset.filter;
+    document.querySelectorAll('.quick-link').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var filter = btn.dataset.filter;
         searchInput.value = '';
 
-        // Active state
-        document.querySelectorAll('.quick-link').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.quick-link').forEach(function(b) { b.classList.remove('active'); });
         if (filter !== 'all') btn.classList.add('active');
 
-        document.querySelectorAll('.category').forEach(cat => {
+        document.querySelectorAll('.category').forEach(function(cat) {
           if (filter === 'all') {
             cat.style.display = '';
-            cat.querySelectorAll('.faq-item').forEach(i => i.style.display = '');
+            cat.querySelectorAll('.faq-item').forEach(function(i) { i.style.display = ''; });
           } else {
-            const match = cat.dataset.category === filter;
+            var match = cat.dataset.category === filter;
             cat.style.display = match ? '' : 'none';
-            if (match) cat.querySelectorAll('.faq-item').forEach(i => i.style.display = '');
+            if (match) cat.querySelectorAll('.faq-item').forEach(function(i) { i.style.display = ''; });
           }
         });
         noResults.classList.remove('visible');
 
-        // Scroll to content
         if (filter !== 'all') {
-          const target = document.querySelector(`[data-category="${filter}"]`);
+          var target = document.querySelector('[data-category="' + filter + '"]');
           if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
