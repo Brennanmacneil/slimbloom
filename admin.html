@@ -387,6 +387,7 @@
   }
   .save-btn:hover { background: #A8674E; }
   .save-btn:active { transform: scale(0.97); }
+  .save-btn:disabled { background: #B0A89E; cursor: not-allowed; opacity: 0.7; }
   .reset-btn {
     padding: 12px 24px;
     background: transparent;
@@ -452,6 +453,7 @@
     <div class="login-logo">Lazy<span>WeightLoss</span></div>
     <div class="login-subtitle">Admin Dashboard</div>
     <input type="password" class="login-input" id="password-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')attemptLogin()">
+    <input type="password" class="login-input" id="github-token-input" placeholder="GitHub token (for saving)" style="margin-top:2px;font-size:13px;">
     <button class="login-btn" onclick="attemptLogin()">Sign In</button>
     <div class="login-error" id="login-error">Incorrect password. Try again.</div>
   </div>
@@ -621,8 +623,10 @@ var selectedCategory = 'yoga';
 // ===== AUTH =====
 function attemptLogin() {
   var input = document.getElementById('password-input').value;
+  var token = document.getElementById('github-token-input').value.trim();
   if (input === ADMIN_PASSWORD) {
     sessionStorage.setItem('admin_auth', 'true');
+    if (token) sessionStorage.setItem('gh_token', token);
     document.getElementById('login-gate').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
     loadAndRender();
@@ -638,22 +642,30 @@ function doLogout() {
   location.reload();
 }
 
-// ===== DATA LOADING =====
-function loadCurrentData() {
-  try {
-    var s = localStorage.getItem('lwl_workout_schedule');
-    currentData.schedule = s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULTS.schedule));
-  } catch(e) { currentData.schedule = JSON.parse(JSON.stringify(DEFAULTS.schedule)); }
+// ===== GITHUB CONFIG =====
+var GH_OWNER = 'Brennanmacneil';
+var GH_REPO = 'slimbloom';
+var GH_FILE = 'workout-data.json';
+var GH_BRANCH = 'main';
 
-  try {
-    var l = localStorage.getItem('lwl_workout_library');
-    currentData.library = l ? JSON.parse(l) : JSON.parse(JSON.stringify(DEFAULTS.library));
-  } catch(e) { currentData.library = JSON.parse(JSON.stringify(DEFAULTS.library)); }
+// ===== DATA LOADING (from workout-data.json) =====
+function loadCurrentData(cb) {
+  // Default to DEFAULTS
+  currentData.schedule = JSON.parse(JSON.stringify(DEFAULTS.schedule));
+  currentData.library = JSON.parse(JSON.stringify(DEFAULTS.library));
+  currentData.exerciseDb = JSON.parse(JSON.stringify(DEFAULTS.exerciseDb));
 
-  try {
-    var e = localStorage.getItem('lwl_exercise_db');
-    currentData.exerciseDb = e ? JSON.parse(e) : JSON.parse(JSON.stringify(DEFAULTS.exerciseDb));
-  } catch(e2) { currentData.exerciseDb = JSON.parse(JSON.stringify(DEFAULTS.exerciseDb)); }
+  fetch('workout-data.json?v=' + Date.now())
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (data) {
+        if (data.schedule) currentData.schedule = data.schedule;
+        if (data.library) currentData.library = data.library;
+        if (data.exerciseDb) currentData.exerciseDb = data.exerciseDb;
+      }
+      if (cb) cb();
+    })
+    .catch(function() { if (cb) cb(); });
 }
 
 // ===== TAB SWITCHING =====
@@ -892,26 +904,74 @@ function toggleCard(id) {
 
 // ===== SAVE / RESET =====
 function saveAllChanges() {
-  // Collect fresh data from schedule card headers
-  currentData.schedule.forEach(function(w, i) {
+  var token = sessionStorage.getItem('gh_token');
+  if (!token) {
+    showToast('⚠️ No GitHub token — enter it on login');
+    return;
+  }
+
+  currentData.schedule.forEach(function(w) {
     if (w.difficulty) w.diffColor = DIFF_COLORS[w.difficulty] || '#22c55e';
   });
-  localStorage.setItem('lwl_workout_schedule', JSON.stringify(currentData.schedule));
-  localStorage.setItem('lwl_workout_library', JSON.stringify(currentData.library));
-  localStorage.setItem('lwl_exercise_db', JSON.stringify(currentData.exerciseDb));
-  showToast('Changes saved!');
-  // Update schedule card headers
-  renderSchedule();
+
+  var saveBtn = document.querySelector('.save-btn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  var jsonData = JSON.stringify({
+    schedule: currentData.schedule,
+    library: currentData.library,
+    exerciseDb: currentData.exerciseDb
+  }, null, 2);
+
+  // First get the current file SHA (required for updates)
+  fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH, {
+    headers: { 'Authorization': 'token ' + token }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(file) {
+    var sha = file.sha || '';
+    // Push the updated file
+    return fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Update workout data from admin dashboard',
+        content: btoa(unescape(encodeURIComponent(jsonData))),
+        sha: sha,
+        branch: GH_BRANCH
+      })
+    });
+  })
+  .then(function(r) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save All Changes';
+    if (r.ok) {
+      showToast('✅ Saved & published!');
+      renderSchedule();
+    } else {
+      r.json().then(function(err) {
+        showToast('❌ Save failed: ' + (err.message || 'Unknown error'));
+      });
+    }
+  })
+  .catch(function(err) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save All Changes';
+    showToast('❌ Save failed: ' + err.message);
+  });
 }
 
 function resetToDefaults() {
-  if (confirm('Reset all content to defaults? This removes all your changes.')) {
-    localStorage.removeItem('lwl_workout_schedule');
-    localStorage.removeItem('lwl_workout_library');
-    localStorage.removeItem('lwl_exercise_db');
-    loadCurrentData();
+  if (confirm('Reset all content to defaults? This removes all your changes and publishes defaults.')) {
+    currentData.schedule = JSON.parse(JSON.stringify(DEFAULTS.schedule));
+    currentData.library = JSON.parse(JSON.stringify(DEFAULTS.library));
+    currentData.exerciseDb = JSON.parse(JSON.stringify(DEFAULTS.exerciseDb));
     renderAll();
-    showToast('Reset to defaults');
+    saveAllChanges();
   }
 }
 
@@ -932,8 +992,9 @@ function renderAll() {
 }
 
 function loadAndRender() {
-  loadCurrentData();
-  renderAll();
+  loadCurrentData(function() {
+    renderAll();
+  });
 }
 
 // Check session auth on load

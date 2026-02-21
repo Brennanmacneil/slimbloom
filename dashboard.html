@@ -1031,21 +1031,30 @@
     ]
   };
 
-  // ===== LOAD FROM LOCALSTORAGE (Admin Overrides) =====
-  var WORKOUT_SCHEDULE = (function() {
-    try { var s = localStorage.getItem('lwl_workout_schedule'); return s ? JSON.parse(s) : DEFAULT_WORKOUT_SCHEDULE; }
-    catch(e) { return DEFAULT_WORKOUT_SCHEDULE; }
-  })();
+  // ===== LOAD DATA (fetch from workout-data.json, fallback to defaults) =====
+  var WORKOUT_SCHEDULE = DEFAULT_WORKOUT_SCHEDULE;
+  var WORKOUT_LIBRARY = DEFAULT_WORKOUT_LIBRARY;
+  var EXERCISE_DB = DEFAULT_EXERCISE_DB;
+  var _dataReady = false;
 
-  var WORKOUT_LIBRARY = (function() {
-    try { var s = localStorage.getItem('lwl_workout_library'); return s ? JSON.parse(s) : DEFAULT_WORKOUT_LIBRARY; }
-    catch(e) { return DEFAULT_WORKOUT_LIBRARY; }
-  })();
+  function _applyFetchedData(data) {
+    if (data.schedule && Array.isArray(data.schedule)) WORKOUT_SCHEDULE = data.schedule;
+    if (data.library && Array.isArray(data.library)) WORKOUT_LIBRARY = data.library;
+    if (data.exerciseDb && typeof data.exerciseDb === 'object') EXERCISE_DB = data.exerciseDb;
+  }
 
-  var EXERCISE_DB = (function() {
-    try { var s = localStorage.getItem('lwl_exercise_db'); return s ? JSON.parse(s) : DEFAULT_EXERCISE_DB; }
-    catch(e) { return DEFAULT_EXERCISE_DB; }
-  })();
+  function _loadWorkoutData(cb) {
+    try {
+      fetch('workout-data.json?v=' + Date.now())
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (data) _applyFetchedData(data);
+          _dataReady = true;
+          cb();
+        })
+        .catch(function() { _dataReady = true; cb(); });
+    } catch(e) { _dataReady = true; cb(); }
+  }
 
   // ===== TAB SWITCHING =====
   function switchTab(tabId) {
@@ -1496,10 +1505,12 @@
   });
 
   // ===== INIT =====
-  buildWeekStrip();
-  renderWorkoutGrid('all');
-  var todayIdx = (new Date().getDay() === 0) ? 6 : new Date().getDay() - 1;
-  updateWorkoutForDay(todayIdx);
+  _loadWorkoutData(function() {
+    buildWeekStrip();
+    renderWorkoutGrid('all');
+    var todayIdx = (new Date().getDay() === 0) ? 6 : new Date().getDay() - 1;
+    updateWorkoutForDay(todayIdx);
+  });
 </script>
 </body>
 </html>
