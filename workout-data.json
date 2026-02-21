@@ -79,7 +79,8 @@
       "duration": 15,
       "difficulty": "Beginner",
       "category": "yoga",
-      "videoUrl": "https://youtu.be/2IcWJobNDck?si=BMgvqABT6P06UaKr"
+      "videoUrl": "https://youtu.be/2IcWJobNDck?si=BMgvqABT6P06UaKr",
+      "imageUrl": "https://vlfnixgkhfyidmhrglrj.supabase.co/storage/v1/object/public/workout-thumbnails/morning-yoga-flow-1771708773767.png"
     },
     {
       "title": "Yoga for Flexibility",
