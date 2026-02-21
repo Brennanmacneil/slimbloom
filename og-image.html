@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 630px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #FAF6F1 0%, #F0E6DA 100%);
+    font-family: 'Inter', -apple-system, sans-serif;
+    overflow: hidden;
+  }
+  .card {
+    text-align: center;
+  }
+  .logo {
+    font-size: 72px;
+    font-weight: 800;
+    color: #2D2A26;
+    margin-bottom: 16px;
+  }
+  .logo span { color: #C07A5C; }
+  .tagline {
+    font-size: 28px;
+    color: #8A8279;
+    font-weight: 500;
+    margin-bottom: 40px;
+  }
+  .badge {
+    display: inline-block;
+    background: #C07A5C;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 14px 36px;
+    border-radius: 50px;
+  }
+  .corner-tl, .corner-br {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(192,122,92,0.08);
+  }
+  .corner-tl { top: -60px; left: -60px; }
+  .corner-br { bottom: -60px; right: -60px; }
+</style>
+</head>
+<body>
+  <div class="corner-tl"></div>
+  <div class="corner-br"></div>
+  <div class="card">
+    <div class="logo">Lazy<span>WeightLoss</span></div>
+    <div class="tagline">Your personalized weight loss plan for women 45+</div>
+    <div class="badge">Start Your Free Quiz</div>
+  </div>
+</body>
+</html>

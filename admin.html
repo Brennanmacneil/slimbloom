@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lazy Weight Loss - Admin</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #FAF6F1;
+    color: #2D2A26;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ===== LOGIN GATE ===== */
+  .login-gate {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .login-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .login-logo {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .login-logo span { color: #C07A5C; }
+  .login-subtitle {
+    font-size: 13px;
+    color: #8A8279;
+    margin-bottom: 28px;
+  }
+  .login-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #D4CAC0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 14px;
+  }
+  .login-input:focus { border-color: #C07A5C; }
+  .login-btn {
+    width: 100%;
+    padding: 13px;
+    background: #C07A5C;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .login-btn:hover { background: #A8674E; }
+  .login-error {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ===== TOP NAV ===== */
+  .admin-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,246,241,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #E8E0D8;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .admin-nav-logo {
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .admin-nav-logo span { color: #C07A5C; }
+  .admin-nav-badge {
+    background: #EDE8E2;
+    color: #8A8279;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .admin-nav-actions { display: flex; gap: 10px; align-items: center; }
+  .admin-nav-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .admin-nav-btn.preview {
+    background: #EDE8E2;
+    color: #2D2A26;
+  }
+  .admin-nav-btn.preview:hover { background: #E0D6CC; }
+  .admin-nav-btn.logout {
+    background: transparent;
+    color: #8A8279;
+  }
+  .admin-nav-btn.logout:hover { color: #dc2626; }
+
+  /* ===== CONTAINER ===== */
+  .admin-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px 100px;
+  }
+
+  /* ===== TABS ===== */
+  .admin-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-tab {
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1.5px solid #E0D6CC;
+    background: #FFFFFF;
+    color: #8A8279;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .admin-tab.active {
+    background: #C07A5C;
+    color: #FFFFFF;
+    border-color: #C07A5C;
+  }
+  .admin-tab:hover:not(.active) { border-color: #C07A5C; color: #C07A5C; }
+  .admin-tab-panel { display: none; }
+  .admin-tab-panel.active { display: block; }
+
+  /* ===== CARDS ===== */
+  .admin-card {
+    background: #FFFFFF;
+    border: 1px solid #EDE8E2;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    overflow: hidden;
+  }
+  .admin-card-header {
+    padding: 16px 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .admin-card-header:hover { background: #FDFBF8; }
+  .admin-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .admin-card-title .day-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8A8279;
+    background: #EDE8E2;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .admin-card-arrow {
+    font-size: 14px;
+    color: #8A8279;
+    transition: transform 0.2s;
+  }
+  .admin-card.open .admin-card-arrow { transform: rotate(90deg); }
+  .admin-card-body {
+    display: none;
+    padding: 0 18px 18px;
+    border-top: 1px solid #EDE8E2;
+  }
+  .admin-card.open .admin-card-body { display: block; }
+
+  /* ===== FORM ===== */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #8A8279;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #D4CAC0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    background: #FFFFFF;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #C07A5C; }
+  .form-textarea { resize: vertical; min-height: 60px; }
+  .form-input.short { max-width: 80px; }
+  .form-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px 0;
+  }
+  .form-checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #C07A5C;
+  }
+  .form-checkbox-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2D2A26;
+  }
+
+  /* ===== LIBRARY / EXERCISE LIST ===== */
+  .item-card {
+    background: #FFFFFF;
+    border: 1px solid #EDE8E2;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .item-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .item-card-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #8A8279;
+    background: #EDE8E2;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .item-remove-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid #f5c6c6;
+    background: #fff5f5;
+    color: #dc2626;
+    transition: all 0.2s;
+  }
+  .item-remove-btn:hover { background: #fecaca; }
+
+  /* ===== VIDEO URL ===== */
+  .video-url-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .video-url-row .form-input { flex: 1; }
+  .video-url-status {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  /* ===== CATEGORY CHIPS ===== */
+  .category-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .cat-chip {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1.5px solid #E0D6CC;
+    background: #FFFFFF;
+    color: #8A8279;
+    transition: all 0.2s;
+  }
+  .cat-chip.active {
+    background: #FDF0E8;
+    color: #C07A5C;
+    border-color: #C07A5C;
+  }
+
+  /* ===== ADD BUTTON ===== */
+  .add-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    border: 2px dashed #D4CAC0;
+    background: transparent;
+    color: #8A8279;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .add-btn:hover { border-color: #C07A5C; color: #C07A5C; }
+
+  /* ===== SAVE BAR ===== */
+  .save-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid #E8E0D8;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 100;
+  }
+  .save-btn {
+    padding: 12px 32px;
+    background: #C07A5C;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .save-btn:hover { background: #A8674E; }
+  .save-btn:active { transform: scale(0.97); }
+  .reset-btn {
+    padding: 12px 24px;
+    background: transparent;
+    color: #8A8279;
+    border: 1.5px solid #D4CAC0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: #dc2626; color: #dc2626; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2D2A26;
+    color: #FFFFFF;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 200;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: #8A8279;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 500px) {
+    .form-row { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr; }
+    .admin-nav { padding: 12px 16px; }
+    .admin-nav-logo { font-size: 16px; }
+    .admin-nav-btn { padding: 7px 12px; font-size: 12px; }
+    .save-bar { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== PASSWORD GATE ===== -->
+<div id="login-gate" class="login-gate">
+  <div class="login-card">
+    <div class="login-logo">Lazy<span>WeightLoss</span></div>
+    <div class="login-subtitle">Admin Dashboard</div>
+    <input type="password" class="login-input" id="password-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')attemptLogin()">
+    <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div id="admin-panel" style="display:none;">
+  <nav class="admin-nav">
+    <div>
+      <span class="admin-nav-logo">Lazy<span>WeightLoss</span></span>
+      <span class="admin-nav-badge">Admin</span>
+    </div>
+    <div class="admin-nav-actions">
+      <button class="admin-nav-btn preview" onclick="window.open('dashboard.html','_blank')">Preview</button>
+      <button class="admin-nav-btn logout" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="admin-container">
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('schedule')">Weekly Schedule</button>
+      <button class="admin-tab" onclick="switchAdminTab('library')">Workout Library</button>
+      <button class="admin-tab" onclick="switchAdminTab('exercises')">Exercise Database</button>
+    </div>
+
+    <!-- Tab 1: Weekly Schedule -->
+    <div id="panel-schedule" class="admin-tab-panel active">
+      <div class="section-header">7-Day Workout Plan</div>
+      <div id="schedule-list"></div>
+    </div>
+
+    <!-- Tab 2: Workout Library -->
+    <div id="panel-library" class="admin-tab-panel">
+      <div class="section-header">All Workout Cards</div>
+      <div id="library-list"></div>
+      <button class="add-btn" onclick="addLibraryItem()">+ Add Workout</button>
+    </div>
+
+    <!-- Tab 3: Exercise Database -->
+    <div id="panel-exercises" class="admin-tab-panel">
+      <div class="section-header">Exercises by Category</div>
+      <div class="category-chips" id="category-chips"></div>
+      <div id="exercise-list"></div>
+      <button class="add-btn" onclick="addExercise()">+ Add Exercise</button>
+    </div>
+  </div>
+
+  <!-- Save bar -->
+  <div class="save-bar">
+    <button class="reset-btn" onclick="resetToDefaults()">Reset Defaults</button>
+    <button class="save-btn" onclick="saveAllChanges()">Save All Changes</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== ADMIN PASSWORD =====
+var ADMIN_PASSWORD = 'slimbloom2024';
+
+// ===== DEFAULT DATA (mirrors dashboard.html) =====
+var DEFAULTS = {
+  schedule: [
+    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'yoga', desc: 'Gentle stretching and breathing exercises designed for flexibility and calm. Perfect start to your day.', cal: 85 },
+    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', diffColor: '#22c55e', category: 'walking', desc: 'Brisk walk with intervals of faster pace. Focus on posture and arm movement for a full-body benefit.', cal: 120 },
+    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', diffColor: '#22c55e', category: 'chair', desc: 'Seated and standing exercises using a sturdy chair for support. Great for building strength safely.', cal: 75 },
+    { title: 'Rest & Recovery', emoji: '😌', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Light stretching and deep breathing. Let your body recover and rebuild. Active rest is important!', cal: 30, isRest: true },
+    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', diffColor: '#f59e0b', category: 'cardio', desc: 'Marching in place, side steps, and gentle movements that get your heart rate up without jarring your joints.', cal: 140 },
+    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'pilates', desc: 'Core-strengthening moves adapted for beginners. Focus on breathing and controlled movements.', cal: 95 },
+    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Head-to-toe stretching routine to improve flexibility and reduce stiffness. A perfect wind-down.', cal: 40 }
+  ],
+  library: [
+    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', category: 'yoga' },
+    { title: 'Yoga for Flexibility', emoji: '🧘', duration: 20, difficulty: 'Beginner', category: 'yoga' },
+    { title: 'Calming Yoga Session', emoji: '🧘', duration: 25, difficulty: 'Moderate', category: 'yoga' },
+    { title: 'Chair Yoga', emoji: '🧘', duration: 10, difficulty: 'Easy', category: 'yoga' },
+    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', category: 'walking' },
+    { title: 'Interval Walking', emoji: '🚶', duration: 30, difficulty: 'Moderate', category: 'walking' },
+    { title: 'Morning Walk', emoji: '🚶', duration: 15, difficulty: 'Easy', category: 'walking' },
+    { title: 'Walking & Stretching', emoji: '🚶', duration: 25, difficulty: 'Beginner', category: 'walking' },
+    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', category: 'stretching' },
+    { title: 'Morning Stretch', emoji: '🤸', duration: 8, difficulty: 'Easy', category: 'stretching' },
+    { title: 'Deep Stretch Session', emoji: '🤸', duration: 20, difficulty: 'Beginner', category: 'stretching' },
+    { title: 'Hip & Back Release', emoji: '🤸', duration: 15, difficulty: 'Beginner', category: 'stretching' },
+    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', category: 'cardio' },
+    { title: 'Dance Fitness Light', emoji: '❤️', duration: 15, difficulty: 'Beginner', category: 'cardio' },
+    { title: 'Step & Groove', emoji: '❤️', duration: 25, difficulty: 'Moderate', category: 'cardio' },
+    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', category: 'chair' },
+    { title: 'Seated Core Workout', emoji: '🪑', duration: 10, difficulty: 'Beginner', category: 'chair' },
+    { title: 'Chair Cardio', emoji: '🪑', duration: 15, difficulty: 'Moderate', category: 'chair' },
+    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', category: 'pilates' },
+    { title: 'Pilates for Beginners', emoji: '🏋️', duration: 20, difficulty: 'Beginner', category: 'pilates' },
+    { title: 'Pilates Balance Work', emoji: '🏋️', duration: 18, difficulty: 'Moderate', category: 'pilates' }
+  ],
+  exerciseDb: {
+    yoga: [
+      { name: 'Mountain Pose', emoji: '🧘', anim: 'breathe', videoUrl: '' },
+      { name: 'Forward Fold', emoji: '🙆', anim: 'bob', videoUrl: '' },
+      { name: 'Cat-Cow Stretch', emoji: '🐱', anim: 'rock', videoUrl: '' },
+      { name: 'Warrior I', emoji: '🧎', anim: 'pulse', videoUrl: '' },
+      { name: 'Tree Pose', emoji: '🌳', anim: 'sway', videoUrl: '' },
+      { name: "Child's Pose", emoji: '🧒', anim: 'breathe', videoUrl: '' },
+      { name: 'Seated Twist', emoji: '🔄', anim: 'rock', videoUrl: '' },
+      { name: 'Savasana', emoji: '😌', anim: 'breathe', videoUrl: '' }
+    ],
+    walking: [
+      { name: 'Warm Up March', emoji: '🚶', anim: 'bob', videoUrl: '' },
+      { name: 'Brisk Walk', emoji: '🏃', anim: 'bob', videoUrl: '' },
+      { name: 'Side Steps', emoji: '↔️', anim: 'sway', videoUrl: '' },
+      { name: 'High Knees Light', emoji: '🦵', anim: 'bob', videoUrl: '' },
+      { name: 'Arm Swing Walk', emoji: '💪', anim: 'sway', videoUrl: '' },
+      { name: 'Power Stride', emoji: '⚡', anim: 'pulse', videoUrl: '' },
+      { name: 'Cool Down Walk', emoji: '🌿', anim: 'breathe', videoUrl: '' }
+    ],
+    stretching: [
+      { name: 'Neck Rolls', emoji: '🙂', anim: 'rock', videoUrl: '' },
+      { name: 'Shoulder Stretch', emoji: '🤷', anim: 'sway', videoUrl: '' },
+      { name: 'Hamstring Stretch', emoji: '🦵', anim: 'breathe', videoUrl: '' },
+      { name: 'Quad Stretch', emoji: '🦿', anim: 'pulse', videoUrl: '' },
+      { name: 'Spinal Twist', emoji: '🔄', anim: 'rock', videoUrl: '' },
+      { name: 'Calf Stretch', emoji: '🦶', anim: 'breathe', videoUrl: '' },
+      { name: 'Hip Opener', emoji: '🧘', anim: 'sway', videoUrl: '' }
+    ],
+    cardio: [
+      { name: 'March in Place', emoji: '🚶', anim: 'bob', videoUrl: '' },
+      { name: 'Side Steps', emoji: '↔️', anim: 'sway', videoUrl: '' },
+      { name: 'Arm Circles', emoji: '🔄', anim: 'rock', videoUrl: '' },
+      { name: 'Step Touch', emoji: '👟', anim: 'sway', videoUrl: '' },
+      { name: 'Knee Lifts', emoji: '🦵', anim: 'bob', videoUrl: '' },
+      { name: 'Toe Taps', emoji: '🦶', anim: 'pulse', videoUrl: '' },
+      { name: 'Boxing Punches', emoji: '🥊', anim: 'pulse', videoUrl: '' },
+      { name: 'Cool Down March', emoji: '🌿', anim: 'breathe', videoUrl: '' }
+    ],
+    chair: [
+      { name: 'Seated March', emoji: '🪑', anim: 'bob', videoUrl: '' },
+      { name: 'Chair Squats', emoji: '🏋️', anim: 'pulse', videoUrl: '' },
+      { name: 'Seated Twists', emoji: '🔄', anim: 'rock', videoUrl: '' },
+      { name: 'Arm Raises', emoji: '🙌', anim: 'breathe', videoUrl: '' },
+      { name: 'Leg Extensions', emoji: '🦵', anim: 'bob', videoUrl: '' },
+      { name: 'Seated Kicks', emoji: '🦶', anim: 'pulse', videoUrl: '' },
+      { name: 'Chair Dips', emoji: '💺', anim: 'bob', videoUrl: '' }
+    ],
+    pilates: [
+      { name: 'Breathing Focus', emoji: '🌬️', anim: 'breathe', videoUrl: '' },
+      { name: 'Pelvic Tilt', emoji: '🔄', anim: 'rock', videoUrl: '' },
+      { name: 'Bridge', emoji: '🌉', anim: 'pulse', videoUrl: '' },
+      { name: 'Single Leg Stretch', emoji: '🦵', anim: 'bob', videoUrl: '' },
+      { name: 'Hundred Modified', emoji: '💯', anim: 'pulse', videoUrl: '' },
+      { name: 'Roll Up', emoji: '🧘', anim: 'breathe', videoUrl: '' },
+      { name: 'Side Leg Lift', emoji: '🦿', anim: 'sway', videoUrl: '' }
+    ]
+  }
+};
+
+var DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+var CATEGORIES = ['yoga', 'walking', 'stretching', 'cardio', 'chair', 'pilates'];
+var DIFFICULTIES = ['Easy', 'Beginner', 'Moderate'];
+var DIFF_COLORS = { 'Easy': '#3b82f6', 'Beginner': '#22c55e', 'Moderate': '#f59e0b' };
+var ANIMATIONS = ['breathe', 'bob', 'rock', 'sway', 'pulse'];
+
+// ===== STATE =====
+var currentData = { schedule: null, library: null, exerciseDb: null };
+var selectedCategory = 'yoga';
+
+// ===== AUTH =====
+function attemptLogin() {
+  var input = document.getElementById('password-input').value;
+  if (input === ADMIN_PASSWORD) {
+    sessionStorage.setItem('admin_auth', 'true');
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadAndRender();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-input').focus();
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('admin_auth');
+  location.reload();
+}
+
+// ===== DATA LOADING =====
+function loadCurrentData() {
+  try {
+    var s = localStorage.getItem('lwl_workout_schedule');
+    currentData.schedule = s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULTS.schedule));
+  } catch(e) { currentData.schedule = JSON.parse(JSON.stringify(DEFAULTS.schedule)); }
+
+  try {
+    var l = localStorage.getItem('lwl_workout_library');
+    currentData.library = l ? JSON.parse(l) : JSON.parse(JSON.stringify(DEFAULTS.library));
+  } catch(e) { currentData.library = JSON.parse(JSON.stringify(DEFAULTS.library)); }
+
+  try {
+    var e = localStorage.getItem('lwl_exercise_db');
+    currentData.exerciseDb = e ? JSON.parse(e) : JSON.parse(JSON.stringify(DEFAULTS.exerciseDb));
+  } catch(e2) { currentData.exerciseDb = JSON.parse(JSON.stringify(DEFAULTS.exerciseDb)); }
+}
+
+// ===== TAB SWITCHING =====
+function switchAdminTab(name) {
+  document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.admin-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ===== RENDER SCHEDULE =====
+function renderSchedule() {
+  var container = document.getElementById('schedule-list');
+  var html = '';
+  currentData.schedule.forEach(function(w, i) {
+    var isRest = w.isRest ? true : false;
+    html += '<div class="admin-card" id="sched-card-' + i + '">';
+    html += '<div class="admin-card-header" onclick="toggleCard(\'sched-card-' + i + '\')">';
+    html += '<div class="admin-card-title">';
+    html += '<span class="day-label">' + DAY_NAMES[i] + '</span>';
+    html += '<span>' + w.emoji + ' ' + w.title + '</span>';
+    html += '</div>';
+    html += '<span class="admin-card-arrow">&#8250;</span>';
+    html += '</div>';
+    html += '<div class="admin-card-body">';
+    html += '<div class="form-row">';
+    html += '<div class="form-group"><label class="form-label">Title</label><input class="form-input" data-sched="' + i + '" data-field="title" value="' + escHtml(w.title) + '" onchange="updateScheduleField(this)"></div>';
+    html += '<div class="form-group"><label class="form-label">Emoji</label><input class="form-input short" data-sched="' + i + '" data-field="emoji" value="' + w.emoji + '" onchange="updateScheduleField(this)"></div>';
+    html += '</div>';
+    html += '<div class="form-row triple">';
+    html += '<div class="form-group"><label class="form-label">Duration (min)</label><input class="form-input" type="number" min="1" data-sched="' + i + '" data-field="duration" value="' + w.duration + '" onchange="updateScheduleField(this)"></div>';
+    html += '<div class="form-group"><label class="form-label">Calories</label><input class="form-input" type="number" min="0" data-sched="' + i + '" data-field="cal" value="' + w.cal + '" onchange="updateScheduleField(this)"></div>';
+    html += '<div class="form-group"><label class="form-label">Difficulty</label><select class="form-select" data-sched="' + i + '" data-field="difficulty" onchange="updateScheduleField(this)">' + diffOptions(w.difficulty) + '</select></div>';
+    html += '</div>';
+    html += '<div class="form-row">';
+    html += '<div class="form-group"><label class="form-label">Category</label><select class="form-select" data-sched="' + i + '" data-field="category" onchange="updateScheduleField(this)">' + catOptions(w.category) + '</select></div>';
+    html += '</div>';
+    html += '<div class="form-row full">';
+    html += '<div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" data-sched="' + i + '" data-field="desc" onchange="updateScheduleField(this)">' + escHtml(w.desc) + '</textarea></div>';
+    html += '</div>';
+    html += '<div class="form-checkbox-row">';
+    html += '<input type="checkbox" id="rest-' + i + '" data-sched="' + i + '" data-field="isRest" ' + (isRest ? 'checked' : '') + ' onchange="updateScheduleField(this)">';
+    html += '<label class="form-checkbox-label" for="rest-' + i + '">Rest Day</label>';
+    html += '</div>';
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+function updateScheduleField(el) {
+  var idx = parseInt(el.getAttribute('data-sched'));
+  var field = el.getAttribute('data-field');
+  if (field === 'isRest') {
+    currentData.schedule[idx][field] = el.checked;
+  } else if (field === 'duration' || field === 'cal') {
+    currentData.schedule[idx][field] = parseInt(el.value) || 0;
+  } else if (field === 'difficulty') {
+    currentData.schedule[idx][field] = el.value;
+    currentData.schedule[idx].diffColor = DIFF_COLORS[el.value] || '#22c55e';
+  } else {
+    currentData.schedule[idx][field] = el.value;
+  }
+}
+
+// ===== RENDER LIBRARY =====
+function renderLibrary() {
+  var container = document.getElementById('library-list');
+  var html = '';
+  currentData.library.forEach(function(w, i) {
+    html += '<div class="item-card">';
+    html += '<div class="item-card-header"><span class="item-card-num">#' + (i + 1) + '</span><button class="item-remove-btn" onclick="removeLibraryItem(' + i + ')">Remove</button></div>';
+    html += '<div class="form-row">';
+    html += '<div class="form-group"><label class="form-label">Title</label><input class="form-input" data-lib="' + i + '" data-field="title" value="' + escHtml(w.title) + '" onchange="updateLibraryField(this)"></div>';
+    html += '<div class="form-group"><label class="form-label">Emoji</label><input class="form-input short" data-lib="' + i + '" data-field="emoji" value="' + w.emoji + '" onchange="updateLibraryField(this)"></div>';
+    html += '</div>';
+    html += '<div class="form-row triple">';
+    html += '<div class="form-group"><label class="form-label">Duration</label><input class="form-input" type="number" min="1" data-lib="' + i + '" data-field="duration" value="' + w.duration + '" onchange="updateLibraryField(this)"></div>';
+    html += '<div class="form-group"><label class="form-label">Difficulty</label><select class="form-select" data-lib="' + i + '" data-field="difficulty" onchange="updateLibraryField(this)">' + diffOptions(w.difficulty) + '</select></div>';
+    html += '<div class="form-group"><label class="form-label">Category</label><select class="form-select" data-lib="' + i + '" data-field="category" onchange="updateLibraryField(this)">' + catOptions(w.category) + '</select></div>';
+    html += '</div>';
+    html += '<div class="form-row full">';
+    html += '<div class="form-group"><label class="form-label">Video URL</label>';
+    html += '<div class="video-url-row">';
+    html += '<input class="form-input" data-lib="' + i + '" data-field="videoUrl" value="' + escHtml(w.videoUrl || '') + '" placeholder="YouTube or Vimeo URL" onchange="updateLibraryField(this)" oninput="validateLibVideoInput(this,' + i + ')">';
+    html += '<span class="video-url-status" id="lib-vid-status-' + i + '">' + videoStatusIcon(w.videoUrl || '') + '</span>';
+    html += '</div></div>';
+    html += '</div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function updateLibraryField(el) {
+  var idx = parseInt(el.getAttribute('data-lib'));
+  var field = el.getAttribute('data-field');
+  if (field === 'duration') {
+    currentData.library[idx][field] = parseInt(el.value) || 0;
+  } else {
+    currentData.library[idx][field] = el.value;
+  }
+}
+
+function validateLibVideoInput(el, idx) {
+  var statusEl = document.getElementById('lib-vid-status-' + idx);
+  if (statusEl) statusEl.innerHTML = videoStatusIcon(el.value);
+}
+
+function addLibraryItem() {
+  currentData.library.push({ title: 'New Workout', emoji: '💪', duration: 15, difficulty: 'Beginner', category: 'yoga', videoUrl: '' });
+  renderLibrary();
+  showToast('Workout added');
+}
+
+function removeLibraryItem(idx) {
+  if (confirm('Remove "' + currentData.library[idx].title + '"?')) {
+    currentData.library.splice(idx, 1);
+    renderLibrary();
+  }
+}
+
+// ===== RENDER EXERCISES =====
+function renderCategoryChips() {
+  var container = document.getElementById('category-chips');
+  var html = '';
+  CATEGORIES.forEach(function(cat) {
+    var label = cat.charAt(0).toUpperCase() + cat.slice(1);
+    var active = cat === selectedCategory ? ' active' : '';
+    html += '<button class="cat-chip' + active + '" onclick="selectCategory(\'' + cat + '\')">' + label + '</button>';
+  });
+  container.innerHTML = html;
+}
+
+function selectCategory(cat) {
+  selectedCategory = cat;
+  renderCategoryChips();
+  renderExercises();
+}
+
+function renderExercises() {
+  var container = document.getElementById('exercise-list');
+  var exercises = currentData.exerciseDb[selectedCategory] || [];
+  var html = '';
+  exercises.forEach(function(ex, i) {
+    html += '<div class="item-card">';
+    html += '<div class="item-card-header"><span class="item-card-num">#' + (i + 1) + '</span><button class="item-remove-btn" onclick="removeExercise(' + i + ')">Remove</button></div>';
+    html += '<div class="form-row">';
+    html += '<div class="form-group"><label class="form-label">Name</label><input class="form-input" data-ex="' + i + '" data-field="name" value="' + escHtml(ex.name) + '" onchange="updateExerciseField(this)"></div>';
+    html += '<div class="form-group"><label class="form-label">Emoji</label><input class="form-input short" data-ex="' + i + '" data-field="emoji" value="' + ex.emoji + '" onchange="updateExerciseField(this)"></div>';
+    html += '</div>';
+    html += '<div class="form-row">';
+    html += '<div class="form-group"><label class="form-label">Animation</label><select class="form-select" data-ex="' + i + '" data-field="anim" onchange="updateExerciseField(this)">' + animOptions(ex.anim) + '</select></div>';
+    html += '</div>';
+    html += '<div class="form-row full">';
+    html += '<div class="form-group"><label class="form-label">Video URL</label>';
+    html += '<div class="video-url-row">';
+    html += '<input class="form-input" data-ex="' + i + '" data-field="videoUrl" value="' + escHtml(ex.videoUrl || '') + '" placeholder="YouTube or Vimeo URL" onchange="updateExerciseField(this)" oninput="validateVideoInput(this)">';
+    html += '<span class="video-url-status" id="vid-status-' + i + '">' + videoStatusIcon(ex.videoUrl || '') + '</span>';
+    html += '</div></div>';
+    html += '</div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function updateExerciseField(el) {
+  var idx = parseInt(el.getAttribute('data-ex'));
+  var field = el.getAttribute('data-field');
+  currentData.exerciseDb[selectedCategory][idx][field] = el.value;
+}
+
+function addExercise() {
+  currentData.exerciseDb[selectedCategory].push({ name: 'New Exercise', emoji: '💪', anim: 'breathe', videoUrl: '' });
+  renderExercises();
+  showToast('Exercise added');
+}
+
+function removeExercise(idx) {
+  var exercises = currentData.exerciseDb[selectedCategory];
+  if (confirm('Remove "' + exercises[idx].name + '"?')) {
+    exercises.splice(idx, 1);
+    renderExercises();
+  }
+}
+
+// ===== VIDEO URL VALIDATION =====
+function parseVideoUrl(url) {
+  if (!url) return null;
+  var ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  if (ytMatch) return { type: 'youtube', id: ytMatch[1] };
+  var viMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+  if (viMatch) return { type: 'vimeo', id: viMatch[1] };
+  return null;
+}
+
+function videoStatusIcon(url) {
+  if (!url) return '';
+  return parseVideoUrl(url) ? '<span style="color:#22c55e">&#10003;</span>' : '<span style="color:#dc2626">&#10007;</span>';
+}
+
+function validateVideoInput(el) {
+  var idx = el.getAttribute('data-ex');
+  var statusEl = document.getElementById('vid-status-' + idx);
+  if (statusEl) statusEl.innerHTML = videoStatusIcon(el.value);
+}
+
+// ===== HELPERS =====
+function escHtml(str) {
+  var d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function diffOptions(selected) {
+  return DIFFICULTIES.map(function(d) {
+    return '<option value="' + d + '"' + (d === selected ? ' selected' : '') + '>' + d + '</option>';
+  }).join('');
+}
+
+function catOptions(selected) {
+  return CATEGORIES.map(function(c) {
+    var label = c.charAt(0).toUpperCase() + c.slice(1);
+    return '<option value="' + c + '"' + (c === selected ? ' selected' : '') + '>' + label + '</option>';
+  }).join('');
+}
+
+function animOptions(selected) {
+  return ANIMATIONS.map(function(a) {
+    var label = a.charAt(0).toUpperCase() + a.slice(1);
+    return '<option value="' + a + '"' + (a === selected ? ' selected' : '') + '>' + label + '</option>';
+  }).join('');
+}
+
+function toggleCard(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ===== SAVE / RESET =====
+function saveAllChanges() {
+  // Collect fresh data from schedule card headers
+  currentData.schedule.forEach(function(w, i) {
+    if (w.difficulty) w.diffColor = DIFF_COLORS[w.difficulty] || '#22c55e';
+  });
+  localStorage.setItem('lwl_workout_schedule', JSON.stringify(currentData.schedule));
+  localStorage.setItem('lwl_workout_library', JSON.stringify(currentData.library));
+  localStorage.setItem('lwl_exercise_db', JSON.stringify(currentData.exerciseDb));
+  showToast('Changes saved!');
+  // Update schedule card headers
+  renderSchedule();
+}
+
+function resetToDefaults() {
+  if (confirm('Reset all content to defaults? This removes all your changes.')) {
+    localStorage.removeItem('lwl_workout_schedule');
+    localStorage.removeItem('lwl_workout_library');
+    localStorage.removeItem('lwl_exercise_db');
+    loadCurrentData();
+    renderAll();
+    showToast('Reset to defaults');
+  }
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 2200);
+}
+
+// ===== INIT =====
+function renderAll() {
+  renderSchedule();
+  renderLibrary();
+  renderCategoryChips();
+  renderExercises();
+}
+
+function loadAndRender() {
+  loadCurrentData();
+  renderAll();
+}
+
+// Check session auth on load
+if (sessionStorage.getItem('admin_auth') === 'true') {
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('admin-panel').style.display = 'block';
+  loadAndRender();
+}
+</script>
+</body>
+</html>

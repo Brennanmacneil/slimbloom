@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lazy Weight Loss - Your Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta property="og:title" content="Lazy Weight Loss — Your Dashboard">
+<meta property="og:description" content="Track your workouts, follow your plan, and reach your goals.">
+<meta property="og:image" content="https://lazyweightloss.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://lazyweightloss.com/og-image.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #FAF6F1;
+    color: #2D2A26;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ===== APP CONTAINER ===== */
+  .app-container {
+    width: 100%;
+    max-width: 500px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-bottom: 80px;
+  }
+
+  /* ===== TOP NAV ===== */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250, 246, 241, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #E8E0D8;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-nav-logo { font-size: 18px; font-weight: 800; }
+  .top-nav-logo span { color: #C07A5C; }
+  .top-nav-greeting { font-size: 13px; color: #8A8279; font-weight: 500; }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 500px;
+    z-index: 100;
+    background: rgba(250, 246, 241, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid #E8E0D8;
+    display: flex;
+    justify-content: space-around;
+    padding: 6px 0 env(safe-area-inset-bottom, 6px);
+  }
+  .nav-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 20px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .nav-tab-icon { font-size: 22px; line-height: 1; transition: transform 0.2s; }
+  .nav-tab-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #9B9590;
+  }
+  .nav-tab.active .nav-tab-label { color: #C07A5C; }
+  .nav-tab.active .nav-tab-icon { transform: scale(1.1); }
+
+  /* ===== TAB PANELS ===== */
+  .tab-panel {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    animation: tabFadeIn 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .tab-panel.active { display: flex; }
+  @keyframes tabFadeIn {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9B9590;
+    padding: 16px 20px 10px;
+  }
+
+  /* ===== WEEK STRIP ===== */
+  .week-strip {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 2px;
+  }
+  .day-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .day-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9B9590;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .day-number {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2D2A26;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .day-item.selected .day-number {
+    background: #C07A5C;
+    color: #FFFFFF;
+  }
+  .day-item.completed .day-number::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #22c55e;
+  }
+
+  /* ===== TODAY'S WORKOUT CARD ===== */
+  .todays-workout {
+    margin: 0 20px 16px;
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  .workout-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .workout-card-emoji {
+    font-size: 40px;
+    width: 68px;
+    height: 68px;
+    background: linear-gradient(135deg, #F5EEE6 0%, #FDE8DC 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .workout-card-info { flex: 1; }
+  .workout-card-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .workout-card-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .meta-badge-duration { background: #EDE8E2; color: #8A8279; }
+  .meta-badge-difficulty { background: #FDF0E8; color: #8B5A3C; }
+  .workout-card-desc {
+    font-size: 14px;
+    color: #8A8279;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  /* ===== START WORKOUT BUTTON ===== */
+  .start-workout-btn {
+    width: 100%;
+    padding: 16px;
+    background: #C07A5C;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .start-workout-btn:hover { background: #A8674E; }
+
+  /* ===== DAILY PROGRESS ===== */
+  .daily-progress {
+    margin: 0 20px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  .progress-stat {
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  .progress-stat-icon { font-size: 18px; margin-bottom: 4px; }
+  .progress-stat-value { font-size: 22px; font-weight: 800; color: #C07A5C; }
+  .progress-stat-label { font-size: 11px; color: #8A8279; font-weight: 500; margin-top: 2px; }
+
+  /* ===== MOTIVATIONAL CARD ===== */
+  .motivation-card {
+    margin: 4px 20px 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #F5EEE6, #FDE8DC);
+    border-radius: 12px;
+  }
+  .motivation-quote {
+    font-size: 14px;
+    font-style: italic;
+    color: #5A554F;
+    line-height: 1.6;
+  }
+  .motivation-day {
+    font-size: 12px;
+    color: #8A8279;
+    margin-top: 6px;
+  }
+
+  /* ===== REST DAY CARD ===== */
+  .rest-day-card {
+    margin: 0 20px 16px;
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    text-align: center;
+  }
+  .rest-day-emoji { font-size: 48px; margin-bottom: 12px; }
+  .rest-day-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .rest-day-desc { font-size: 14px; color: #8A8279; line-height: 1.6; }
+
+  /* ===== FILTER CHIPS ===== */
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    padding: 12px 20px 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    padding: 8px 16px;
+    border-radius: 25px;
+    background: #FFFFFF;
+    border: 1px solid #D4CAC0;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .filter-chip:hover { background: #F5EEE6; border-color: #B8AFA5; }
+  .filter-chip.active { background: #FDF0E8; border-color: #C07A5C; color: #8B5A3C; }
+
+  /* ===== WORKOUT GRID ===== */
+  .workout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 20px 20px;
+  }
+  .workout-lib-card {
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  .workout-lib-card:hover {
+    border-color: #C07A5C;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  .workout-lib-thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    background: linear-gradient(135deg, #F5EEE6, #FDF0E8);
+  }
+  .workout-lib-body { padding: 12px; }
+  .workout-lib-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+  .workout-lib-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge-sm {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 25px;
+  }
+  .badge-duration { background: #EDE8E2; color: #8A8279; }
+  .badge-difficulty { background: #FDF0E8; color: #8B5A3C; }
+
+  /* ===== PROFILE ===== */
+  .profile-section { padding: 0 20px 20px; }
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 0 20px;
+  }
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F5EEE6, #FDE8DC);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+  .profile-name { font-size: 20px; font-weight: 700; }
+  .profile-plan-tag {
+    font-size: 12px;
+    color: #8B5A3C;
+    background: #FDF0E8;
+    padding: 4px 10px;
+    border-radius: 25px;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .profile-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .profile-stat-card {
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  .profile-stat-label { font-size: 12px; color: #8A8279; font-weight: 500; margin-bottom: 4px; }
+  .profile-stat-value { font-size: 20px; font-weight: 800; }
+
+  .settings-group { margin-bottom: 20px; }
+  .settings-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9B9590;
+    margin-bottom: 10px;
+  }
+  .settings-item {
+    background: #FFFFFF;
+    border: 1px solid #E0D6CC;
+    border-radius: 12px;
+    padding: 15px 18px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  .settings-item:hover { background: #F5EEE6; border-color: #C9BFB3; }
+  .settings-item-left { display: flex; align-items: center; gap: 12px; }
+  .settings-item-icon { font-size: 18px; }
+  .settings-item-label { font-size: 15px; font-weight: 500; }
+  .settings-item-arrow { color: #C9BFB3; font-size: 18px; font-weight: 300; }
+
+  .sign-out-btn {
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    border: 1px solid #E0D6CC;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #8A8279;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .sign-out-btn:hover { background: #F5EEE6; }
+
+  /* ===== ANIMATIONS ===== */
+  .haptic-tap { animation: microShake 0.15s ease; }
+  @keyframes microShake {
+    0% { transform: scale(1); }
+    40% { transform: scale(0.97); }
+    70% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+  }
+  .tab-panel.active .workout-lib-card,
+  .tab-panel.active .settings-item,
+  .tab-panel.active .progress-stat,
+  .tab-panel.active .profile-stat-card {
+    animation: cardSlideUp 0.3s cubic-bezier(0.25, 1, 0.5, 1) both;
+  }
+  .tab-panel.active *:nth-child(1) { animation-delay: 0.03s; }
+  .tab-panel.active *:nth-child(2) { animation-delay: 0.06s; }
+  .tab-panel.active *:nth-child(3) { animation-delay: 0.09s; }
+  .tab-panel.active *:nth-child(4) { animation-delay: 0.12s; }
+  .tab-panel.active *:nth-child(5) { animation-delay: 0.15s; }
+  .tab-panel.active *:nth-child(6) { animation-delay: 0.18s; }
+  @keyframes cardSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .nav-tab:active, .day-item:active, .filter-chip:active,
+  .workout-lib-card:active, .settings-item:active,
+  .start-workout-btn:active, .sign-out-btn:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+  }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 400px) {
+    .workout-card-title { font-size: 16px; }
+    .workout-card-emoji { width: 56px; height: 56px; font-size: 32px; }
+    .workout-grid { gap: 8px; }
+    .workout-lib-name { font-size: 13px; }
+    .daily-progress { gap: 8px; }
+    .progress-stat { padding: 12px 8px; }
+    .progress-stat-value { font-size: 18px; }
+    .start-workout-btn { padding: 14px; font-size: 14px; }
+  }
+
+  /* ===== WORKOUT OVERLAY (shared) ===== */
+  .workout-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #1a1714 0%, #2D2A26 100%);
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .workout-overlay.active { display: flex; }
+  body.overlay-open { overflow: hidden; }
+
+  /* ===== COUNTDOWN SCREEN ===== */
+  .countdown-title {
+    font-size: 16px; font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+  .countdown-ring-container {
+    position: relative; width: 180px; height: 180px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .countdown-ring-svg {
+    position: absolute; top: 0; left: 0;
+    width: 180px; height: 180px; transform: rotate(-90deg);
+  }
+  .countdown-ring-bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 6; }
+  .countdown-ring-progress {
+    fill: none; stroke: #C07A5C; stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 502;
+    stroke-dashoffset: 502;
+    transition: stroke-dashoffset 1s linear;
+  }
+  .countdown-number {
+    font-size: 96px; font-weight: 900; line-height: 1; z-index: 1;
+    animation: countPop 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  @keyframes countPop {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .countdown-skip {
+    position: absolute; bottom: 60px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 15px; font-weight: 500; font-family: inherit;
+    cursor: pointer; padding: 12px 24px; letter-spacing: 0.5px;
+  }
+  .countdown-skip:hover { color: rgba(255,255,255,0.8); }
+
+  /* ===== WORKOUT PLAYER ===== */
+  .player-top-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    z-index: 2;
+  }
+  .player-close-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: none;
+    color: #FFFFFF; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .player-close-btn:hover { background: rgba(255,255,255,0.25); }
+  .player-exercise-count { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); }
+  /* -- Emoji demo (no video) -- */
+  .player-demo-area {
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px; margin-bottom: 32px;
+  }
+  .player-demo-area.anim-breathe { animation: exerciseBreathe 3s ease-in-out infinite; }
+  .player-demo-area.anim-bob { animation: exerciseBob 0.8s ease-in-out infinite; }
+  .player-demo-area.anim-rock { animation: exerciseRock 1.2s ease-in-out infinite; }
+  .player-demo-area.anim-sway { animation: exerciseSway 1.5s ease-in-out infinite; }
+  .player-demo-area.anim-pulse { animation: exercisePulse 1s ease-in-out infinite; }
+  @keyframes exerciseBreathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+  @keyframes exerciseBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  @keyframes exerciseRock { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)} }
+  @keyframes exerciseSway { 0%,100%{transform:translateX(0)} 50%{transform:translateX(14px)} }
+  @keyframes exercisePulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.08);opacity:0.85} }
+
+  /* -- Fullscreen video background -- */
+  .player-video-bg {
+    display: none;
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0; overflow: hidden;
+  }
+  .player-video-bg iframe {
+    width: 100%; height: 100%;
+    border: none;
+    object-fit: cover;
+  }
+  .player-video-bg.active { display: block; }
+
+  /* -- Bottom info overlay with gradient -- */
+  .player-bottom-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent 0%, rgba(0,0,0,0.85) 100%);
+    padding: 80px 24px 28px;
+    display: flex; flex-direction: column; align-items: center;
+    z-index: 1;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .player-exercise-name { font-size: 24px; font-weight: 800; margin-bottom: 4px; text-align: center; padding: 0 20px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+  .player-timer { font-size: 56px; font-weight: 300; color: #C07A5C; font-variant-numeric: tabular-nums; margin-bottom: 4px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .player-exercise-label { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; margin-bottom: 24px; }
+  .player-controls { display: flex; align-items: center; gap: 32px; margin-bottom: 16px; }
+  .player-ctrl-btn {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: none;
+    color: #FFFFFF; font-size: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; backdrop-filter: blur(8px);
+  }
+  .player-ctrl-btn:hover { background: rgba(255,255,255,0.25); }
+  .player-ctrl-btn:active { transform: scale(0.93); }
+  .player-ctrl-btn.play-pause { width: 68px; height: 68px; background: #C07A5C; font-size: 28px; }
+  .player-ctrl-btn.play-pause:hover { background: #A8674E; }
+  .player-ctrl-btn:disabled { opacity: 0.3; cursor: default; }
+  .player-progress-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 4px; background: rgba(255,255,255,0.1);
+    z-index: 2;
+  }
+  .player-progress-fill {
+    height: 100%; background: #C07A5C;
+    border-radius: 0 2px 2px 0;
+    transition: width 0.5s linear; width: 0%;
+  }
+
+  /* Hide emoji demo area when video is active */
+  .player-has-video .player-demo-area { display: none; }
+  /* In emoji mode, keep layout centered as before */
+  .player-no-video .player-bottom-overlay {
+    position: relative; background: none; padding: 0;
+    padding-bottom: 0;
+  }
+  .player-no-video .player-video-bg { display: none !important; }
+
+  /* ===== COMPLETION SCREEN ===== */
+  .completion-emoji { font-size: 72px; margin-bottom: 20px; animation: completionBounce 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+  @keyframes completionBounce { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
+  .completion-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .completion-subtitle { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 32px; }
+  .completion-stats { display: flex; gap: 40px; margin-bottom: 40px; }
+  .completion-stat { text-align: center; }
+  .completion-stat-value { font-size: 36px; font-weight: 800; color: #C07A5C; }
+  .completion-stat-label { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 500; margin-top: 4px; }
+  .completion-done-btn {
+    padding: 16px 48px; background: #C07A5C; color: #FFFFFF;
+    border: none; border-radius: 12px; font-size: 16px;
+    font-weight: 700; letter-spacing: 0.5px; cursor: pointer;
+    font-family: inherit; transition: background 0.2s;
+  }
+  .completion-done-btn:hover { background: #A8674E; }
+  .completion-done-btn:active { transform: scale(0.97); }
+
+  /* Overlay mobile tweaks */
+  @media (max-width: 400px) {
+    .countdown-number { font-size: 72px; }
+    .countdown-ring-container { width: 140px; height: 140px; }
+    .countdown-ring-svg { width: 140px; height: 140px; }
+    .player-demo-area { width: 120px; height: 120px; font-size: 56px; }
+    .player-exercise-name { font-size: 22px; }
+    .player-timer { font-size: 40px; }
+    .player-controls { gap: 24px; }
+    .completion-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Top Nav -->
+  <div class="top-nav">
+    <div class="top-nav-logo">Lazy<span>WeightLoss</span></div>
+    <div class="top-nav-greeting">Hi, Sarah</div>
+  </div>
+
+  <!-- ===== TAB 1: MY PLAN ===== -->
+  <div class="tab-panel active" id="tab-plan">
+    <div class="week-strip" id="week-strip"></div>
+
+    <div class="section-label">TODAY'S WORKOUT</div>
+
+    <div class="todays-workout" id="todays-workout">
+      <div class="workout-card-header">
+        <div class="workout-card-emoji" id="workout-emoji">🧘</div>
+        <div class="workout-card-info">
+          <div class="workout-card-title" id="workout-title">Morning Yoga Flow</div>
+          <div class="workout-card-meta">
+            <span class="meta-badge meta-badge-duration" id="workout-duration">⏱ 15 min</span>
+            <span class="meta-badge meta-badge-difficulty" id="workout-difficulty"><span style="color:#22c55e">●</span> Beginner</span>
+          </div>
+        </div>
+      </div>
+      <p class="workout-card-desc" id="workout-desc">Gentle stretching and breathing exercises designed for flexibility and calm. Perfect start to your day.</p>
+      <button class="start-workout-btn" id="start-btn" onclick="startWorkout()">▶ START WORKOUT</button>
+    </div>
+
+    <div class="section-label">TODAY'S PROGRESS</div>
+
+    <div class="daily-progress">
+      <div class="progress-stat">
+        <div class="progress-stat-icon">🔥</div>
+        <div class="progress-stat-value" id="stat-cal">0</div>
+        <div class="progress-stat-label">Calories</div>
+      </div>
+      <div class="progress-stat">
+        <div class="progress-stat-icon">⏱</div>
+        <div class="progress-stat-value" id="stat-min">0</div>
+        <div class="progress-stat-label">Minutes</div>
+      </div>
+      <div class="progress-stat">
+        <div class="progress-stat-icon">🏆</div>
+        <div class="progress-stat-value">3</div>
+        <div class="progress-stat-label">Day Streak</div>
+      </div>
+    </div>
+
+    <div class="motivation-card">
+      <div class="motivation-quote">"The secret to getting ahead is getting started." 💪</div>
+      <div class="motivation-day">Day 3 of your journey</div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: WORKOUTS ===== -->
+  <div class="tab-panel" id="tab-workouts">
+    <div style="padding: 20px 20px 0;">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">Workouts</h2>
+      <p style="font-size: 14px; color: #8A8279;">Gentle exercises designed for women 45+</p>
+    </div>
+
+    <div class="filter-chips" id="filter-chips">
+      <button class="filter-chip active" data-category="all">All</button>
+      <button class="filter-chip" data-category="yoga">🧘 Yoga</button>
+      <button class="filter-chip" data-category="walking">🚶 Walking</button>
+      <button class="filter-chip" data-category="stretching">🤸 Stretching</button>
+      <button class="filter-chip" data-category="cardio">❤️ Cardio</button>
+      <button class="filter-chip" data-category="chair">🪑 Chair</button>
+      <button class="filter-chip" data-category="pilates">🏋️ Pilates</button>
+    </div>
+
+    <div class="workout-grid" id="workout-grid"></div>
+  </div>
+
+  <!-- ===== TAB 3: PROFILE ===== -->
+  <div class="tab-panel" id="tab-profile">
+    <div class="profile-section">
+
+      <div class="profile-header">
+        <div class="profile-avatar">👩</div>
+        <div>
+          <div class="profile-name">Sarah M.</div>
+          <span class="profile-plan-tag">12-Week Plan</span>
+        </div>
+      </div>
+
+      <div class="profile-stats-grid">
+        <div class="profile-stat-card">
+          <div class="profile-stat-label">Current Weight</div>
+          <div class="profile-stat-value">165 lbs</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-label">Goal Weight</div>
+          <div class="profile-stat-value" style="color:#C07A5C;">140 lbs</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-label">Workouts Done</div>
+          <div class="profile-stat-value">7</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-label">Day Streak</div>
+          <div class="profile-stat-value" style="color:#22c55e;">3 🔥</div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">MY PLAN</div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">📊</span>
+            <span class="settings-item-label">Plan Details</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">🎯</span>
+            <span class="settings-item-label">Update Goals</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">📈</span>
+            <span class="settings-item-label">Progress History</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">ACCOUNT</div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">👤</span>
+            <span class="settings-item-label">Personal Info</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">🔔</span>
+            <span class="settings-item-label">Notifications</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">💳</span>
+            <span class="settings-item-label">Subscription</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">SUPPORT</div>
+        <div class="settings-item" onclick="window.location.href='support.html'">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">💬</span>
+            <span class="settings-item-label">Help Center</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <span class="settings-item-icon">📧</span>
+            <span class="settings-item-label">Contact Us</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+      </div>
+
+      <button class="sign-out-btn">Sign Out</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Workout Countdown Overlay -->
+<div class="workout-overlay" id="countdown-overlay">
+  <div class="countdown-title" id="countdown-workout-title">WORKOUT</div>
+  <div class="countdown-ring-container">
+    <svg class="countdown-ring-svg" viewBox="0 0 180 180">
+      <circle class="countdown-ring-bg" cx="90" cy="90" r="80"/>
+      <circle class="countdown-ring-progress" id="countdown-ring" cx="90" cy="90" r="80"/>
+    </svg>
+    <div class="countdown-number" id="countdown-number">3</div>
+  </div>
+  <button class="countdown-skip" id="countdown-skip">Skip</button>
+</div>
+
+<!-- Workout Player Overlay -->
+<div class="workout-overlay" id="player-overlay">
+  <div id="player-active" class="player-no-video" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;position:relative;">
+    <div class="player-top-bar">
+      <button class="player-close-btn" id="player-close-btn">&times;</button>
+      <div class="player-exercise-count" id="player-exercise-count">1 / 8</div>
+    </div>
+    <div class="player-video-bg" id="player-video-bg"></div>
+    <div class="player-demo-area" id="player-demo">🧘</div>
+    <div class="player-bottom-overlay">
+      <div class="player-exercise-name" id="player-exercise-name">Mountain Pose</div>
+      <div class="player-timer" id="player-timer">0:30</div>
+      <div class="player-exercise-label" id="player-exercise-label">Next: Forward Fold</div>
+      <div class="player-controls">
+        <button class="player-ctrl-btn" id="player-prev">⏮</button>
+        <button class="player-ctrl-btn play-pause" id="player-play-pause">⏸</button>
+        <button class="player-ctrl-btn" id="player-next">⏭</button>
+      </div>
+    </div>
+    <div class="player-progress-bar">
+      <div class="player-progress-fill" id="player-progress-fill"></div>
+    </div>
+  </div>
+  <div id="player-complete" style="display:none;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="completion-emoji">🎉</div>
+    <div class="completion-title">Workout Complete!</div>
+    <div class="completion-subtitle" id="completion-workout-name">Morning Yoga Flow</div>
+    <div class="completion-stats">
+      <div class="completion-stat">
+        <div class="completion-stat-value" id="completion-cal">85</div>
+        <div class="completion-stat-label">Calories</div>
+      </div>
+      <div class="completion-stat">
+        <div class="completion-stat-value" id="completion-min">15</div>
+        <div class="completion-stat-label">Minutes</div>
+      </div>
+      <div class="completion-stat">
+        <div class="completion-stat-value" id="completion-exercises">8</div>
+        <div class="completion-stat-label">Exercises</div>
+      </div>
+    </div>
+    <button class="completion-done-btn" id="completion-done-btn">DONE</button>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <button class="nav-tab active" data-tab="tab-plan">
+    <span class="nav-tab-icon">📋</span>
+    <span class="nav-tab-label">My Plan</span>
+  </button>
+  <button class="nav-tab" data-tab="tab-workouts">
+    <span class="nav-tab-icon">💪</span>
+    <span class="nav-tab-label">Workouts</span>
+  </button>
+  <button class="nav-tab" data-tab="tab-profile">
+    <span class="nav-tab-icon">👤</span>
+    <span class="nav-tab-label">Profile</span>
+  </button>
+</div>
+
+<script>
+  // ===== WORKOUT DATA (Defaults) =====
+  var DEFAULT_WORKOUT_SCHEDULE = [
+    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'yoga', desc: 'Gentle stretching and breathing exercises designed for flexibility and calm. Perfect start to your day.', cal: 85 },
+    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', diffColor: '#22c55e', category: 'walking', desc: 'Brisk walk with intervals of faster pace. Focus on posture and arm movement for a full-body benefit.', cal: 120 },
+    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', diffColor: '#22c55e', category: 'chair', desc: 'Seated and standing exercises using a sturdy chair for support. Great for building strength safely.', cal: 75 },
+    { title: 'Rest & Recovery', emoji: '😌', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Light stretching and deep breathing. Let your body recover and rebuild. Active rest is important!', cal: 30, isRest: true },
+    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', diffColor: '#f59e0b', category: 'cardio', desc: 'Marching in place, side steps, and gentle movements that get your heart rate up without jarring your joints.', cal: 140 },
+    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'pilates', desc: 'Core-strengthening moves adapted for beginners. Focus on breathing and controlled movements.', cal: 95 },
+    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Head-to-toe stretching routine to improve flexibility and reduce stiffness. A perfect wind-down.', cal: 40 }
+  ];
+
+  var DEFAULT_WORKOUT_LIBRARY = [
+    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', category: 'yoga' },
+    { title: 'Yoga for Flexibility', emoji: '🧘', duration: 20, difficulty: 'Beginner', category: 'yoga' },
+    { title: 'Calming Yoga Session', emoji: '🧘', duration: 25, difficulty: 'Moderate', category: 'yoga' },
+    { title: 'Chair Yoga', emoji: '🧘', duration: 10, difficulty: 'Easy', category: 'yoga' },
+    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', category: 'walking' },
+    { title: 'Interval Walking', emoji: '🚶', duration: 30, difficulty: 'Moderate', category: 'walking' },
+    { title: 'Morning Walk', emoji: '🚶', duration: 15, difficulty: 'Easy', category: 'walking' },
+    { title: 'Walking & Stretching', emoji: '🚶', duration: 25, difficulty: 'Beginner', category: 'walking' },
+    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', category: 'stretching' },
+    { title: 'Morning Stretch', emoji: '🤸', duration: 8, difficulty: 'Easy', category: 'stretching' },
+    { title: 'Deep Stretch Session', emoji: '🤸', duration: 20, difficulty: 'Beginner', category: 'stretching' },
+    { title: 'Hip & Back Release', emoji: '🤸', duration: 15, difficulty: 'Beginner', category: 'stretching' },
+    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', category: 'cardio' },
+    { title: 'Dance Fitness Light', emoji: '❤️', duration: 15, difficulty: 'Beginner', category: 'cardio' },
+    { title: 'Step & Groove', emoji: '❤️', duration: 25, difficulty: 'Moderate', category: 'cardio' },
+    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', category: 'chair' },
+    { title: 'Seated Core Workout', emoji: '🪑', duration: 10, difficulty: 'Beginner', category: 'chair' },
+    { title: 'Chair Cardio', emoji: '🪑', duration: 15, difficulty: 'Moderate', category: 'chair' },
+    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', category: 'pilates' },
+    { title: 'Pilates for Beginners', emoji: '🏋️', duration: 20, difficulty: 'Beginner', category: 'pilates' },
+    { title: 'Pilates Balance Work', emoji: '🏋️', duration: 18, difficulty: 'Moderate', category: 'pilates' }
+  ];
+
+  // ===== EXERCISE DATABASE (Defaults) =====
+  var DEFAULT_EXERCISE_DB = {
+    yoga: [
+      { name: 'Mountain Pose', emoji: '🧘', anim: 'breathe' },
+      { name: 'Forward Fold', emoji: '🙆', anim: 'bob' },
+      { name: 'Cat-Cow Stretch', emoji: '🐱', anim: 'rock' },
+      { name: 'Warrior I', emoji: '🧎', anim: 'pulse' },
+      { name: 'Tree Pose', emoji: '🌳', anim: 'sway' },
+      { name: "Child's Pose", emoji: '🧒', anim: 'breathe' },
+      { name: 'Seated Twist', emoji: '🔄', anim: 'rock' },
+      { name: 'Savasana', emoji: '😌', anim: 'breathe' }
+    ],
+    walking: [
+      { name: 'Warm Up March', emoji: '🚶', anim: 'bob' },
+      { name: 'Brisk Walk', emoji: '🏃', anim: 'bob' },
+      { name: 'Side Steps', emoji: '↔️', anim: 'sway' },
+      { name: 'High Knees Light', emoji: '🦵', anim: 'bob' },
+      { name: 'Arm Swing Walk', emoji: '💪', anim: 'sway' },
+      { name: 'Power Stride', emoji: '⚡', anim: 'pulse' },
+      { name: 'Cool Down Walk', emoji: '🌿', anim: 'breathe' }
+    ],
+    stretching: [
+      { name: 'Neck Rolls', emoji: '🙂', anim: 'rock' },
+      { name: 'Shoulder Stretch', emoji: '🤷', anim: 'sway' },
+      { name: 'Hamstring Stretch', emoji: '🦵', anim: 'breathe' },
+      { name: 'Quad Stretch', emoji: '🦿', anim: 'pulse' },
+      { name: 'Spinal Twist', emoji: '🔄', anim: 'rock' },
+      { name: 'Calf Stretch', emoji: '🦶', anim: 'breathe' },
+      { name: 'Hip Opener', emoji: '🧘', anim: 'sway' }
+    ],
+    cardio: [
+      { name: 'March in Place', emoji: '🚶', anim: 'bob' },
+      { name: 'Side Steps', emoji: '↔️', anim: 'sway' },
+      { name: 'Arm Circles', emoji: '🔄', anim: 'rock' },
+      { name: 'Step Touch', emoji: '👟', anim: 'sway' },
+      { name: 'Knee Lifts', emoji: '🦵', anim: 'bob' },
+      { name: 'Toe Taps', emoji: '🦶', anim: 'pulse' },
+      { name: 'Boxing Punches', emoji: '🥊', anim: 'pulse' },
+      { name: 'Cool Down March', emoji: '🌿', anim: 'breathe' }
+    ],
+    chair: [
+      { name: 'Seated March', emoji: '🪑', anim: 'bob' },
+      { name: 'Chair Squats', emoji: '🏋️', anim: 'pulse' },
+      { name: 'Seated Twists', emoji: '🔄', anim: 'rock' },
+      { name: 'Arm Raises', emoji: '🙌', anim: 'breathe' },
+      { name: 'Leg Extensions', emoji: '🦵', anim: 'bob' },
+      { name: 'Seated Kicks', emoji: '🦶', anim: 'pulse' },
+      { name: 'Chair Dips', emoji: '💺', anim: 'bob' }
+    ],
+    pilates: [
+      { name: 'Breathing Focus', emoji: '🌬️', anim: 'breathe' },
+      { name: 'Pelvic Tilt', emoji: '🔄', anim: 'rock' },
+      { name: 'Bridge', emoji: '🌉', anim: 'pulse' },
+      { name: 'Single Leg Stretch', emoji: '🦵', anim: 'bob' },
+      { name: 'Hundred Modified', emoji: '💯', anim: 'pulse' },
+      { name: 'Roll Up', emoji: '🧘', anim: 'breathe' },
+      { name: 'Side Leg Lift', emoji: '🦿', anim: 'sway' }
+    ]
+  };
+
+  // ===== LOAD FROM LOCALSTORAGE (Admin Overrides) =====
+  var WORKOUT_SCHEDULE = (function() {
+    try { var s = localStorage.getItem('lwl_workout_schedule'); return s ? JSON.parse(s) : DEFAULT_WORKOUT_SCHEDULE; }
+    catch(e) { return DEFAULT_WORKOUT_SCHEDULE; }
+  })();
+
+  var WORKOUT_LIBRARY = (function() {
+    try { var s = localStorage.getItem('lwl_workout_library'); return s ? JSON.parse(s) : DEFAULT_WORKOUT_LIBRARY; }
+    catch(e) { return DEFAULT_WORKOUT_LIBRARY; }
+  })();
+
+  var EXERCISE_DB = (function() {
+    try { var s = localStorage.getItem('lwl_exercise_db'); return s ? JSON.parse(s) : DEFAULT_EXERCISE_DB; }
+    catch(e) { return DEFAULT_EXERCISE_DB; }
+  })();
+
+  // ===== TAB SWITCHING =====
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+    var panel = document.getElementById(tabId);
+    if (panel) panel.classList.add('active');
+    var tab = document.querySelector('[data-tab="' + tabId + '"]');
+    if (tab) tab.classList.add('active');
+    window.scrollTo(0, 0);
+    triggerHaptic('light');
+  }
+
+  document.querySelectorAll('.nav-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
+  });
+
+  // ===== WEEK STRIP =====
+  var selectedDayIndex = -1;
+
+  function buildWeekStrip() {
+    var strip = document.getElementById('week-strip');
+    var today = new Date();
+    var dow = today.getDay();
+    var mondayOffset = (dow === 0) ? -6 : 1 - dow;
+    var dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(today);
+      d.setDate(today.getDate() + mondayOffset + i);
+
+      var btn = document.createElement('button');
+      btn.className = 'day-item';
+      btn.dataset.dayIndex = i;
+
+      var isToday = d.toDateString() === today.toDateString();
+      var isPast = d < new Date(today.toDateString());
+
+      if (isToday) {
+        btn.classList.add('selected');
+        selectedDayIndex = i;
+      }
+      if (isPast && !isToday) {
+        btn.classList.add('completed');
+      }
+
+      btn.innerHTML = '<span class="day-name">' + dayNames[i] + '</span><span class="day-number">' + d.getDate() + '</span>';
+
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.day-item').forEach(function(di) { di.classList.remove('selected'); });
+        this.classList.add('selected');
+        var idx = parseInt(this.dataset.dayIndex);
+        selectedDayIndex = idx;
+        updateWorkoutForDay(idx);
+        triggerHaptic('light');
+      });
+
+      strip.appendChild(btn);
+    }
+  }
+
+  // ===== UPDATE WORKOUT DISPLAY =====
+  function updateWorkoutForDay(dayIndex) {
+    var w = WORKOUT_SCHEDULE[dayIndex];
+    var workoutCard = document.getElementById('todays-workout');
+
+    if (w.isRest) {
+      workoutCard.innerHTML =
+        '<div style="text-align:center;padding:12px 0;">' +
+          '<div style="font-size:48px;margin-bottom:12px;">' + w.emoji + '</div>' +
+          '<div style="font-size:20px;font-weight:700;margin-bottom:6px;">' + w.title + '</div>' +
+          '<div class="workout-card-meta" style="justify-content:center;margin-bottom:12px;">' +
+            '<span class="meta-badge meta-badge-duration">⏱ ' + w.duration + ' min</span>' +
+            '<span class="meta-badge meta-badge-difficulty"><span style="color:' + w.diffColor + '">●</span> ' + w.difficulty + '</span>' +
+          '</div>' +
+          '<p class="workout-card-desc" style="text-align:center;">' + w.desc + '</p>' +
+        '</div>';
+      return;
+    }
+
+    workoutCard.innerHTML =
+      '<div class="workout-card-header">' +
+        '<div class="workout-card-emoji">' + w.emoji + '</div>' +
+        '<div class="workout-card-info">' +
+          '<div class="workout-card-title">' + w.title + '</div>' +
+          '<div class="workout-card-meta">' +
+            '<span class="meta-badge meta-badge-duration">⏱ ' + w.duration + ' min</span>' +
+            '<span class="meta-badge meta-badge-difficulty"><span style="color:' + w.diffColor + '">●</span> ' + w.difficulty + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<p class="workout-card-desc">' + w.desc + '</p>' +
+      '<button class="start-workout-btn" onclick="startWorkout()">▶ START WORKOUT</button>';
+  }
+
+  // ===== START WORKOUT =====
+  function startWorkout() {
+    var w = WORKOUT_SCHEDULE[selectedDayIndex];
+    if (!w || w.isRest) return;
+    launchWorkout(w);
+  }
+
+  // ===== WORKOUT GRID =====
+  function renderWorkoutGrid(cat) {
+    var grid = document.getElementById('workout-grid');
+    grid.innerHTML = '';
+    var list = WORKOUT_LIBRARY;
+    if (cat && cat !== 'all') {
+      list = WORKOUT_LIBRARY.filter(function(w) { return w.category === cat; });
+    }
+    list.forEach(function(w) {
+      var card = document.createElement('div');
+      card.className = 'workout-lib-card';
+      card.innerHTML =
+        '<div class="workout-lib-thumb">' + w.emoji + '</div>' +
+        '<div class="workout-lib-body">' +
+          '<div class="workout-lib-name">' + w.title + '</div>' +
+          '<div class="workout-lib-badges">' +
+            '<span class="badge-sm badge-duration">' + w.duration + ' min</span>' +
+            '<span class="badge-sm badge-difficulty">' + w.difficulty + '</span>' +
+          '</div>' +
+        '</div>';
+      card.addEventListener('click', function() { launchWorkout(w); });
+      grid.appendChild(card);
+    });
+  }
+
+  // ===== FILTER CHIPS =====
+  document.getElementById('filter-chips').addEventListener('click', function(e) {
+    var chip = e.target.closest('.filter-chip');
+    if (!chip) return;
+    document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+    chip.classList.add('active');
+    renderWorkoutGrid(chip.dataset.category);
+    triggerHaptic('light');
+  });
+
+  // ===== HAPTIC FEEDBACK =====
+  function triggerHaptic(style) {
+    if (navigator.vibrate) {
+      switch (style) {
+        case 'light':  navigator.vibrate(8); break;
+        case 'medium': navigator.vibrate(15); break;
+        case 'heavy':  navigator.vibrate([10, 30, 10]); break;
+        default:       navigator.vibrate(10); break;
+      }
+    }
+  }
+
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('button, .nav-tab, .day-item, .filter-chip, .workout-lib-card, .settings-item, .start-workout-btn, a[href]');
+    if (!target) return;
+    target.classList.remove('haptic-tap');
+    void target.offsetWidth;
+    target.classList.add('haptic-tap');
+    target.addEventListener('animationend', function() { target.classList.remove('haptic-tap'); }, { once: true });
+  }, true);
+
+  // ===== VIDEO URL PARSER =====
+  function parseVideoUrl(url) {
+    if (!url) return null;
+    var ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    if (ytMatch) return { type: 'youtube', id: ytMatch[1] };
+    var viMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+    if (viMatch) return { type: 'vimeo', id: viMatch[1] };
+    return null;
+  }
+
+  // ===== WORKOUT PLAYER =====
+  var playerState = {
+    workoutData: null,
+    exercises: [],
+    currentExercise: 0,
+    secondsPerExercise: 30,
+    secondsRemaining: 30,
+    totalSeconds: 0,
+    elapsedSeconds: 0,
+    isPaused: false,
+    timerInterval: null,
+    countdownInterval: null,
+    caloriesPerMinute: 0
+  };
+
+  function buildExerciseSequence(category, totalMinutes) {
+    var exercises = EXERCISE_DB[category] || EXERCISE_DB['stretching'];
+    var totalSeconds = totalMinutes * 60;
+    var targetPerExercise = 35;
+    var neededCount = Math.round(totalSeconds / targetPerExercise);
+    neededCount = Math.max(neededCount, 3);
+    var sequence = [];
+    for (var i = 0; i < neededCount; i++) {
+      sequence.push(exercises[i % exercises.length]);
+    }
+    var perExercise = Math.floor(totalSeconds / sequence.length);
+    return { exercises: sequence, secondsPerExercise: perExercise };
+  }
+
+  function launchWorkout(workoutData) {
+    triggerHaptic('medium');
+    var calories = workoutData.cal || Math.round(workoutData.duration * 6);
+    workoutData.cal = calories;
+    var seq;
+    if (workoutData.videoUrl && parseVideoUrl(workoutData.videoUrl)) {
+      // Single video workout — play one video for the full duration
+      seq = {
+        exercises: [{ name: workoutData.title, emoji: workoutData.emoji, anim: 'breathe', videoUrl: workoutData.videoUrl }],
+        secondsPerExercise: workoutData.duration * 60
+      };
+    } else {
+      seq = buildExerciseSequence(workoutData.category, workoutData.duration);
+    }
+    playerState.workoutData = workoutData;
+    playerState.exercises = seq.exercises;
+    playerState.secondsPerExercise = seq.secondsPerExercise;
+    playerState.totalSeconds = workoutData.duration * 60;
+    playerState.elapsedSeconds = 0;
+    playerState.currentExercise = 0;
+    playerState.secondsRemaining = seq.secondsPerExercise;
+    playerState.isPaused = false;
+    playerState.caloriesPerMinute = calories / workoutData.duration;
+    document.body.classList.add('overlay-open');
+    showCountdown(workoutData.title);
+  }
+
+  function showCountdown(workoutTitle) {
+    var overlay = document.getElementById('countdown-overlay');
+    var titleEl = document.getElementById('countdown-workout-title');
+    var numberEl = document.getElementById('countdown-number');
+    var ringEl = document.getElementById('countdown-ring');
+    var skipBtn = document.getElementById('countdown-skip');
+    titleEl.textContent = workoutTitle.toUpperCase();
+    overlay.classList.add('active');
+    var count = 3;
+    numberEl.textContent = count;
+    var circumference = 2 * Math.PI * 80;
+    ringEl.style.strokeDasharray = circumference;
+    ringEl.style.strokeDashoffset = circumference;
+    ringEl.style.transition = 'none';
+    void ringEl.getBoundingClientRect();
+    ringEl.style.transition = 'stroke-dashoffset 1s linear';
+    ringEl.style.strokeDashoffset = circumference * (2 / 3);
+    triggerHaptic('light');
+
+    function countdownTick() {
+      count--;
+      if (count > 0) {
+        numberEl.textContent = count;
+        numberEl.style.animation = 'none';
+        void numberEl.offsetWidth;
+        numberEl.style.animation = 'countPop 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        ringEl.style.strokeDashoffset = circumference * ((count - 1) / 3);
+        triggerHaptic('light');
+      } else {
+        numberEl.textContent = 'GO!';
+        numberEl.style.animation = 'none';
+        void numberEl.offsetWidth;
+        numberEl.style.animation = 'countPop 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        ringEl.style.strokeDashoffset = 0;
+        triggerHaptic('heavy');
+        setTimeout(function() {
+          overlay.classList.remove('active');
+          startPlayer();
+        }, 600);
+      }
+    }
+
+    playerState.countdownInterval = setInterval(function() {
+      countdownTick();
+      if (count <= 0) clearInterval(playerState.countdownInterval);
+    }, 1000);
+
+    function onSkip() {
+      clearInterval(playerState.countdownInterval);
+      overlay.classList.remove('active');
+      startPlayer();
+      skipBtn.removeEventListener('click', onSkip);
+    }
+    skipBtn.addEventListener('click', onSkip);
+  }
+
+  function startPlayer() {
+    var overlay = document.getElementById('player-overlay');
+    var activeView = document.getElementById('player-active');
+    var completeView = document.getElementById('player-complete');
+    activeView.style.display = 'flex';
+    completeView.style.display = 'none';
+    overlay.classList.add('active');
+    updatePlayerUI();
+    resumeTimer();
+  }
+
+  function updatePlayerUI() {
+    var ex = playerState.exercises[playerState.currentExercise];
+    var total = playerState.exercises.length;
+    var demoArea = document.getElementById('player-demo');
+    var videoBg = document.getElementById('player-video-bg');
+    var activeView = document.getElementById('player-active');
+    demoArea.innerHTML = '';
+    videoBg.innerHTML = '';
+    var video = parseVideoUrl(ex.videoUrl);
+    if (video) {
+      var iframeSrc = '';
+      if (video.type === 'youtube') {
+        iframeSrc = 'https://www.youtube.com/embed/' + video.id + '?autoplay=1&controls=0&loop=1&playlist=' + video.id + '&mute=1&modestbranding=1&showinfo=0&rel=0';
+      } else if (video.type === 'vimeo') {
+        iframeSrc = 'https://player.vimeo.com/video/' + video.id + '?autoplay=1&background=1&muted=1';
+      }
+      videoBg.innerHTML = '<iframe src="' + iframeSrc + '" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+      videoBg.classList.add('active');
+      activeView.className = 'player-has-video';
+      activeView.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;position:relative;';
+    } else {
+      videoBg.classList.remove('active');
+      activeView.className = 'player-no-video';
+      activeView.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;position:relative;';
+      demoArea.className = 'player-demo-area anim-' + ex.anim;
+      demoArea.textContent = ex.emoji;
+    }
+    document.getElementById('player-exercise-name').textContent = ex.name;
+    document.getElementById('player-exercise-count').textContent = (playerState.currentExercise + 1) + ' / ' + total;
+    var nextLabel = '';
+    if (playerState.currentExercise < total - 1) {
+      nextLabel = 'Next: ' + playerState.exercises[playerState.currentExercise + 1].name;
+    } else {
+      nextLabel = 'Last exercise!';
+    }
+    document.getElementById('player-exercise-label').textContent = nextLabel;
+    updateTimerDisplay();
+    updateProgressBar();
+    document.getElementById('player-prev').disabled = (playerState.currentExercise === 0);
+    document.getElementById('player-play-pause').textContent = playerState.isPaused ? '▶' : '⏸';
+  }
+
+  function updateTimerDisplay() {
+    var secs = playerState.secondsRemaining;
+    var min = Math.floor(secs / 60);
+    var sec = secs % 60;
+    document.getElementById('player-timer').textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function updateProgressBar() {
+    var pct = (playerState.elapsedSeconds / playerState.totalSeconds) * 100;
+    pct = Math.min(pct, 100);
+    document.getElementById('player-progress-fill').style.width = pct + '%';
+  }
+
+  function resumeTimer() {
+    if (playerState.timerInterval) clearInterval(playerState.timerInterval);
+    playerState.isPaused = false;
+    document.getElementById('player-play-pause').textContent = '⏸';
+    playerState.timerInterval = setInterval(function() {
+      if (playerState.isPaused) return;
+      playerState.secondsRemaining--;
+      playerState.elapsedSeconds++;
+      updateTimerDisplay();
+      updateProgressBar();
+      if (playerState.secondsRemaining <= 0) {
+        if (playerState.currentExercise < playerState.exercises.length - 1) {
+          playerState.currentExercise++;
+          playerState.secondsRemaining = playerState.secondsPerExercise;
+          triggerHaptic('light');
+          updatePlayerUI();
+        } else {
+          clearInterval(playerState.timerInterval);
+          triggerHaptic('heavy');
+          showCompletion();
+        }
+      }
+    }, 1000);
+  }
+
+  function pauseTimer() {
+    playerState.isPaused = true;
+    document.getElementById('player-play-pause').textContent = '▶';
+  }
+
+  function showCompletion() {
+    var activeView = document.getElementById('player-active');
+    var completeView = document.getElementById('player-complete');
+    var w = playerState.workoutData;
+    var actualMinutes = Math.round(playerState.elapsedSeconds / 60);
+    var actualCalories = Math.round(playerState.caloriesPerMinute * actualMinutes);
+    document.getElementById('completion-workout-name').textContent = w.title;
+    document.getElementById('completion-cal').textContent = actualCalories;
+    document.getElementById('completion-min').textContent = actualMinutes;
+    document.getElementById('completion-exercises').textContent = playerState.exercises.length;
+    activeView.style.display = 'none';
+    completeView.style.display = 'flex';
+  }
+
+  function closePlayer(didComplete) {
+    clearInterval(playerState.timerInterval);
+    clearInterval(playerState.countdownInterval);
+    document.getElementById('player-demo').innerHTML = '';
+    document.getElementById('player-video-bg').innerHTML = '';
+    document.getElementById('player-video-bg').classList.remove('active');
+    document.getElementById('player-active').className = 'player-no-video';
+    document.getElementById('player-overlay').classList.remove('active');
+    document.getElementById('countdown-overlay').classList.remove('active');
+    document.body.classList.remove('overlay-open');
+    if (didComplete) {
+      var actualMinutes = Math.round(playerState.elapsedSeconds / 60);
+      var actualCalories = Math.round(playerState.caloriesPerMinute * actualMinutes);
+      var calEl = document.getElementById('stat-cal');
+      var minEl = document.getElementById('stat-min');
+      if (calEl) calEl.textContent = parseInt(calEl.textContent) + actualCalories;
+      if (minEl) minEl.textContent = parseInt(minEl.textContent) + actualMinutes;
+    }
+    playerState.timerInterval = null;
+    playerState.countdownInterval = null;
+  }
+
+  // Player control event listeners
+  document.getElementById('player-play-pause').addEventListener('click', function() {
+    triggerHaptic('light');
+    if (playerState.isPaused) { resumeTimer(); } else { pauseTimer(); }
+  });
+  document.getElementById('player-next').addEventListener('click', function() {
+    triggerHaptic('light');
+    if (playerState.currentExercise < playerState.exercises.length - 1) {
+      playerState.elapsedSeconds += playerState.secondsRemaining;
+      playerState.currentExercise++;
+      playerState.secondsRemaining = playerState.secondsPerExercise;
+      updatePlayerUI();
+    } else {
+      playerState.elapsedSeconds = playerState.totalSeconds;
+      clearInterval(playerState.timerInterval);
+      triggerHaptic('heavy');
+      showCompletion();
+    }
+  });
+  document.getElementById('player-prev').addEventListener('click', function() {
+    triggerHaptic('light');
+    if (playerState.currentExercise > 0) {
+      playerState.elapsedSeconds = Math.max(0, playerState.elapsedSeconds - playerState.secondsRemaining - playerState.secondsPerExercise);
+      playerState.currentExercise--;
+      playerState.secondsRemaining = playerState.secondsPerExercise;
+      updatePlayerUI();
+    }
+  });
+  document.getElementById('player-close-btn').addEventListener('click', function() {
+    triggerHaptic('medium');
+    closePlayer(false);
+  });
+  document.getElementById('completion-done-btn').addEventListener('click', function() {
+    triggerHaptic('medium');
+    closePlayer(true);
+  });
+
+  // ===== INIT =====
+  buildWeekStrip();
+  renderWorkoutGrid('all');
+  var todayIdx = (new Date().getDay() === 0) ? 6 : new Date().getDay() - 1;
+  updateWorkoutForDay(todayIdx);
+</script>
+</body>
+</html>

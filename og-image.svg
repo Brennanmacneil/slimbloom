@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FAF6F1"/>
+      <stop offset="100%" style="stop-color:#F0E6DA"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="0" cy="0" r="200" fill="rgba(192,122,92,0.08)"/>
+  <circle cx="1200" cy="630" r="200" fill="rgba(192,122,92,0.08)"/>
+  <text x="600" y="240" font-family="Arial,Helvetica,sans-serif" font-size="72" font-weight="800" fill="#2D2A26" text-anchor="middle">Lazy<tspan fill="#C07A5C">WeightLoss</tspan></text>
+  <text x="600" y="310" font-family="Arial,Helvetica,sans-serif" font-size="28" font-weight="500" fill="#8A8279" text-anchor="middle">Your personalized weight loss plan for women 45+</text>
+  <rect x="432" y="370" width="336" height="56" rx="28" fill="#C07A5C"/>
+  <text x="600" y="405" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="600" fill="white" text-anchor="middle">Start Your Free Quiz</text>
+</svg>

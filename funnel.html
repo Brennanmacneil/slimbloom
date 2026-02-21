@@ -3,7 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personalized Weight Loss Plan</title>
+<title>Personalized Weight Loss Plan | Lazy Weight Loss</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta property="og:title" content="Lazy Weight Loss — Your Personalized Plan">
+<meta property="og:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
+<meta property="og:image" content="https://lazyweightloss.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lazyweightloss.com/funnel.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lazy Weight Loss — Your Personalized Plan">
+<meta name="twitter:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
+<meta name="twitter:image" content="https://lazyweightloss.com/og-image.png">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -52,9 +64,6 @@
     color: #9B9590;
   }
   .skip-btn {
-    position: fixed;
-    bottom: 18px;
-    right: 18px;
     background: rgba(45, 42, 38, 0.08);
     color: #8A8279;
     border: none;
@@ -63,12 +72,13 @@
     font-size: 11px;
     font-weight: 500;
     cursor: pointer;
-    z-index: 99;
     transition: all 0.2s;
     font-family: inherit;
     letter-spacing: 0.3px;
     text-decoration: none;
     display: inline-block;
+    margin-top: 12px;
+    align-self: center;
   }
   .skip-btn:hover {
     background: rgba(45, 42, 38, 0.15);
@@ -106,12 +116,94 @@
     align-items: center;
     padding: 0 20px 30px;
     flex: 1;
-    animation: fadeIn 0.3s ease;
+    animation: stepBounceIn 0.35s cubic-bezier(0.25, 1, 0.5, 1);
   }
   .step.active { display: flex; }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+  @keyframes stepBounceIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    70% { opacity: 1; transform: translateY(-1px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Haptic tap feedback */
+  .haptic-tap {
+    animation: microShake 0.15s ease;
+  }
+  @keyframes microShake {
+    0% { transform: scale(1); }
+    40% { transform: scale(0.97); }
+    70% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+  }
+
+  /* Loading spinner animation */
+  @keyframes loadingSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes loadingPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.8; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes checkBounce {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.3); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .loading-spin { animation: loadingSpin 1.5s linear infinite; display: inline-block; }
+  .loading-pulse { animation: loadingPulse 1.8s ease-in-out infinite; display: inline-block; }
+  .loading-done { animation: checkBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; }
+  .loading-bar-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .loading-bar-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  .loading-status-fade {
+    animation: statusFade 0.3s ease;
+  }
+  @keyframes statusFade {
+    from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Staggered card entrance within steps */
+  .step.active .option-card,
+  .step.active .radio-card,
+  .step.active .zone-btn,
+  .step.active .chip,
+  .step.active .results-card,
+  .step.active .testimonial-card,
+  .step.active .age-card {
+    animation: cardSlideUp 0.3s cubic-bezier(0.25, 1, 0.5, 1) both;
+  }
+  .step.active *:nth-child(1) { animation-delay: 0.03s; }
+  .step.active *:nth-child(2) { animation-delay: 0.06s; }
+  .step.active *:nth-child(3) { animation-delay: 0.09s; }
+  .step.active *:nth-child(4) { animation-delay: 0.12s; }
+  .step.active *:nth-child(5) { animation-delay: 0.15s; }
+  .step.active *:nth-child(6) { animation-delay: 0.18s; }
+  @keyframes cardSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Active press state for interactive elements */
+  .option-card:active, .radio-card:active, .zone-btn:active,
+  .chip:active, .continue-btn:active, .age-card:active, .skip-btn:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
   }
 
   .step h2 {
@@ -255,6 +347,7 @@
   /* Continue Button */
   .continue-btn {
     width: 100%;
+    max-width: 560px;
     padding: 18px;
     background: #C07A5C;
     color: #fff;
@@ -266,10 +359,18 @@
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
-    margin-top: auto;
+    margin-top: 24px;
+    font-family: inherit;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .continue-btn:hover { background: #A8674E; }
   .continue-btn:disabled { background: #E0D6CC; color: #A09891; cursor: not-allowed; }
+  @media (max-width: 600px) {
+    .continue-btn { margin-top: auto; }
+  }
 
   /* Social Proof */
   .social-proof {
@@ -521,15 +622,13 @@
     .landing-title { font-size: 24px; }
     .option-card { padding: 15px 16px; font-size: 15px; min-height: 52px; }
     .radio-card { padding: 15px 16px; font-size: 15px; min-height: 52px; }
-    .continue-btn { padding: 16px; font-size: 15px; }
+    .continue-btn { padding: 16px; font-size: 15px; min-height: 54px; }
     .numeric-display { font-size: 52px; }
     .age-grid { gap: 8px; }
   }
 </style>
 </head>
 <body>
-
-<a href="checkout.html" class="skip-btn" id="skip-btn">Skip to plan &rarr;</a>
 
 <div class="funnel-container" id="funnel">
 
@@ -565,11 +664,11 @@
 
   <!-- ========== STEP 2: Social Proof ========== -->
   <div class="step" data-step="2">
-    <div class="social-proof" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="social-proof" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;">
       <div class="big-number">2 Million+</div>
       <div class="big-sub">women over 45 trust our plans</div>
       <div class="proof-img">&#128170;&#128105;</div>
-      <button class="continue-btn" onclick="goToStep(3)">CONTINUE</button>
+      <button class="continue-btn" style="align-self:stretch;" onclick="goToStep(3)">CONTINUE</button>
     </div>
   </div>
 
@@ -1294,15 +1393,36 @@
   }
 
   function startLoadingAnimation() {
-    const bar = document.getElementById('loading-bar');
-    const text = document.getElementById('loading-text');
-    const icon = document.getElementById('loading-icon');
+    var bar = document.getElementById('loading-bar');
+    var text = document.getElementById('loading-text');
+    var icon = document.getElementById('loading-icon');
+    var barParent = bar ? bar.parentElement : null;
 
-    setTimeout(() => { bar.style.width = '30%'; text.textContent = 'Calculating your metabolism...'; }, 100);
-    setTimeout(() => { bar.style.width = '60%'; text.textContent = 'Building your exercise plan...'; }, 1200);
-    setTimeout(() => { bar.style.width = '85%'; text.textContent = 'Preparing nutrition guide...'; }, 2200);
-    setTimeout(() => { bar.style.width = '100%'; text.textContent = 'Done!'; icon.textContent = '✅'; }, 3200);
-    setTimeout(() => { goToStep(36); }, 4000);
+    // Add spinning animation to icon
+    if (icon) { icon.className = 'loading-spin'; }
+    // Add shimmer to progress bar
+    if (barParent) { barParent.classList.add('loading-bar-shimmer'); }
+
+    function updateText(msg) {
+      if (text) {
+        text.classList.remove('loading-status-fade');
+        void text.offsetWidth;
+        text.textContent = msg;
+        text.classList.add('loading-status-fade');
+      }
+    }
+
+    setTimeout(function() { if (bar) bar.style.width = '30%'; updateText('Calculating your metabolism...'); triggerHaptic('light'); }, 100);
+    setTimeout(function() { if (bar) bar.style.width = '60%'; updateText('Building your exercise plan...'); triggerHaptic('light'); }, 1200);
+    setTimeout(function() { if (bar) bar.style.width = '85%'; updateText('Preparing nutrition guide...'); triggerHaptic('light'); }, 2200);
+    setTimeout(function() {
+      if (bar) bar.style.width = '100%';
+      updateText('Done!');
+      if (icon) { icon.className = 'loading-done'; icon.textContent = '\u2705'; }
+      if (barParent) { barParent.classList.remove('loading-bar-shimmer'); }
+      triggerHaptic('medium');
+    }, 3200);
+    setTimeout(function() { goToStep(36); }, 4000);
   }
 
   // Insert header into DOM
@@ -1317,6 +1437,47 @@
     </div>
     <div class="category-label" id="category-label" style="display:none;"></div>
   `);
+
+  // Inject skip button into every step (except step 35 loading)
+  document.querySelectorAll('.step').forEach(function(step) {
+    var stepNum = parseInt(step.dataset.step);
+    if (stepNum === 35) return; // no skip on loading screen
+    var skip = document.createElement('a');
+    skip.href = 'checkout.html';
+    skip.className = 'skip-btn';
+    skip.innerHTML = 'Skip to plan &rarr;';
+    step.appendChild(skip);
+  });
+
+  // ===== HAPTIC FEEDBACK SYSTEM =====
+  function triggerHaptic(style) {
+    // Vibration API for mobile devices
+    if (navigator.vibrate) {
+      switch(style) {
+        case 'light':  navigator.vibrate(8); break;
+        case 'medium': navigator.vibrate(15); break;
+        case 'heavy':  navigator.vibrate([10, 30, 10]); break;
+        default:       navigator.vibrate(10); break;
+      }
+    }
+    // CSS micro-shake on the tapped element is handled via class
+  }
+
+  // Add haptic to all interactive elements
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('button, .option-card, .radio-card, .zone-btn, .chip, .age-card, .continue-btn, .skip-btn, .unit-toggle button, a[href]');
+    if (!target) return;
+
+    triggerHaptic('light');
+
+    // Add micro-shake visual feedback
+    target.classList.remove('haptic-tap');
+    void target.offsetWidth; // force reflow to restart animation
+    target.classList.add('haptic-tap');
+    target.addEventListener('animationend', function() {
+      target.classList.remove('haptic-tap');
+    }, { once: true });
+  }, true);
 
   // Init
   updateHeader();

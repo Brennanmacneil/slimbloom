@@ -3,7 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Personalized Weight Loss Plan</title>
+  <title>Your Personalized Weight Loss Plan | Lazy Weight Loss</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta property="og:title" content="Lazy Weight Loss — Your Personalized Plan">
+<meta property="og:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
+<meta property="og:image" content="https://lazyweightloss.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lazyweightloss.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lazy Weight Loss — Your Personalized Plan">
+<meta name="twitter:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
+<meta name="twitter:image" content="https://lazyweightloss.com/og-image.png">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -308,6 +320,8 @@
       border: 7px solid transparent; border-top-color: #FAF6F1;
     }
     .cal-grid .g-cell:hover .g-tooltip { display: block; }
+    .cal-grid .g-cell.g-active .g-tooltip { display: block; }
+    .cal-grid .g-cell.g-active { z-index: 25; }
     .g-tooltip .tt-day { font-size: 10px; font-weight: 700; color: #C07A5C; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
     .g-tooltip .tt-exercise { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
     .g-tooltip .tt-detail { font-size: 11px; color: #8A8279; line-height: 1.5; }
@@ -342,7 +356,13 @@
       .cal-grid .g-cell.g-locked .g-name,
       .cal-grid .g-cell.g-locked .g-icon { filter: blur(4px); }
       .cal-grid .g-cell.g-locked .g-lock-icon { font-size: 10px; }
-      .g-tooltip { width: 160px; padding: 10px 12px; bottom: calc(100% + 8px); }
+      .g-tooltip { width: 160px; padding: 10px 12px; bottom: calc(100% + 8px); pointer-events: auto; }
+      .cal-grid .g-cell { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+      .cal-grid .g-cell.g-active { background: rgba(192,122,92,0.18); border-color: rgba(192,122,92,0.4); }
+      .cal-grid .g-cell.g-locked.g-active .g-lock-icon { opacity: 1; }
+      .cal-grid .g-cell.g-locked.g-active { background: rgba(250,246,241,0.1); border-color: rgba(192,122,92,0.35); }
+      .cal-tooltip-overlay { display: none; position: fixed; inset: 0; z-index: 19; background: transparent; }
+      .cal-tooltip-overlay.active { display: block; }
       .g-tooltip .tt-exercise { font-size: 14px; }
       .calendar-section .cal-title { font-size: 22px; padding-top: 24px; }
       .calendar-section .cal-subtitle { font-size: 12px; padding-bottom: 16px; }
@@ -376,6 +396,42 @@
     .review-stars { color: #F59E0B; font-size: 14px; margin-bottom: 8px; letter-spacing: 2px; }
     .review-text { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
     .review-author { font-size: 13px; color: #8A8279; font-weight: 500; }
+
+    /* ===== COUPON ===== */
+    .coupon-section { margin: 16px 0 8px; }
+    .coupon-toggle {
+      font-size: 13px; color: #8A8279; cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .coupon-toggle:hover { color: #C07A5C; }
+    .coupon-arrow { font-size: 16px; transition: transform 0.2s; }
+    .coupon-form.open ~ .coupon-toggle .coupon-arrow,
+    .coupon-form.open + .coupon-toggle .coupon-arrow { transform: rotate(90deg); }
+    .coupon-form {
+      max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+    }
+    .coupon-form.open { max-height: 100px; margin-top: 10px; }
+    .coupon-input-row { display: flex; gap: 8px; }
+    .coupon-input {
+      flex: 1; padding: 10px 14px; border: 1px solid #E0D6CC;
+      border-radius: 10px; font-size: 14px; font-family: inherit;
+      background: #FFFFFF; color: #2D2A26; outline: none;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .coupon-input:focus { border-color: #C07A5C; }
+    .coupon-apply-btn {
+      padding: 10px 20px; background: #2D2A26; color: #fff;
+      border: none; border-radius: 10px; font-size: 13px;
+      font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: background 0.2s;
+    }
+    .coupon-apply-btn:hover { background: #4A4540; }
+    .coupon-msg {
+      font-size: 13px; margin-top: 8px; font-weight: 500;
+      display: none;
+    }
+    .coupon-msg.success { display: block; color: #22c55e; }
+    .coupon-msg.error { display: block; color: #ef4444; }
 
     /* ===== GUARANTEE ===== */
     .guarantee-section { text-align: center; padding: 40px 0; }
@@ -447,13 +503,53 @@
       .sms-fab svg { width: 30px; height: 30px; }
       .sms-fab-dot { width: 16px; height: 16px; font-size: 9px; }
     }
+
+    /* ===== HAPTIC TAP FEEDBACK ===== */
+    .haptic-tap {
+      animation: microShake 0.15s ease;
+    }
+    @keyframes microShake {
+      0% { transform: scale(1); }
+      40% { transform: scale(0.97); }
+      70% { transform: scale(1.01); }
+      100% { transform: scale(1); }
+    }
+
+    /* Active press states */
+    .plan-option:active, .nav-cta:active, .cta-btn:active,
+    .weight-label:active, .sms-fab:active, .cal-grid .g-cell:active {
+      transform: scale(0.97);
+      transition: transform 0.1s ease;
+    }
+
+    /* ===== SECTION ENTRANCE ANIMATIONS ===== */
+    .page > section, .page > .pricing-section, .page > .calendar-section,
+    .page > .features-section, .page > .guarantee-section {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.34, 1.4, 0.64, 1), transform 0.6s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .page > .section-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== TOOLTIP BOUNCE IN ===== */
+    .g-tooltip {
+      animation: tooltipBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes tooltipBounce {
+      0% { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.92); }
+      60% { opacity: 1; transform: translateX(-50%) translateY(-2px) scale(1.02); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
   </style>
 </head>
 <body>
 
 <!-- NAV -->
 <div class="nav">
-  <div class="nav-logo">Slim<span>Bloom</span></div>
+  <div class="nav-logo">Lazy<span>WeightLoss</span></div>
   <a href="funnel.html" class="nav-cta">Take the Quiz</a>
 </div>
 
@@ -578,12 +674,25 @@
     </div>
 
     <div class="guarantee-link">🏆 <a href="#">Weight loss guarantee — we stick with you</a></div>
-    <button class="cta-btn" onclick="alert('Redirecting to payment...')">GET MY PLAN</button>
+
+    <div class="coupon-section">
+      <div class="coupon-toggle" onclick="document.querySelector('.coupon-form').classList.toggle('open')">Have a coupon code? <span class="coupon-arrow">›</span></div>
+      <div class="coupon-form">
+        <div class="coupon-input-row">
+          <input type="text" class="coupon-input" id="couponInput" placeholder="Enter code" autocomplete="off" spellcheck="false">
+          <button class="coupon-apply-btn" onclick="applyCoupon()">Apply</button>
+        </div>
+        <div class="coupon-msg" id="couponMsg"></div>
+      </div>
+    </div>
+
+    <button class="cta-btn" id="ctaBtn" onclick="handleGetPlan()">GET MY PLAN</button>
   </section>
 
   <!-- ===== CALENDAR / WEEKLY PLAN ===== -->
   <section>
     <div class="calendar-section">
+      <div class="cal-tooltip-overlay" id="calOverlay"></div>
       <h3 class="cal-title">Your <span>Workout</span> Calendar</h3>
       <div class="cal-underline"></div>
       <p class="cal-subtitle">Your personalized 4-week exercise schedule. Hover over any day to preview your action plan.</p>
@@ -773,7 +882,7 @@
       <span>Apple Pay</span>
     </div>
     <div class="safe">Guaranteed Safe Checkout ✅</div>
-    <div class="company">SlimBloom Inc.</div>
+    <div class="company">Lazy Weight Loss Inc.</div>
   </div>
 </div>
 
@@ -786,6 +895,36 @@
 </a>
 
 <script>
+var couponApplied = false;
+
+function applyCoupon() {
+  var input = document.getElementById('couponInput');
+  var msg = document.getElementById('couponMsg');
+  var code = input.value.trim().toUpperCase();
+
+  if (code === 'LAZY') {
+    couponApplied = true;
+    msg.textContent = '✓ Coupon applied — 30 days free access!';
+    msg.className = 'coupon-msg success';
+    input.disabled = true;
+    input.style.opacity = '0.6';
+    var btn = document.getElementById('ctaBtn');
+    btn.textContent = 'START FREE ACCESS';
+    btn.style.background = '#22c55e';
+  } else {
+    msg.textContent = 'Invalid coupon code. Please try again.';
+    msg.className = 'coupon-msg error';
+  }
+}
+
+function handleGetPlan() {
+  if (couponApplied) {
+    window.location.href = 'dashboard.html';
+  } else {
+    alert('Redirecting to payment...');
+  }
+}
+
 function selectPlan(el) {
   const section = el.closest('.pricing-section');
   section.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
@@ -823,6 +962,113 @@ function toggleWeight(mode) {
     dotStart.classList.remove('highlighted');
   }
 }
+
+// Mobile calendar tooltip tap handling
+(function() {
+  var cells = document.querySelectorAll('.cal-grid .g-cell');
+  var overlay = document.getElementById('calOverlay');
+  var activeCell = null;
+
+  function closeTooltip() {
+    if (activeCell) {
+      activeCell.classList.remove('g-active');
+      activeCell = null;
+    }
+    if (overlay) overlay.classList.remove('active');
+  }
+
+  cells.forEach(function(cell) {
+    cell.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (activeCell === cell) {
+        closeTooltip();
+        return;
+      }
+      closeTooltip();
+      cell.classList.add('g-active');
+      activeCell = cell;
+      if (overlay) overlay.classList.add('active');
+
+      // Reposition tooltip if it goes off-screen
+      var tooltip = cell.querySelector('.g-tooltip');
+      if (tooltip) {
+        tooltip.style.left = '';
+        tooltip.style.transform = '';
+        var rect = tooltip.getBoundingClientRect();
+        if (rect.left < 4) {
+          tooltip.style.left = '0';
+          tooltip.style.transform = 'translateX(0)';
+        } else if (rect.right > window.innerWidth - 4) {
+          tooltip.style.left = 'auto';
+          tooltip.style.right = '0';
+          tooltip.style.transform = 'translateX(0)';
+        }
+      }
+    });
+  });
+
+  if (overlay) {
+    overlay.addEventListener('click', closeTooltip);
+  }
+  document.addEventListener('click', function(e) {
+    if (activeCell && !activeCell.contains(e.target)) {
+      closeTooltip();
+    }
+  });
+})();
+
+// ===== HAPTIC FEEDBACK SYSTEM =====
+function triggerHaptic(style) {
+  if (navigator.vibrate) {
+    switch(style) {
+      case 'light':  navigator.vibrate(8); break;
+      case 'medium': navigator.vibrate(15); break;
+      case 'heavy':  navigator.vibrate([10, 30, 10]); break;
+      default:       navigator.vibrate(10); break;
+    }
+  }
+}
+
+document.addEventListener('click', function(e) {
+  var target = e.target.closest('button, .plan-option, .weight-label, .nav-cta, .cta-btn, .sms-fab, .cal-grid .g-cell, a[href]');
+  if (!target) return;
+
+  triggerHaptic('light');
+
+  target.classList.remove('haptic-tap');
+  void target.offsetWidth;
+  target.classList.add('haptic-tap');
+  target.addEventListener('animationend', function() {
+    target.classList.remove('haptic-tap');
+  }, { once: true });
+}, true);
+
+// ===== SCROLL-TRIGGERED SECTION ENTRANCE =====
+(function() {
+  var sections = document.querySelectorAll('.page > section, .page > .pricing-section, .page > .calendar-section, .page > .features-section, .page > .guarantee-section');
+  if (!sections.length) {
+    // Fallback: animate all direct children of .page
+    sections = document.querySelectorAll('.page > *');
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('section-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  sections.forEach(function(s) {
+    observer.observe(s);
+  });
+
+  // Show first section immediately
+  if (sections.length > 0) {
+    sections[0].classList.add('section-visible');
+  }
+})();
 </script>
 </body>
 </html>
