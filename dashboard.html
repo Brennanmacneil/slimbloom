@@ -47,15 +47,19 @@
     var email = user.email || '';
     var nameEl = document.querySelector('.profile-name');
     var avatarEl = document.querySelector('.profile-avatar');
-    if (nameEl) {
-      // Show email username part or full email
-      var displayName = email.split('@')[0];
-      // Capitalize first letter
+    var greetEl = document.getElementById('topNavGreeting');
+    // Check for saved display name first
+    var savedProfile = null;
+    try { var p = localStorage.getItem('lwl_profile'); if (p) savedProfile = JSON.parse(p); } catch(e) {}
+    var displayName = (savedProfile && savedProfile.displayName) ? savedProfile.displayName : '';
+    if (!displayName) {
+      displayName = email.split('@')[0];
       displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-      nameEl.textContent = displayName;
     }
+    if (nameEl) nameEl.textContent = displayName;
+    if (greetEl) greetEl.textContent = 'Hi, ' + displayName;
     if (avatarEl) {
-      avatarEl.textContent = email ? email.charAt(0).toUpperCase() : '👩';
+      avatarEl.textContent = displayName ? displayName.charAt(0).toUpperCase() : (email ? email.charAt(0).toUpperCase() : '👩');
     }
   }
 
@@ -503,6 +507,197 @@
   }
   .sign-out-btn:hover { background: #F5EEE6; }
 
+  /* ===== SETTINGS PANELS (Slide-in) ===== */
+  .settings-panel-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 500; opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .settings-panel-overlay.active { opacity: 1; pointer-events: auto; }
+
+  .settings-panel {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: 100%; max-width: 500px;
+    background: #FAF6F1;
+    z-index: 501;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .settings-panel.active { transform: translateX(0); }
+
+  .settings-panel-header {
+    position: sticky; top: 0; z-index: 2;
+    background: rgba(250,246,241,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #E8E0D8;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .settings-panel-back {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #FFFFFF; border: 1px solid #E0D6CC;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px; color: #2D2A26;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .settings-panel-back:hover { background: #F5EEE6; }
+  .settings-panel-title { font-size: 18px; font-weight: 700; }
+
+  .settings-panel-body { padding: 20px; flex: 1; }
+
+  /* Form elements within panels */
+  .sp-card {
+    background: #FFFFFF; border: 1px solid #E0D6CC;
+    border-radius: 14px; padding: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    margin-bottom: 14px;
+  }
+  .sp-card-title {
+    font-size: 13px; font-weight: 700; color: #8A8279;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .sp-row {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: 8px 0;
+    border-bottom: 1px solid #F0EBE4;
+  }
+  .sp-row:last-child { border-bottom: none; }
+  .sp-row-label { font-size: 14px; color: #8A8279; font-weight: 500; }
+  .sp-row-value { font-size: 14px; font-weight: 600; color: #2D2A26; }
+
+  .sp-input-group { margin-bottom: 16px; }
+  .sp-label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: #8A8279; margin-bottom: 6px;
+  }
+  .sp-input {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid #D4CAC0; border-radius: 10px;
+    font-size: 15px; font-family: inherit;
+    background: #FFFFFF; color: #2D2A26;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .sp-input:focus { border-color: #C07A5C; }
+  .sp-input[readonly] { background: #F5F0EB; color: #8A8279; }
+
+  .sp-select {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid #D4CAC0; border-radius: 10px;
+    font-size: 15px; font-family: inherit;
+    background: #FFFFFF; color: #2D2A26;
+    outline: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238A8279'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+
+  .sp-save-btn {
+    width: 100%; padding: 14px;
+    background: #C07A5C; color: #FFFFFF;
+    border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.2s;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+  }
+  .sp-save-btn:hover { background: #A8674E; }
+  .sp-save-btn:active { transform: scale(0.98); }
+
+  /* Toggle switch */
+  .sp-toggle-row {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: 12px 0;
+    border-bottom: 1px solid #F0EBE4;
+  }
+  .sp-toggle-row:last-child { border-bottom: none; }
+  .sp-toggle-label { font-size: 15px; font-weight: 500; }
+  .sp-toggle-sub { font-size: 12px; color: #8A8279; margin-top: 2px; }
+  .sp-toggle {
+    position: relative; width: 48px; height: 28px;
+    background: #D4CAC0; border-radius: 14px;
+    cursor: pointer; transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .sp-toggle.active { background: #C07A5C; }
+  .sp-toggle::after {
+    content: ''; position: absolute;
+    top: 3px; left: 3px;
+    width: 22px; height: 22px;
+    background: #FFFFFF; border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .sp-toggle.active::after { transform: translateX(20px); }
+
+  /* Progress history chart */
+  .sp-history-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid #F0EBE4;
+  }
+  .sp-history-item:last-child { border-bottom: none; }
+  .sp-history-date {
+    width: 48px; text-align: center; flex-shrink: 0;
+  }
+  .sp-history-day { font-size: 11px; color: #8A8279; font-weight: 500; }
+  .sp-history-num { font-size: 16px; font-weight: 700; }
+  .sp-history-info { flex: 1; }
+  .sp-history-name { font-size: 14px; font-weight: 600; }
+  .sp-history-meta { font-size: 12px; color: #8A8279; margin-top: 2px; }
+  .sp-history-status {
+    font-size: 20px; flex-shrink: 0;
+  }
+  .sp-empty-state {
+    text-align: center; padding: 40px 20px; color: #8A8279;
+  }
+  .sp-empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+  .sp-empty-state-text { font-size: 15px; font-weight: 500; line-height: 1.5; }
+
+  /* Toast */
+  .sp-toast {
+    position: fixed; bottom: 100px;
+    left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #2D2A26; color: #FFFFFF;
+    padding: 12px 24px; border-radius: 25px;
+    font-size: 14px; font-weight: 600;
+    z-index: 600; opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none; white-space: nowrap;
+  }
+  .sp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Contact form textarea */
+  .sp-textarea {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid #D4CAC0; border-radius: 10px;
+    font-size: 15px; font-family: inherit;
+    background: #FFFFFF; color: #2D2A26;
+    outline: none; resize: vertical;
+    min-height: 120px; transition: border-color 0.2s;
+  }
+  .sp-textarea:focus { border-color: #C07A5C; }
+
+  /* Subscription plan card */
+  .sp-plan-active {
+    border: 2px solid #C07A5C;
+    background: linear-gradient(135deg, #FFFFFF, #FDF8F5);
+  }
+  .sp-plan-badge {
+    display: inline-block; padding: 4px 12px;
+    background: #C07A5C; color: #FFFFFF;
+    border-radius: 25px; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
   /* ===== ANIMATIONS ===== */
   .haptic-tap { animation: microShake 0.15s ease; }
   @keyframes microShake {
@@ -766,7 +961,7 @@
   <!-- Top Nav -->
   <div class="top-nav">
     <div class="top-nav-logo">Lazy<span>WeightLoss</span></div>
-    <div class="top-nav-greeting">Hi, Sarah</div>
+    <div class="top-nav-greeting" id="topNavGreeting">Hi there</div>
   </div>
 
   <!-- ===== TAB 1: MY PLAN ===== -->
@@ -869,21 +1064,21 @@
 
       <div class="settings-group">
         <div class="settings-group-title">MY PLAN</div>
-        <div class="settings-item">
+        <div class="settings-item" onclick="openSettingsPanel('panel-plan-details')">
           <div class="settings-item-left">
             <span class="settings-item-icon">📊</span>
             <span class="settings-item-label">Plan Details</span>
           </div>
           <span class="settings-item-arrow">›</span>
         </div>
-        <div class="settings-item">
+        <div class="settings-item" onclick="openSettingsPanel('panel-update-goals')">
           <div class="settings-item-left">
             <span class="settings-item-icon">🎯</span>
             <span class="settings-item-label">Update Goals</span>
           </div>
           <span class="settings-item-arrow">›</span>
         </div>
-        <div class="settings-item">
+        <div class="settings-item" onclick="openSettingsPanel('panel-progress-history')">
           <div class="settings-item-left">
             <span class="settings-item-icon">📈</span>
             <span class="settings-item-label">Progress History</span>
@@ -894,21 +1089,21 @@
 
       <div class="settings-group">
         <div class="settings-group-title">ACCOUNT</div>
-        <div class="settings-item">
+        <div class="settings-item" onclick="openSettingsPanel('panel-personal-info')">
           <div class="settings-item-left">
             <span class="settings-item-icon">👤</span>
             <span class="settings-item-label">Personal Info</span>
           </div>
           <span class="settings-item-arrow">›</span>
         </div>
-        <div class="settings-item">
+        <div class="settings-item" onclick="openSettingsPanel('panel-notifications')">
           <div class="settings-item-left">
             <span class="settings-item-icon">🔔</span>
             <span class="settings-item-label">Notifications</span>
           </div>
           <span class="settings-item-arrow">›</span>
         </div>
-        <div class="settings-item">
+        <div class="settings-item" onclick="openSettingsPanel('panel-subscription')">
           <div class="settings-item-left">
             <span class="settings-item-icon">💳</span>
             <span class="settings-item-label">Subscription</span>
@@ -926,7 +1121,7 @@
           </div>
           <span class="settings-item-arrow">›</span>
         </div>
-        <div class="settings-item">
+        <div class="settings-item" onclick="openSettingsPanel('panel-contact-us')">
           <div class="settings-item-left">
             <span class="settings-item-icon">📧</span>
             <span class="settings-item-label">Contact Us</span>
@@ -998,6 +1193,337 @@
     <button class="completion-done-btn" id="completion-done-btn">DONE</button>
   </div>
 </div>
+
+<!-- Settings Panel Overlay -->
+<div class="settings-panel-overlay" id="settings-overlay" onclick="closeSettingsPanel()"></div>
+
+<!-- Panel: Plan Details -->
+<div class="settings-panel" id="panel-plan-details">
+  <div class="settings-panel-header">
+    <button class="settings-panel-back" onclick="closeSettingsPanel()">&#8249;</button>
+    <div class="settings-panel-title">Plan Details</div>
+  </div>
+  <div class="settings-panel-body">
+    <div class="sp-card">
+      <div class="sp-card-title">Your Plan</div>
+      <div class="sp-row">
+        <span class="sp-row-label">Plan Type</span>
+        <span class="sp-row-value">12-Week Program</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Started</span>
+        <span class="sp-row-value" id="pd-start-date">—</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Week</span>
+        <span class="sp-row-value" id="pd-current-week">1 of 12</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Status</span>
+        <span class="sp-row-value" style="color:#22c55e;">Active</span>
+      </div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">Weekly Schedule</div>
+      <div id="pd-schedule-list"></div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">Your Goals</div>
+      <div class="sp-row">
+        <span class="sp-row-label">Current Weight</span>
+        <span class="sp-row-value" id="pd-current-weight">165 lbs</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Goal Weight</span>
+        <span class="sp-row-value" id="pd-goal-weight" style="color:#C07A5C;">140 lbs</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Daily Time</span>
+        <span class="sp-row-value" id="pd-daily-time">15-20 min</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Panel: Update Goals -->
+<div class="settings-panel" id="panel-update-goals">
+  <div class="settings-panel-header">
+    <button class="settings-panel-back" onclick="closeSettingsPanel()">&#8249;</button>
+    <div class="settings-panel-title">Update Goals</div>
+  </div>
+  <div class="settings-panel-body">
+    <div class="sp-card">
+      <div class="sp-card-title">Weight Goals</div>
+      <div class="sp-input-group">
+        <label class="sp-label">Current Weight (lbs)</label>
+        <input class="sp-input" type="number" id="goal-current-weight" value="165" min="80" max="500">
+      </div>
+      <div class="sp-input-group">
+        <label class="sp-label">Goal Weight (lbs)</label>
+        <input class="sp-input" type="number" id="goal-target-weight" value="140" min="80" max="500">
+      </div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">Activity Preferences</div>
+      <div class="sp-input-group">
+        <label class="sp-label">Daily Workout Time</label>
+        <select class="sp-select" id="goal-daily-time">
+          <option value="10">10 minutes</option>
+          <option value="15" selected>15 minutes</option>
+          <option value="20">20 minutes</option>
+          <option value="25">25 minutes</option>
+          <option value="30">30 minutes</option>
+        </select>
+      </div>
+      <div class="sp-input-group">
+        <label class="sp-label">Difficulty Level</label>
+        <select class="sp-select" id="goal-difficulty">
+          <option value="Easy">Easy</option>
+          <option value="Beginner" selected>Beginner</option>
+          <option value="Moderate">Moderate</option>
+        </select>
+      </div>
+      <div class="sp-input-group">
+        <label class="sp-label">Weekly Workout Days</label>
+        <select class="sp-select" id="goal-weekly-days">
+          <option value="3">3 days</option>
+          <option value="4">4 days</option>
+          <option value="5" selected>5 days</option>
+          <option value="6">6 days</option>
+          <option value="7">7 days</option>
+        </select>
+      </div>
+    </div>
+    <button class="sp-save-btn" onclick="saveGoals()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Panel: Progress History -->
+<div class="settings-panel" id="panel-progress-history">
+  <div class="settings-panel-header">
+    <button class="settings-panel-back" onclick="closeSettingsPanel()">&#8249;</button>
+    <div class="settings-panel-title">Progress History</div>
+  </div>
+  <div class="settings-panel-body">
+    <div class="sp-card">
+      <div class="sp-card-title">Summary</div>
+      <div class="sp-row">
+        <span class="sp-row-label">Total Workouts</span>
+        <span class="sp-row-value" id="ph-total-workouts">0</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Total Minutes</span>
+        <span class="sp-row-value" id="ph-total-minutes">0</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Total Calories</span>
+        <span class="sp-row-value" id="ph-total-calories">0</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Current Streak</span>
+        <span class="sp-row-value" id="ph-streak">0 days</span>
+      </div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">Recent Activity</div>
+      <div id="ph-history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Panel: Personal Info -->
+<div class="settings-panel" id="panel-personal-info">
+  <div class="settings-panel-header">
+    <button class="settings-panel-back" onclick="closeSettingsPanel()">&#8249;</button>
+    <div class="settings-panel-title">Personal Info</div>
+  </div>
+  <div class="settings-panel-body">
+    <div class="sp-card">
+      <div class="sp-card-title">Profile</div>
+      <div class="sp-input-group">
+        <label class="sp-label">Display Name</label>
+        <input class="sp-input" type="text" id="pi-display-name" placeholder="Your name">
+      </div>
+      <div class="sp-input-group">
+        <label class="sp-label">Email</label>
+        <input class="sp-input" type="email" id="pi-email" readonly>
+      </div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">Physical Info</div>
+      <div class="sp-input-group">
+        <label class="sp-label">Age</label>
+        <input class="sp-input" type="number" id="pi-age" placeholder="Your age" min="18" max="120">
+      </div>
+      <div class="sp-input-group">
+        <label class="sp-label">Height</label>
+        <div style="display:flex;gap:10px;">
+          <input class="sp-input" type="number" id="pi-height-ft" placeholder="Feet" min="3" max="8" style="flex:1;">
+          <input class="sp-input" type="number" id="pi-height-in" placeholder="Inches" min="0" max="11" style="flex:1;">
+        </div>
+      </div>
+    </div>
+    <button class="sp-save-btn" onclick="savePersonalInfo()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Panel: Notifications -->
+<div class="settings-panel" id="panel-notifications">
+  <div class="settings-panel-header">
+    <button class="settings-panel-back" onclick="closeSettingsPanel()">&#8249;</button>
+    <div class="settings-panel-title">Notifications</div>
+  </div>
+  <div class="settings-panel-body">
+    <div class="sp-card">
+      <div class="sp-card-title">Reminders</div>
+      <div class="sp-toggle-row">
+        <div>
+          <div class="sp-toggle-label">Daily Workout Reminder</div>
+          <div class="sp-toggle-sub">Get reminded to work out each day</div>
+        </div>
+        <div class="sp-toggle active" id="notif-workout" onclick="toggleNotif(this)"></div>
+      </div>
+      <div class="sp-toggle-row">
+        <div>
+          <div class="sp-toggle-label">Motivational Messages</div>
+          <div class="sp-toggle-sub">Receive motivational tips and quotes</div>
+        </div>
+        <div class="sp-toggle active" id="notif-motivation" onclick="toggleNotif(this)"></div>
+      </div>
+      <div class="sp-toggle-row">
+        <div>
+          <div class="sp-toggle-label">Weekly Progress Report</div>
+          <div class="sp-toggle-sub">Summary of your weekly activity</div>
+        </div>
+        <div class="sp-toggle active" id="notif-weekly" onclick="toggleNotif(this)"></div>
+      </div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">General</div>
+      <div class="sp-toggle-row">
+        <div>
+          <div class="sp-toggle-label">New Workout Alerts</div>
+          <div class="sp-toggle-sub">When new workouts are added</div>
+        </div>
+        <div class="sp-toggle" id="notif-new-workouts" onclick="toggleNotif(this)"></div>
+      </div>
+      <div class="sp-toggle-row">
+        <div>
+          <div class="sp-toggle-label">Email Updates</div>
+          <div class="sp-toggle-sub">Occasional tips and program updates</div>
+        </div>
+        <div class="sp-toggle" id="notif-email" onclick="toggleNotif(this)"></div>
+      </div>
+    </div>
+    <button class="sp-save-btn" onclick="saveNotifications()">Save Preferences</button>
+  </div>
+</div>
+
+<!-- Panel: Subscription -->
+<div class="settings-panel" id="panel-subscription">
+  <div class="settings-panel-header">
+    <button class="settings-panel-back" onclick="closeSettingsPanel()">&#8249;</button>
+    <div class="settings-panel-title">Subscription</div>
+  </div>
+  <div class="settings-panel-body">
+    <div class="sp-card sp-plan-active">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="sp-card-title" style="margin-bottom:0;">Current Plan</div>
+        <span class="sp-plan-badge">Active</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Plan</span>
+        <span class="sp-row-value">12-Week Program</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Price</span>
+        <span class="sp-row-value">$39.99</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Billing</span>
+        <span class="sp-row-value">One-time</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Access Until</span>
+        <span class="sp-row-value" id="sub-access-until">—</span>
+      </div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">What's Included</div>
+      <div class="sp-row">
+        <span class="sp-row-label">Personalized workout plan</span>
+        <span class="sp-row-value" style="color:#22c55e;">&#10003;</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Video exercise guides</span>
+        <span class="sp-row-value" style="color:#22c55e;">&#10003;</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Progress tracking</span>
+        <span class="sp-row-value" style="color:#22c55e;">&#10003;</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Exercise library (21+ workouts)</span>
+        <span class="sp-row-value" style="color:#22c55e;">&#10003;</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Daily motivation</span>
+        <span class="sp-row-value" style="color:#22c55e;">&#10003;</span>
+      </div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">Need Help?</div>
+      <p style="font-size:14px;color:#8A8279;line-height:1.5;margin-bottom:12px;">For billing questions or subscription changes, reach out to our support team.</p>
+      <button class="sp-save-btn" style="background:#EDE8E2;color:#2D2A26;" onclick="openSettingsPanel('panel-contact-us')">Contact Support</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel: Contact Us -->
+<div class="settings-panel" id="panel-contact-us">
+  <div class="settings-panel-header">
+    <button class="settings-panel-back" onclick="closeSettingsPanel()">&#8249;</button>
+    <div class="settings-panel-title">Contact Us</div>
+  </div>
+  <div class="settings-panel-body">
+    <div class="sp-card">
+      <div class="sp-card-title">Send Us a Message</div>
+      <div class="sp-input-group">
+        <label class="sp-label">Your Email</label>
+        <input class="sp-input" type="email" id="contact-email" readonly>
+      </div>
+      <div class="sp-input-group">
+        <label class="sp-label">Subject</label>
+        <select class="sp-select" id="contact-subject">
+          <option value="general">General Question</option>
+          <option value="billing">Billing & Payment</option>
+          <option value="technical">Technical Issue</option>
+          <option value="feedback">Feedback</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="sp-input-group">
+        <label class="sp-label">Message</label>
+        <textarea class="sp-textarea" id="contact-message" placeholder="How can we help you?"></textarea>
+      </div>
+      <button class="sp-save-btn" onclick="sendContactMessage()">Send Message</button>
+    </div>
+    <div class="sp-card">
+      <div class="sp-card-title">Other Ways to Reach Us</div>
+      <div class="sp-row">
+        <span class="sp-row-label">Email</span>
+        <span class="sp-row-value" style="color:#C07A5C;">support@lazyweightloss.com</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-row-label">Response Time</span>
+        <span class="sp-row-value">Within 24 hours</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="sp-toast" id="sp-toast"></div>
 
 <!-- Bottom Navigation -->
 <div class="bottom-nav">
@@ -1627,12 +2153,416 @@
     closePlayer(true);
   });
 
+  // ===== SETTINGS PANELS =====
+  var _activePanel = null;
+
+  function openSettingsPanel(panelId) {
+    triggerHaptic('light');
+    // Populate panel data before opening
+    if (panelId === 'panel-plan-details') populatePlanDetails();
+    if (panelId === 'panel-update-goals') populateGoalsForm();
+    if (panelId === 'panel-progress-history') populateProgressHistory();
+    if (panelId === 'panel-personal-info') populatePersonalInfo();
+    if (panelId === 'panel-notifications') populateNotifications();
+    if (panelId === 'panel-subscription') populateSubscription();
+    if (panelId === 'panel-contact-us') populateContactForm();
+
+    var overlay = document.getElementById('settings-overlay');
+    var panel = document.getElementById(panelId);
+    if (!panel) return;
+    overlay.classList.add('active');
+    panel.classList.add('active');
+    _activePanel = panelId;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSettingsPanel() {
+    var overlay = document.getElementById('settings-overlay');
+    overlay.classList.remove('active');
+    document.querySelectorAll('.settings-panel.active').forEach(function(p) {
+      p.classList.remove('active');
+    });
+    _activePanel = null;
+    document.body.style.overflow = '';
+    triggerHaptic('light');
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('sp-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2500);
+  }
+
+  // ===== LOCAL STORAGE HELPERS =====
+  var LS_GOALS = 'lwl_goals';
+  var LS_PROFILE = 'lwl_profile';
+  var LS_NOTIFS = 'lwl_notifications';
+  var LS_HISTORY = 'lwl_workout_history';
+
+  function lsGet(key, fallback) {
+    try {
+      var v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    } catch(e) { return fallback; }
+  }
+  function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  }
+
+  // Default goals
+  var DEFAULT_GOALS = {
+    currentWeight: 165, goalWeight: 140,
+    dailyTime: 15, difficulty: 'Beginner', weeklyDays: 5
+  };
+
+  // Default profile
+  var DEFAULT_PROFILE = {
+    displayName: '', age: '', heightFt: '', heightIn: ''
+  };
+
+  // Default notification prefs
+  var DEFAULT_NOTIFS = {
+    workout: true, motivation: true, weekly: true,
+    newWorkouts: false, email: false
+  };
+
+  // ===== PLAN DETAILS =====
+  function populatePlanDetails() {
+    var goals = lsGet(LS_GOALS, DEFAULT_GOALS);
+    // Start date: calculate based on user creation or fallback
+    var startDate = new Date();
+    if (_currentUser && _currentUser.created_at) {
+      startDate = new Date(_currentUser.created_at);
+    }
+    document.getElementById('pd-start-date').textContent = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    // Calculate current week
+    var now = new Date();
+    var weekNum = Math.floor((now - startDate) / (7 * 24 * 60 * 60 * 1000)) + 1;
+    weekNum = Math.min(weekNum, 12);
+    weekNum = Math.max(weekNum, 1);
+    document.getElementById('pd-current-week').textContent = weekNum + ' of 12';
+
+    document.getElementById('pd-current-weight').textContent = goals.currentWeight + ' lbs';
+    document.getElementById('pd-goal-weight').textContent = goals.goalWeight + ' lbs';
+    document.getElementById('pd-daily-time').textContent = goals.dailyTime + ' min';
+
+    // Build schedule list
+    var listEl = document.getElementById('pd-schedule-list');
+    listEl.innerHTML = '';
+    var dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    WORKOUT_SCHEDULE.forEach(function(w, i) {
+      var row = document.createElement('div');
+      row.className = 'sp-row';
+      row.innerHTML = '<span class="sp-row-label">' + dayNames[i] + '</span>' +
+        '<span class="sp-row-value">' + w.emoji + ' ' + w.title + '</span>';
+      listEl.appendChild(row);
+    });
+  }
+
+  // ===== UPDATE GOALS =====
+  function populateGoalsForm() {
+    var goals = lsGet(LS_GOALS, DEFAULT_GOALS);
+    document.getElementById('goal-current-weight').value = goals.currentWeight;
+    document.getElementById('goal-target-weight').value = goals.goalWeight;
+    document.getElementById('goal-daily-time').value = goals.dailyTime;
+    document.getElementById('goal-difficulty').value = goals.difficulty;
+    document.getElementById('goal-weekly-days').value = goals.weeklyDays;
+  }
+
+  function saveGoals() {
+    var goals = {
+      currentWeight: parseInt(document.getElementById('goal-current-weight').value) || 165,
+      goalWeight: parseInt(document.getElementById('goal-target-weight').value) || 140,
+      dailyTime: parseInt(document.getElementById('goal-daily-time').value) || 15,
+      difficulty: document.getElementById('goal-difficulty').value || 'Beginner',
+      weeklyDays: parseInt(document.getElementById('goal-weekly-days').value) || 5
+    };
+    lsSet(LS_GOALS, goals);
+
+    // Update profile stat cards on the main profile page
+    var statCards = document.querySelectorAll('.profile-stat-card');
+    if (statCards[0]) statCards[0].querySelector('.profile-stat-value').textContent = goals.currentWeight + ' lbs';
+    if (statCards[1]) statCards[1].querySelector('.profile-stat-value').textContent = goals.goalWeight + ' lbs';
+
+    triggerHaptic('medium');
+    showToast('Goals updated!');
+    setTimeout(function() { closeSettingsPanel(); }, 800);
+  }
+
+  // ===== PROGRESS HISTORY =====
+  function getWorkoutHistory() {
+    return lsGet(LS_HISTORY, []);
+  }
+
+  function addWorkoutToHistory(workoutName, minutes, calories) {
+    var history = getWorkoutHistory();
+    history.unshift({
+      name: workoutName,
+      minutes: minutes,
+      calories: calories,
+      date: new Date().toISOString()
+    });
+    // Keep last 50
+    if (history.length > 50) history = history.slice(0, 50);
+    lsSet(LS_HISTORY, history);
+  }
+
+  function populateProgressHistory() {
+    var history = getWorkoutHistory();
+    var totalWorkouts = history.length;
+    var totalMinutes = 0;
+    var totalCalories = 0;
+    history.forEach(function(h) {
+      totalMinutes += h.minutes || 0;
+      totalCalories += h.calories || 0;
+    });
+
+    document.getElementById('ph-total-workouts').textContent = totalWorkouts;
+    document.getElementById('ph-total-minutes').textContent = totalMinutes;
+    document.getElementById('ph-total-calories').textContent = totalCalories;
+
+    // Calculate streak
+    var streak = 0;
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var checkDate = new Date(today);
+    for (var d = 0; d < 90; d++) {
+      var dateStr = checkDate.toDateString();
+      var found = history.some(function(h) {
+        return new Date(h.date).toDateString() === dateStr;
+      });
+      if (found) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (d === 0) {
+        // Allow today to not have a workout yet
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    document.getElementById('ph-streak').textContent = streak + ' day' + (streak !== 1 ? 's' : '');
+
+    // Build history list
+    var listEl = document.getElementById('ph-history-list');
+    listEl.innerHTML = '';
+    if (history.length === 0) {
+      listEl.innerHTML = '<div class="sp-empty-state">' +
+        '<div class="sp-empty-state-icon">📋</div>' +
+        '<div class="sp-empty-state-text">No workouts completed yet.<br>Start your first workout to see your progress here!</div>' +
+        '</div>';
+      return;
+    }
+    history.slice(0, 20).forEach(function(h) {
+      var d = new Date(h.date);
+      var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      var item = document.createElement('div');
+      item.className = 'sp-history-item';
+      item.innerHTML =
+        '<div class="sp-history-date">' +
+          '<div class="sp-history-day">' + dayNames[d.getDay()] + '</div>' +
+          '<div class="sp-history-num">' + d.getDate() + '</div>' +
+        '</div>' +
+        '<div class="sp-history-info">' +
+          '<div class="sp-history-name">' + (h.name || 'Workout') + '</div>' +
+          '<div class="sp-history-meta">' + (h.minutes || 0) + ' min &middot; ' + (h.calories || 0) + ' cal</div>' +
+        '</div>' +
+        '<div class="sp-history-status">&#10003;</div>';
+      listEl.appendChild(item);
+    });
+  }
+
+  // ===== PERSONAL INFO =====
+  function populatePersonalInfo() {
+    var profile = lsGet(LS_PROFILE, DEFAULT_PROFILE);
+    var nameInput = document.getElementById('pi-display-name');
+    var emailInput = document.getElementById('pi-email');
+    var ageInput = document.getElementById('pi-age');
+    var ftInput = document.getElementById('pi-height-ft');
+    var inInput = document.getElementById('pi-height-in');
+
+    // Pre-fill from Supabase user
+    if (_currentUser) {
+      emailInput.value = _currentUser.email || '';
+      if (!profile.displayName) {
+        var email = _currentUser.email || '';
+        profile.displayName = email.split('@')[0];
+        profile.displayName = profile.displayName.charAt(0).toUpperCase() + profile.displayName.slice(1);
+      }
+    }
+    nameInput.value = profile.displayName || '';
+    ageInput.value = profile.age || '';
+    ftInput.value = profile.heightFt || '';
+    inInput.value = profile.heightIn || '';
+  }
+
+  function savePersonalInfo() {
+    var profile = {
+      displayName: document.getElementById('pi-display-name').value.trim(),
+      age: document.getElementById('pi-age').value,
+      heightFt: document.getElementById('pi-height-ft').value,
+      heightIn: document.getElementById('pi-height-in').value
+    };
+    lsSet(LS_PROFILE, profile);
+
+    // Update displayed name everywhere
+    if (profile.displayName) {
+      var nameEl = document.querySelector('.profile-name');
+      if (nameEl) nameEl.textContent = profile.displayName;
+      var greetEl = document.querySelector('.top-nav-greeting');
+      if (greetEl) greetEl.textContent = 'Hi, ' + profile.displayName;
+    }
+
+    triggerHaptic('medium');
+    showToast('Profile saved!');
+    setTimeout(function() { closeSettingsPanel(); }, 800);
+  }
+
+  // ===== NOTIFICATIONS =====
+  function populateNotifications() {
+    var notifs = lsGet(LS_NOTIFS, DEFAULT_NOTIFS);
+    setToggle('notif-workout', notifs.workout);
+    setToggle('notif-motivation', notifs.motivation);
+    setToggle('notif-weekly', notifs.weekly);
+    setToggle('notif-new-workouts', notifs.newWorkouts);
+    setToggle('notif-email', notifs.email);
+  }
+
+  function setToggle(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (val) el.classList.add('active');
+    else el.classList.remove('active');
+  }
+
+  function toggleNotif(el) {
+    el.classList.toggle('active');
+    triggerHaptic('light');
+  }
+
+  function saveNotifications() {
+    var notifs = {
+      workout: document.getElementById('notif-workout').classList.contains('active'),
+      motivation: document.getElementById('notif-motivation').classList.contains('active'),
+      weekly: document.getElementById('notif-weekly').classList.contains('active'),
+      newWorkouts: document.getElementById('notif-new-workouts').classList.contains('active'),
+      email: document.getElementById('notif-email').classList.contains('active')
+    };
+    lsSet(LS_NOTIFS, notifs);
+    triggerHaptic('medium');
+    showToast('Preferences saved!');
+    setTimeout(function() { closeSettingsPanel(); }, 800);
+  }
+
+  // ===== SUBSCRIPTION =====
+  function populateSubscription() {
+    var startDate = new Date();
+    if (_currentUser && _currentUser.created_at) {
+      startDate = new Date(_currentUser.created_at);
+    }
+    var accessEnd = new Date(startDate);
+    accessEnd.setDate(accessEnd.getDate() + 84); // 12 weeks
+    document.getElementById('sub-access-until').textContent = accessEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // ===== CONTACT US =====
+  function populateContactForm() {
+    if (_currentUser) {
+      document.getElementById('contact-email').value = _currentUser.email || '';
+    }
+    document.getElementById('contact-message').value = '';
+    document.getElementById('contact-subject').value = 'general';
+  }
+
+  function sendContactMessage() {
+    var msg = document.getElementById('contact-message').value.trim();
+    if (!msg) {
+      showToast('Please enter a message');
+      return;
+    }
+    // Simulate sending (no backend)
+    triggerHaptic('medium');
+    showToast('Message sent! We\'ll respond within 24hrs.');
+    document.getElementById('contact-message').value = '';
+    setTimeout(function() { closeSettingsPanel(); }, 1200);
+  }
+
+  // ===== HOOK INTO WORKOUT COMPLETION =====
+  // Override closePlayer to also record workout history
+  var _origClosePlayer = closePlayer;
+  closePlayer = function(didComplete) {
+    if (didComplete && playerState.workoutData) {
+      var actualMinutes = Math.round(playerState.elapsedSeconds / 60);
+      var actualCalories = Math.round(playerState.caloriesPerMinute * actualMinutes);
+      addWorkoutToHistory(playerState.workoutData.title, actualMinutes, actualCalories);
+      // Update profile stats cards
+      updateProfileStatsFromHistory();
+    }
+    _origClosePlayer(didComplete);
+  };
+
+  function updateProfileStatsFromHistory() {
+    var history = getWorkoutHistory();
+    var statCards = document.querySelectorAll('.profile-stat-card');
+    if (statCards[2]) statCards[2].querySelector('.profile-stat-value').textContent = history.length;
+    // Streak
+    var streak = 0;
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var checkDate = new Date(today);
+    for (var d = 0; d < 90; d++) {
+      var dateStr = checkDate.toDateString();
+      var found = history.some(function(h) {
+        return new Date(h.date).toDateString() === dateStr;
+      });
+      if (found) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (d === 0) {
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    if (statCards[3]) statCards[3].querySelector('.profile-stat-value').textContent = streak + ' \uD83D\uDD25';
+  }
+
+  // ===== INIT PROFILE DATA ON LOAD =====
+  function initProfileData() {
+    var goals = lsGet(LS_GOALS, DEFAULT_GOALS);
+    var profile = lsGet(LS_PROFILE, DEFAULT_PROFILE);
+
+    // Set weight stats
+    var statCards = document.querySelectorAll('.profile-stat-card');
+    if (statCards[0]) statCards[0].querySelector('.profile-stat-value').textContent = goals.currentWeight + ' lbs';
+    if (statCards[1]) statCards[1].querySelector('.profile-stat-value').textContent = goals.goalWeight + ' lbs';
+
+    // Set workout count & streak from history
+    updateProfileStatsFromHistory();
+
+    // Set display name in greeting
+    if (profile.displayName) {
+      var greetEl = document.querySelector('.top-nav-greeting');
+      if (greetEl) greetEl.textContent = 'Hi, ' + profile.displayName;
+      var nameEl = document.querySelector('.profile-name');
+      if (nameEl) nameEl.textContent = profile.displayName;
+    }
+  }
+
+  // Back button via keyboard (Escape to close panel)
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && _activePanel) closeSettingsPanel();
+  });
+
   // ===== INIT =====
   _loadWorkoutData(function() {
     buildWeekStrip();
     renderWorkoutGrid('all');
     var todayIdx = (new Date().getDay() === 0) ? 6 : new Date().getDay() - 1;
     updateWorkoutForDay(todayIdx);
+    initProfileData();
   });
 </script>
 </body>
