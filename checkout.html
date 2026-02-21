@@ -623,6 +623,26 @@
       transform: translateY(0);
     }
 
+    /* Hero group: chart + plan-ready + pricing load together */
+    .page > .weight-section,
+    .page > .plan-ready,
+    .page > .pricing-section {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .page > .weight-section.section-visible,
+    .page > .plan-ready.section-visible,
+    .page > .pricing-section.section-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .page > .plan-ready.section-visible {
+      transition-delay: 0.15s;
+    }
+    .page > .pricing-section.section-visible {
+      transition-delay: 0.3s;
+    }
+
     /* ===== TOOLTIP BOUNCE IN ===== */
     .g-tooltip {
       animation: tooltipBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1169,13 +1189,15 @@ document.addEventListener('click', function(e) {
   }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
   sections.forEach(function(s) {
-    observer.observe(s);
+    // Hero group: chart + plan-ready + pricing show together on load
+    if (s.classList.contains('weight-section') ||
+        s.classList.contains('plan-ready') ||
+        s.classList.contains('pricing-section')) {
+      s.classList.add('section-visible');
+    } else {
+      observer.observe(s);
+    }
   });
-
-  // Show first section immediately
-  if (sections.length > 0) {
-    sections[0].classList.add('section-visible');
-  }
 })();
 
 // ===== LOGIN MODAL =====
