@@ -466,6 +466,27 @@
     margin-bottom: 14px;
   }
 
+  /* ===== IMAGE PREVIEW ===== */
+  .img-url-row {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .img-url-row .form-input { flex: 1; }
+  .img-preview {
+    width: 64px; height: 48px;
+    border-radius: 8px; overflow: hidden;
+    border: 1.5px solid #E0D6CC;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #F5EEE6, #FDF0E8);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .img-preview img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .img-preview-empty {
+    font-size: 11px; color: #B0A89E; font-weight: 600;
+    text-align: center; line-height: 1.2;
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 500px) {
     .form-row { grid-template-columns: 1fr; }
@@ -573,27 +594,27 @@ var DEFAULTS = {
     { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Head-to-toe stretching routine to improve flexibility and reduce stiffness. A perfect wind-down.', cal: 40 }
   ],
   library: [
-    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', category: 'yoga' },
-    { title: 'Yoga for Flexibility', emoji: '🧘', duration: 20, difficulty: 'Beginner', category: 'yoga' },
-    { title: 'Calming Yoga Session', emoji: '🧘', duration: 25, difficulty: 'Moderate', category: 'yoga' },
-    { title: 'Chair Yoga', emoji: '🧘', duration: 10, difficulty: 'Easy', category: 'yoga' },
-    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', category: 'walking' },
-    { title: 'Interval Walking', emoji: '🚶', duration: 30, difficulty: 'Moderate', category: 'walking' },
-    { title: 'Morning Walk', emoji: '🚶', duration: 15, difficulty: 'Easy', category: 'walking' },
-    { title: 'Walking & Stretching', emoji: '🚶', duration: 25, difficulty: 'Beginner', category: 'walking' },
-    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', category: 'stretching' },
-    { title: 'Morning Stretch', emoji: '🤸', duration: 8, difficulty: 'Easy', category: 'stretching' },
-    { title: 'Deep Stretch Session', emoji: '🤸', duration: 20, difficulty: 'Beginner', category: 'stretching' },
-    { title: 'Hip & Back Release', emoji: '🤸', duration: 15, difficulty: 'Beginner', category: 'stretching' },
-    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', category: 'cardio' },
-    { title: 'Dance Fitness Light', emoji: '❤️', duration: 15, difficulty: 'Beginner', category: 'cardio' },
-    { title: 'Step & Groove', emoji: '❤️', duration: 25, difficulty: 'Moderate', category: 'cardio' },
-    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', category: 'chair' },
-    { title: 'Seated Core Workout', emoji: '🪑', duration: 10, difficulty: 'Beginner', category: 'chair' },
-    { title: 'Chair Cardio', emoji: '🪑', duration: 15, difficulty: 'Moderate', category: 'chair' },
-    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', category: 'pilates' },
-    { title: 'Pilates for Beginners', emoji: '🏋️', duration: 20, difficulty: 'Beginner', category: 'pilates' },
-    { title: 'Pilates Balance Work', emoji: '🏋️', duration: 18, difficulty: 'Moderate', category: 'pilates' }
+    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', category: 'yoga', imageUrl: '' },
+    { title: 'Yoga for Flexibility', emoji: '🧘', duration: 20, difficulty: 'Beginner', category: 'yoga', imageUrl: '' },
+    { title: 'Calming Yoga Session', emoji: '🧘', duration: 25, difficulty: 'Moderate', category: 'yoga', imageUrl: '' },
+    { title: 'Chair Yoga', emoji: '🧘', duration: 10, difficulty: 'Easy', category: 'yoga', imageUrl: '' },
+    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', category: 'walking', imageUrl: '' },
+    { title: 'Interval Walking', emoji: '🚶', duration: 30, difficulty: 'Moderate', category: 'walking', imageUrl: '' },
+    { title: 'Morning Walk', emoji: '🚶', duration: 15, difficulty: 'Easy', category: 'walking', imageUrl: '' },
+    { title: 'Walking & Stretching', emoji: '🚶', duration: 25, difficulty: 'Beginner', category: 'walking', imageUrl: '' },
+    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', category: 'stretching', imageUrl: '' },
+    { title: 'Morning Stretch', emoji: '🤸', duration: 8, difficulty: 'Easy', category: 'stretching', imageUrl: '' },
+    { title: 'Deep Stretch Session', emoji: '🤸', duration: 20, difficulty: 'Beginner', category: 'stretching', imageUrl: '' },
+    { title: 'Hip & Back Release', emoji: '🤸', duration: 15, difficulty: 'Beginner', category: 'stretching', imageUrl: '' },
+    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', category: 'cardio', imageUrl: '' },
+    { title: 'Dance Fitness Light', emoji: '❤️', duration: 15, difficulty: 'Beginner', category: 'cardio', imageUrl: '' },
+    { title: 'Step & Groove', emoji: '❤️', duration: 25, difficulty: 'Moderate', category: 'cardio', imageUrl: '' },
+    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', category: 'chair', imageUrl: '' },
+    { title: 'Seated Core Workout', emoji: '🪑', duration: 10, difficulty: 'Beginner', category: 'chair', imageUrl: '' },
+    { title: 'Chair Cardio', emoji: '🪑', duration: 15, difficulty: 'Moderate', category: 'chair', imageUrl: '' },
+    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', category: 'pilates', imageUrl: '' },
+    { title: 'Pilates for Beginners', emoji: '🏋️', duration: 20, difficulty: 'Beginner', category: 'pilates', imageUrl: '' },
+    { title: 'Pilates Balance Work', emoji: '🏋️', duration: 18, difficulty: 'Moderate', category: 'pilates', imageUrl: '' }
   ],
   exerciseDb: {
     yoga: [
@@ -792,6 +813,13 @@ function renderLibrary() {
     html += '<div class="form-group"><label class="form-label">Category</label><select class="form-select" data-lib="' + i + '" data-field="category" onchange="updateLibraryField(this)">' + catOptions(w.category) + '</select></div>';
     html += '</div>';
     html += '<div class="form-row full">';
+    html += '<div class="form-group"><label class="form-label">Thumbnail Image</label>';
+    html += '<div class="img-url-row">';
+    html += '<input class="form-input" data-lib="' + i + '" data-field="imageUrl" value="' + escHtml(w.imageUrl || '') + '" placeholder="Paste image URL (Cloudinary, Unsplash, etc.)" onchange="updateLibraryField(this)" oninput="updateLibImgPreview(' + i + ', this.value)">';
+    html += '<div class="img-preview" id="lib-img-preview-' + i + '">' + imgPreviewHtml(w.imageUrl || '', w.emoji) + '</div>';
+    html += '</div></div>';
+    html += '</div>';
+    html += '<div class="form-row full">';
     html += '<div class="form-group"><label class="form-label">Video URL</label>';
     html += '<div class="video-url-row">';
     html += '<input class="form-input" data-lib="' + i + '" data-field="videoUrl" value="' + escHtml(w.videoUrl || '') + '" placeholder="Cloudinary / MP4 / YouTube URL" onchange="updateLibraryField(this)" oninput="validateLibVideoInput(this,' + i + ')">';
@@ -818,8 +846,21 @@ function validateLibVideoInput(el, idx) {
   if (statusEl) statusEl.innerHTML = videoStatusIcon(el.value);
 }
 
+function imgPreviewHtml(url, fallbackEmoji) {
+  if (url && url.trim()) {
+    return '<img src="' + escHtml(url) + '" onerror="this.parentElement.innerHTML=\'<span class=img-preview-empty>' + (fallbackEmoji || '🖼') + '</span>\'">';
+  }
+  return '<span class="img-preview-empty">' + (fallbackEmoji || 'No img') + '</span>';
+}
+
+function updateLibImgPreview(idx, url) {
+  var el = document.getElementById('lib-img-preview-' + idx);
+  var emoji = currentData.library[idx] ? currentData.library[idx].emoji : '💪';
+  if (el) el.innerHTML = imgPreviewHtml(url, emoji);
+}
+
 function addLibraryItem() {
-  currentData.library.push({ title: 'New Workout', emoji: '💪', duration: 15, difficulty: 'Beginner', category: 'yoga', videoUrl: '' });
+  currentData.library.push({ title: 'New Workout', emoji: '💪', duration: 15, difficulty: 'Beginner', category: 'yoga', videoUrl: '', imageUrl: '' });
   renderLibrary();
   showToast('Workout added');
 }

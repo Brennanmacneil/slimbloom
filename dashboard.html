@@ -404,6 +404,13 @@
     justify-content: center;
     font-size: 36px;
     background: linear-gradient(135deg, #F5EEE6, #FDF0E8);
+    overflow: hidden;
+    position: relative;
+  }
+  .workout-lib-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute; top: 0; left: 0;
   }
   .workout-lib-body { padding: 12px; }
   .workout-lib-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
@@ -1774,8 +1781,9 @@
     list.forEach(function(w) {
       var card = document.createElement('div');
       card.className = 'workout-lib-card';
+      var thumbContent = w.imageUrl ? '<img src="' + w.imageUrl + '" alt="' + w.title + '" onerror="this.remove();this.parentElement.textContent=\'' + w.emoji + '\'">' : w.emoji;
       card.innerHTML =
-        '<div class="workout-lib-thumb">' + w.emoji + '</div>' +
+        '<div class="workout-lib-thumb">' + thumbContent + '</div>' +
         '<div class="workout-lib-body">' +
           '<div class="workout-lib-name">' + w.title + '</div>' +
           '<div class="workout-lib-badges">' +
