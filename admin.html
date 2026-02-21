@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lazy Weight Loss - Admin</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL = 'https://vlfnixgkhfyidmhrglrj.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZm5peGdraGZ5aWRtaHJnbHJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODgzNTYsImV4cCI6MjA4NzI2NDM1Nn0.BKh3ogeNoPftTHQ3GCHLKAVhScnvElTnAp4gD09v4qA';
+  var _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var STORAGE_BUCKET = 'workout-thumbnails';
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -486,6 +493,22 @@
     font-size: 11px; color: #B0A89E; font-weight: 600;
     text-align: center; line-height: 1.2;
   }
+  .img-upload-area {
+    display: flex; gap: 10px; align-items: center; margin-top: 8px;
+  }
+  .img-upload-btn {
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+    border: 1.5px solid #C07A5C; background: #FDF0E8;
+    color: #C07A5C; transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .img-upload-btn:hover { background: #C07A5C; color: #fff; }
+  .img-upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .img-upload-btn.uploading { background: #EDE8E2; border-color: #D4CAC0; color: #8A8279; }
+  .img-upload-or { font-size: 11px; color: #B0A89E; font-weight: 600; }
+  .img-upload-file { display: none; }
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 500px) {
@@ -815,9 +838,15 @@ function renderLibrary() {
     html += '<div class="form-row full">';
     html += '<div class="form-group"><label class="form-label">Thumbnail Image</label>';
     html += '<div class="img-url-row">';
-    html += '<input class="form-input" data-lib="' + i + '" data-field="imageUrl" value="' + escHtml(w.imageUrl || '') + '" placeholder="Paste image URL (Cloudinary, Unsplash, etc.)" onchange="updateLibraryField(this)" oninput="updateLibImgPreview(' + i + ', this.value)">';
+    html += '<input class="form-input" id="lib-img-input-' + i + '" data-lib="' + i + '" data-field="imageUrl" value="' + escHtml(w.imageUrl || '') + '" placeholder="Paste URL or upload below" onchange="updateLibraryField(this)" oninput="updateLibImgPreview(' + i + ', this.value)">';
     html += '<div class="img-preview" id="lib-img-preview-' + i + '">' + imgPreviewHtml(w.imageUrl || '', w.emoji) + '</div>';
-    html += '</div></div>';
+    html += '</div>';
+    html += '<div class="img-upload-area">';
+    html += '<input type="file" class="img-upload-file" id="lib-file-' + i + '" accept="image/*" onchange="uploadLibThumbnail(' + i + ', this)">';
+    html += '<button type="button" class="img-upload-btn" id="lib-upload-btn-' + i + '" onclick="document.getElementById(\'lib-file-' + i + '\').click()">Upload Image</button>';
+    html += '<span class="img-upload-or">or paste a URL above</span>';
+    html += '</div>';
+    html += '</div>';
     html += '</div>';
     html += '<div class="form-row full">';
     html += '<div class="form-group"><label class="form-label">Video URL</label>';
@@ -857,6 +886,65 @@ function updateLibImgPreview(idx, url) {
   var el = document.getElementById('lib-img-preview-' + idx);
   var emoji = currentData.library[idx] ? currentData.library[idx].emoji : '💪';
   if (el) el.innerHTML = imgPreviewHtml(url, emoji);
+}
+
+async function uploadLibThumbnail(idx, fileInput) {
+  var file = fileInput.files[0];
+  if (!file) return;
+
+  var btn = document.getElementById('lib-upload-btn-' + idx);
+  var origText = btn.textContent;
+  btn.textContent = 'Uploading…';
+  btn.disabled = true;
+  btn.classList.add('uploading');
+
+  try {
+    // Create a unique filename
+    var ext = file.name.split('.').pop().toLowerCase();
+    var safeName = currentData.library[idx].title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/,'');
+    var fileName = safeName + '-' + Date.now() + '.' + ext;
+
+    // Upload to Supabase Storage
+    var { data, error } = await _sb.storage
+      .from(STORAGE_BUCKET)
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type
+      });
+
+    if (error) throw error;
+
+    // Get the public URL
+    var { data: urlData } = _sb.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(fileName);
+
+    var publicUrl = urlData.publicUrl;
+
+    // Update the data and UI
+    currentData.library[idx].imageUrl = publicUrl;
+    var inputEl = document.getElementById('lib-img-input-' + idx);
+    if (inputEl) inputEl.value = publicUrl;
+    updateLibImgPreview(idx, publicUrl);
+
+    btn.textContent = 'Uploaded ✓';
+    setTimeout(function() {
+      btn.textContent = 'Change Image';
+      btn.disabled = false;
+      btn.classList.remove('uploading');
+    }, 1500);
+
+    showToast('Image uploaded!');
+  } catch (err) {
+    btn.textContent = origText;
+    btn.disabled = false;
+    btn.classList.remove('uploading');
+    showToast('Upload failed: ' + (err.message || err));
+  }
+
+  // Reset file input
+  fileInput.value = '';
 }
 
 function addLibraryItem() {
