@@ -16,6 +16,17 @@
 <meta name="twitter:title" content="Lazy Weight Loss — Your Personalized Plan">
 <meta name="twitter:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
 <meta name="twitter:image" content="https://lazyweightloss.com/og-image.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    var SUPABASE_URL = 'https://vlfnixgkhfyidmhrglrj.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZm5peGdraGZ5aWRtaHJnbHJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODgzNTYsImV4cCI6MjA4NzI2NDM1Nn0.BKh3ogeNoPftTHQ3GCHLKAVhScnvElTnAp4gD09v4qA';
+    var _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // If already logged in, redirect to dashboard
+    _supabase.auth.getSession().then(function(res) {
+      if (res.data.session) { window.location.href = 'dashboard.html'; }
+    });
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -112,9 +123,16 @@
       font-size: 13px; color: #8A8279;
     }
     .login-new-user a {
-      color: #C07A5C; font-weight: 600; text-decoration: none;
+      color: #C07A5C; font-weight: 600; text-decoration: none; cursor: pointer;
     }
     .login-new-user a:hover { text-decoration: underline; }
+    .login-submit:disabled {
+      opacity: 0.6; cursor: not-allowed;
+    }
+    .login-success-msg {
+      font-size: 13px; color: #22c55e; margin-top: 10px;
+      display: none; font-weight: 500;
+    }
 
     /* ===== CONTAINER ===== */
     .page { max-width: 600px; margin: 0 auto; padding: 0 20px; }
@@ -632,13 +650,14 @@
   <div class="login-modal">
     <button class="login-modal-close" onclick="closeLoginModal()">&times;</button>
     <div class="login-modal-logo">Lazy<span>WeightLoss</span></div>
-    <div class="login-modal-sub">Welcome back! Log in to your dashboard.</div>
+    <div class="login-modal-sub" id="loginSubtitle">Welcome back! Log in to your dashboard.</div>
     <input type="email" class="login-field" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
-    <input type="password" class="login-field" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')handleLogin()">
-    <button class="login-submit" onclick="handleLogin()">Log In</button>
-    <div class="login-error-msg" id="loginError">Invalid email or password. Please try again.</div>
+    <input type="password" class="login-field" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()">
+    <button class="login-submit" id="loginSubmitBtn" onclick="handleAuth()">Log In</button>
+    <div class="login-error-msg" id="loginError"></div>
+    <div class="login-success-msg" id="loginSuccess"></div>
     <div class="login-divider">or</div>
-    <div class="login-new-user">New here? <a href="funnel.html">Take the free quiz</a></div>
+    <div class="login-new-user" id="loginToggle">New here? <a onclick="toggleAuthMode()">Create an account</a></div>
   </div>
 </div>
 
@@ -1160,11 +1179,17 @@ document.addEventListener('click', function(e) {
 })();
 
 // ===== LOGIN MODAL =====
+var _authMode = 'login'; // 'login' or 'signup'
+
 function openLoginModal() {
+  _authMode = 'login';
+  updateAuthUI();
   document.getElementById('loginOverlay').classList.add('open');
   document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginSuccess').style.display = 'none';
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPass').value = '';
+  document.getElementById('loginSubmitBtn').disabled = false;
   setTimeout(function() { document.getElementById('loginEmail').focus(); }, 100);
 }
 
@@ -1172,20 +1197,89 @@ function closeLoginModal() {
   document.getElementById('loginOverlay').classList.remove('open');
 }
 
-function handleLogin() {
+function toggleAuthMode() {
+  _authMode = _authMode === 'login' ? 'signup' : 'login';
+  updateAuthUI();
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginSuccess').style.display = 'none';
+}
+
+function updateAuthUI() {
+  var btn = document.getElementById('loginSubmitBtn');
+  var sub = document.getElementById('loginSubtitle');
+  var toggle = document.getElementById('loginToggle');
+  if (_authMode === 'signup') {
+    btn.textContent = 'Create Account';
+    sub.textContent = 'Create your account to get started.';
+    toggle.innerHTML = 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>';
+  } else {
+    btn.textContent = 'Log In';
+    sub.textContent = 'Welcome back! Log in to your dashboard.';
+    toggle.innerHTML = 'New here? <a onclick="toggleAuthMode()">Create an account</a>';
+  }
+}
+
+async function handleAuth() {
   var email = document.getElementById('loginEmail').value.trim();
   var pass = document.getElementById('loginPass').value;
+  var errEl = document.getElementById('loginError');
+  var successEl = document.getElementById('loginSuccess');
+  var btn = document.getElementById('loginSubmitBtn');
+
+  errEl.style.display = 'none';
+  successEl.style.display = 'none';
 
   if (!email || !pass) {
-    var err = document.getElementById('loginError');
-    err.textContent = 'Please enter your email and password.';
-    err.style.display = 'block';
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (pass.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'block';
     return;
   }
 
-  // For now, accept any email/password and go to dashboard
-  // Replace with real auth when backend is set up
-  window.location.href = 'dashboard.html';
+  btn.disabled = true;
+  btn.textContent = _authMode === 'login' ? 'Logging in...' : 'Creating account...';
+
+  try {
+    if (_authMode === 'signup') {
+      var res = await _supabase.auth.signUp({ email: email, password: pass });
+      if (res.error) {
+        errEl.textContent = res.error.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+        return;
+      }
+      // Check if email confirmation is needed
+      if (res.data.user && !res.data.session) {
+        successEl.textContent = 'Check your email for a confirmation link, then log in!';
+        successEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+        return;
+      }
+      // If auto-confirmed, go to dashboard
+      window.location.href = 'dashboard.html';
+    } else {
+      var res = await _supabase.auth.signInWithPassword({ email: email, password: pass });
+      if (res.error) {
+        errEl.textContent = res.error.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+        return;
+      }
+      window.location.href = 'dashboard.html';
+    }
+  } catch (e) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = _authMode === 'login' ? 'Log In' : 'Create Account';
+  }
 }
 </script>
 </body>

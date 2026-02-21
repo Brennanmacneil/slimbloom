@@ -13,6 +13,57 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://lazyweightloss.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL = 'https://vlfnixgkhfyidmhrglrj.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZm5peGdraGZ5aWRtaHJnbHJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODgzNTYsImV4cCI6MjA4NzI2NDM1Nn0.BKh3ogeNoPftTHQ3GCHLKAVhScnvElTnAp4gD09v4qA';
+  var _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var _currentUser = null;
+
+  // Auth guard — redirect to checkout if not logged in
+  _supabase.auth.getSession().then(function(res) {
+    if (!res.data.session) {
+      window.location.href = 'checkout.html';
+    } else {
+      _currentUser = res.data.session.user;
+      document.body.style.visibility = 'visible';
+      populateProfile(_currentUser);
+    }
+  });
+
+  // Listen for auth state changes (e.g. token refresh, sign out)
+  _supabase.auth.onAuthStateChange(function(event, session) {
+    if (event === 'SIGNED_OUT') {
+      window.location.href = 'checkout.html';
+    }
+    if (session) {
+      _currentUser = session.user;
+      populateProfile(_currentUser);
+    }
+  });
+
+  function populateProfile(user) {
+    if (!user) return;
+    var email = user.email || '';
+    var nameEl = document.querySelector('.profile-name');
+    var avatarEl = document.querySelector('.profile-avatar');
+    if (nameEl) {
+      // Show email username part or full email
+      var displayName = email.split('@')[0];
+      // Capitalize first letter
+      displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+      nameEl.textContent = displayName;
+    }
+    if (avatarEl) {
+      avatarEl.textContent = email ? email.charAt(0).toUpperCase() : '👩';
+    }
+  }
+
+  async function handleSignOut() {
+    await _supabase.auth.signOut();
+    window.location.href = 'checkout.html';
+  }
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,6 +75,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    visibility: hidden;
     align-items: center;
   }
 
@@ -789,9 +841,9 @@
     <div class="profile-section">
 
       <div class="profile-header">
-        <div class="profile-avatar">👩</div>
+        <div class="profile-avatar" id="profileAvatar">👩</div>
         <div>
-          <div class="profile-name">Sarah M.</div>
+          <div class="profile-name" id="profileName">Loading...</div>
           <span class="profile-plan-tag">12-Week Plan</span>
         </div>
       </div>
@@ -883,7 +935,7 @@
         </div>
       </div>
 
-      <button class="sign-out-btn">Sign Out</button>
+      <button class="sign-out-btn" onclick="handleSignOut()">Sign Out</button>
     </div>
   </div>
 
