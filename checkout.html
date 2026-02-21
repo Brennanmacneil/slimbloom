@@ -38,12 +38,83 @@
     }
     .nav-logo { font-size: 18px; font-weight: 800; }
     .nav-logo span { color: #C07A5C; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-login {
+      background: transparent; color: #C07A5C; border: 1.5px solid #C07A5C;
+      padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: all 0.2s;
+      font-family: inherit;
+    }
+    .nav-login:hover { background: #FDF0E8; }
     .nav-cta {
       background: #C07A5C; color: #fff; border: none; padding: 10px 20px;
       border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
       text-decoration: none; transition: background 0.2s;
     }
     .nav-cta:hover { background: #a8654a; }
+
+    /* ===== LOGIN MODAL ===== */
+    .login-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(45,42,38,0.5); backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .login-overlay.open { display: flex; }
+    .login-modal {
+      background: #FFFFFF; border-radius: 20px; padding: 36px 28px;
+      width: 100%; max-width: 360px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+      text-align: center; position: relative;
+      animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes modalIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .login-modal-close {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; font-size: 22px; color: #8A8279;
+      cursor: pointer; width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; transition: background 0.2s;
+    }
+    .login-modal-close:hover { background: #EDE8E2; }
+    .login-modal-logo { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .login-modal-logo span { color: #C07A5C; }
+    .login-modal-sub { font-size: 13px; color: #8A8279; margin-bottom: 24px; }
+    .login-field {
+      width: 100%; padding: 13px 16px; border: 1.5px solid #E0D6CC;
+      border-radius: 10px; font-size: 15px; font-family: inherit;
+      outline: none; transition: border-color 0.2s; margin-bottom: 12px;
+      background: #FAF6F1;
+    }
+    .login-field:focus { border-color: #C07A5C; }
+    .login-submit {
+      width: 100%; padding: 14px; background: #C07A5C; color: #fff;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: background 0.2s;
+      margin-top: 4px;
+    }
+    .login-submit:hover { background: #A8674E; }
+    .login-error-msg {
+      font-size: 13px; color: #ef4444; margin-top: 10px;
+      display: none; font-weight: 500;
+    }
+    .login-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 18px 0 14px; color: #B8AFA6; font-size: 12px;
+    }
+    .login-divider::before, .login-divider::after {
+      content: ''; flex: 1; height: 1px; background: #E0D6CC;
+    }
+    .login-new-user {
+      font-size: 13px; color: #8A8279;
+    }
+    .login-new-user a {
+      color: #C07A5C; font-weight: 600; text-decoration: none;
+    }
+    .login-new-user a:hover { text-decoration: underline; }
 
     /* ===== CONTAINER ===== */
     .page { max-width: 600px; margin: 0 auto; padding: 0 20px; }
@@ -550,7 +621,25 @@
 <!-- NAV -->
 <div class="nav">
   <div class="nav-logo">Lazy<span>WeightLoss</span></div>
-  <a href="funnel.html" class="nav-cta">Take the Quiz</a>
+  <div class="nav-right">
+    <button class="nav-login" onclick="openLoginModal()">Log In</button>
+    <a href="funnel.html" class="nav-cta">Take the Quiz</a>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="login-overlay" id="loginOverlay" onclick="if(event.target===this)closeLoginModal()">
+  <div class="login-modal">
+    <button class="login-modal-close" onclick="closeLoginModal()">&times;</button>
+    <div class="login-modal-logo">Lazy<span>WeightLoss</span></div>
+    <div class="login-modal-sub">Welcome back! Log in to your dashboard.</div>
+    <input type="email" class="login-field" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+    <input type="password" class="login-field" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')handleLogin()">
+    <button class="login-submit" onclick="handleLogin()">Log In</button>
+    <div class="login-error-msg" id="loginError">Invalid email or password. Please try again.</div>
+    <div class="login-divider">or</div>
+    <div class="login-new-user">New here? <a href="funnel.html">Take the free quiz</a></div>
+  </div>
 </div>
 
 <div class="page">
@@ -1069,6 +1158,35 @@ document.addEventListener('click', function(e) {
     sections[0].classList.add('section-visible');
   }
 })();
+
+// ===== LOGIN MODAL =====
+function openLoginModal() {
+  document.getElementById('loginOverlay').classList.add('open');
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+  setTimeout(function() { document.getElementById('loginEmail').focus(); }, 100);
+}
+
+function closeLoginModal() {
+  document.getElementById('loginOverlay').classList.remove('open');
+}
+
+function handleLogin() {
+  var email = document.getElementById('loginEmail').value.trim();
+  var pass = document.getElementById('loginPass').value;
+
+  if (!email || !pass) {
+    var err = document.getElementById('loginError');
+    err.textContent = 'Please enter your email and password.';
+    err.style.display = 'block';
+    return;
+  }
+
+  // For now, accept any email/password and go to dashboard
+  // Replace with real auth when backend is set up
+  window.location.href = 'dashboard.html';
+}
 </script>
 </body>
 </html>
