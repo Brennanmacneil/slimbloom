@@ -596,9 +596,14 @@
     z-index: 0; overflow: hidden;
   }
   .player-video-bg iframe {
-    width: 100%; height: 100%;
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 177.78vh; /* 16:9 width from height */
+    height: 100vh;
+    min-width: 100vw;
+    min-height: 56.25vw; /* 16:9 height from width */
+    transform: translate(-50%, -50%);
     border: none;
-    object-fit: cover;
   }
   .player-video-bg.active { display: block; }
 
