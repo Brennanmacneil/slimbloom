@@ -606,13 +606,20 @@
     border: none;
   }
   .player-video-bg.active { display: block; }
-  /* Hide YouTube title bar overlay */
-  .player-video-bg::after {
+  /* Hide YouTube title bar — two layers for full coverage */
+  .player-video-bg::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0;
-    height: 100px;
-    background: linear-gradient(rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
-    z-index: 1; pointer-events: none;
+    height: 60px;
+    background: #000000;
+    z-index: 2; pointer-events: none;
+  }
+  .player-video-bg::after {
+    content: '';
+    position: absolute; top: 60px; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(rgba(0,0,0,1) 0%, transparent 100%);
+    z-index: 2; pointer-events: none;
   }
 
   /* -- Bottom info overlay with gradient -- */
