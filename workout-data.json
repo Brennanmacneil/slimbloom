@@ -1,0 +1,92 @@
+{
+  "schedule": [
+    { "title": "Morning Yoga Flow", "emoji": "\ud83e\uddd8", "duration": 15, "difficulty": "Beginner", "diffColor": "#22c55e", "category": "yoga", "desc": "Gentle stretching and breathing exercises designed for flexibility and calm. Perfect start to your day.", "cal": 85 },
+    { "title": "Walking Power Stroll", "emoji": "\ud83d\udeb6", "duration": 20, "difficulty": "Beginner", "diffColor": "#22c55e", "category": "walking", "desc": "Brisk walk with intervals of faster pace. Focus on posture and arm movement for a full-body benefit.", "cal": 120 },
+    { "title": "Chair Strength Circuit", "emoji": "\ud83e\ude91", "duration": 12, "difficulty": "Beginner", "diffColor": "#22c55e", "category": "chair", "desc": "Seated and standing exercises using a sturdy chair for support. Great for building strength safely.", "cal": 75 },
+    { "title": "Rest & Recovery", "emoji": "\ud83d\ude0c", "duration": 10, "difficulty": "Easy", "diffColor": "#3b82f6", "category": "stretching", "desc": "Light stretching and deep breathing. Let your body recover and rebuild. Active rest is important!", "cal": 30, "isRest": true },
+    { "title": "Low-Impact Cardio", "emoji": "\u2764\ufe0f", "duration": 20, "difficulty": "Moderate", "diffColor": "#f59e0b", "category": "cardio", "desc": "Marching in place, side steps, and gentle movements that get your heart rate up without jarring your joints.", "cal": 140 },
+    { "title": "Gentle Pilates Core", "emoji": "\ud83c\udfcb\ufe0f", "duration": 15, "difficulty": "Beginner", "diffColor": "#22c55e", "category": "pilates", "desc": "Core-strengthening moves adapted for beginners. Focus on breathing and controlled movements.", "cal": 95 },
+    { "title": "Full Body Stretch", "emoji": "\ud83e\udd38", "duration": 10, "difficulty": "Easy", "diffColor": "#3b82f6", "category": "stretching", "desc": "Head-to-toe stretching routine to improve flexibility and reduce stiffness. A perfect wind-down.", "cal": 40 }
+  ],
+  "library": [
+    { "title": "Morning Yoga Flow", "emoji": "\ud83e\uddd8", "duration": 15, "difficulty": "Beginner", "category": "yoga", "videoUrl": "" },
+    { "title": "Yoga for Flexibility", "emoji": "\ud83e\uddd8", "duration": 20, "difficulty": "Beginner", "category": "yoga", "videoUrl": "" },
+    { "title": "Calming Yoga Session", "emoji": "\ud83e\uddd8", "duration": 25, "difficulty": "Moderate", "category": "yoga", "videoUrl": "" },
+    { "title": "Chair Yoga", "emoji": "\ud83e\uddd8", "duration": 10, "difficulty": "Easy", "category": "yoga", "videoUrl": "" },
+    { "title": "Walking Power Stroll", "emoji": "\ud83d\udeb6", "duration": 20, "difficulty": "Beginner", "category": "walking", "videoUrl": "" },
+    { "title": "Interval Walking", "emoji": "\ud83d\udeb6", "duration": 30, "difficulty": "Moderate", "category": "walking", "videoUrl": "" },
+    { "title": "Morning Walk", "emoji": "\ud83d\udeb6", "duration": 15, "difficulty": "Easy", "category": "walking", "videoUrl": "" },
+    { "title": "Walking & Stretching", "emoji": "\ud83d\udeb6", "duration": 25, "difficulty": "Beginner", "category": "walking", "videoUrl": "" },
+    { "title": "Full Body Stretch", "emoji": "\ud83e\udd38", "duration": 10, "difficulty": "Easy", "category": "stretching", "videoUrl": "" },
+    { "title": "Morning Stretch", "emoji": "\ud83e\udd38", "duration": 8, "difficulty": "Easy", "category": "stretching", "videoUrl": "" },
+    { "title": "Deep Stretch Session", "emoji": "\ud83e\udd38", "duration": 20, "difficulty": "Beginner", "category": "stretching", "videoUrl": "" },
+    { "title": "Hip & Back Release", "emoji": "\ud83e\udd38", "duration": 15, "difficulty": "Beginner", "category": "stretching", "videoUrl": "" },
+    { "title": "Low-Impact Cardio", "emoji": "\u2764\ufe0f", "duration": 20, "difficulty": "Moderate", "category": "cardio", "videoUrl": "" },
+    { "title": "Dance Fitness Light", "emoji": "\u2764\ufe0f", "duration": 15, "difficulty": "Beginner", "category": "cardio", "videoUrl": "" },
+    { "title": "Step & Groove", "emoji": "\u2764\ufe0f", "duration": 25, "difficulty": "Moderate", "category": "cardio", "videoUrl": "" },
+    { "title": "Chair Strength Circuit", "emoji": "\ud83e\ude91", "duration": 12, "difficulty": "Beginner", "category": "chair", "videoUrl": "" },
+    { "title": "Seated Core Workout", "emoji": "\ud83e\ude91", "duration": 10, "difficulty": "Beginner", "category": "chair", "videoUrl": "" },
+    { "title": "Chair Cardio", "emoji": "\ud83e\ude91", "duration": 15, "difficulty": "Moderate", "category": "chair", "videoUrl": "" },
+    { "title": "Gentle Pilates Core", "emoji": "\ud83c\udfcb\ufe0f", "duration": 15, "difficulty": "Beginner", "category": "pilates", "videoUrl": "" },
+    { "title": "Pilates for Beginners", "emoji": "\ud83c\udfcb\ufe0f", "duration": 20, "difficulty": "Beginner", "category": "pilates", "videoUrl": "" },
+    { "title": "Pilates Balance Work", "emoji": "\ud83c\udfcb\ufe0f", "duration": 18, "difficulty": "Moderate", "category": "pilates", "videoUrl": "" }
+  ],
+  "exerciseDb": {
+    "yoga": [
+      { "name": "Mountain Pose", "emoji": "\ud83e\uddd8", "anim": "breathe", "videoUrl": "" },
+      { "name": "Forward Fold", "emoji": "\ud83d\ude46", "anim": "bob", "videoUrl": "" },
+      { "name": "Cat-Cow Stretch", "emoji": "\ud83d\udc31", "anim": "rock", "videoUrl": "" },
+      { "name": "Warrior I", "emoji": "\ud83e\uddce", "anim": "pulse", "videoUrl": "" },
+      { "name": "Tree Pose", "emoji": "\ud83c\udf33", "anim": "sway", "videoUrl": "" },
+      { "name": "Child's Pose", "emoji": "\ud83e\uddd2", "anim": "breathe", "videoUrl": "" },
+      { "name": "Seated Twist", "emoji": "\ud83d\udd04", "anim": "rock", "videoUrl": "" },
+      { "name": "Savasana", "emoji": "\ud83d\ude0c", "anim": "breathe", "videoUrl": "" }
+    ],
+    "walking": [
+      { "name": "Warm Up March", "emoji": "\ud83d\udeb6", "anim": "bob", "videoUrl": "" },
+      { "name": "Brisk Walk", "emoji": "\ud83c\udfc3", "anim": "bob", "videoUrl": "" },
+      { "name": "Side Steps", "emoji": "\u2194\ufe0f", "anim": "sway", "videoUrl": "" },
+      { "name": "High Knees Light", "emoji": "\ud83e\uddb5", "anim": "bob", "videoUrl": "" },
+      { "name": "Arm Swing Walk", "emoji": "\ud83d\udcaa", "anim": "sway", "videoUrl": "" },
+      { "name": "Power Stride", "emoji": "\u26a1", "anim": "pulse", "videoUrl": "" },
+      { "name": "Cool Down Walk", "emoji": "\ud83c\udf3f", "anim": "breathe", "videoUrl": "" }
+    ],
+    "stretching": [
+      { "name": "Neck Rolls", "emoji": "\ud83d\ude42", "anim": "rock", "videoUrl": "" },
+      { "name": "Shoulder Stretch", "emoji": "\ud83e\udd37", "anim": "sway", "videoUrl": "" },
+      { "name": "Hamstring Stretch", "emoji": "\ud83e\uddb5", "anim": "breathe", "videoUrl": "" },
+      { "name": "Quad Stretch", "emoji": "\ud83e\uddbf", "anim": "pulse", "videoUrl": "" },
+      { "name": "Spinal Twist", "emoji": "\ud83d\udd04", "anim": "rock", "videoUrl": "" },
+      { "name": "Calf Stretch", "emoji": "\ud83e\uddb6", "anim": "breathe", "videoUrl": "" },
+      { "name": "Hip Opener", "emoji": "\ud83e\uddd8", "anim": "sway", "videoUrl": "" }
+    ],
+    "cardio": [
+      { "name": "March in Place", "emoji": "\ud83d\udeb6", "anim": "bob", "videoUrl": "" },
+      { "name": "Side Steps", "emoji": "\u2194\ufe0f", "anim": "sway", "videoUrl": "" },
+      { "name": "Arm Circles", "emoji": "\ud83d\udd04", "anim": "rock", "videoUrl": "" },
+      { "name": "Step Touch", "emoji": "\ud83d\udc5f", "anim": "sway", "videoUrl": "" },
+      { "name": "Knee Lifts", "emoji": "\ud83e\uddb5", "anim": "bob", "videoUrl": "" },
+      { "name": "Toe Taps", "emoji": "\ud83e\uddb6", "anim": "pulse", "videoUrl": "" },
+      { "name": "Boxing Punches", "emoji": "\ud83e\udd4a", "anim": "pulse", "videoUrl": "" },
+      { "name": "Cool Down March", "emoji": "\ud83c\udf3f", "anim": "breathe", "videoUrl": "" }
+    ],
+    "chair": [
+      { "name": "Seated March", "emoji": "\ud83e\ude91", "anim": "bob", "videoUrl": "" },
+      { "name": "Chair Squats", "emoji": "\ud83c\udfcb\ufe0f", "anim": "pulse", "videoUrl": "" },
+      { "name": "Seated Twists", "emoji": "\ud83d\udd04", "anim": "rock", "videoUrl": "" },
+      { "name": "Arm Raises", "emoji": "\ud83d\ude4c", "anim": "breathe", "videoUrl": "" },
+      { "name": "Leg Extensions", "emoji": "\ud83e\uddb5", "anim": "bob", "videoUrl": "" },
+      { "name": "Seated Kicks", "emoji": "\ud83e\uddb6", "anim": "pulse", "videoUrl": "" },
+      { "name": "Chair Dips", "emoji": "\ud83d\udcba", "anim": "bob", "videoUrl": "" }
+    ],
+    "pilates": [
+      { "name": "Breathing Focus", "emoji": "\ud83c\udf2c\ufe0f", "anim": "breathe", "videoUrl": "" },
+      { "name": "Pelvic Tilt", "emoji": "\ud83d\udd04", "anim": "rock", "videoUrl": "" },
+      { "name": "Bridge", "emoji": "\ud83c\udf09", "anim": "pulse", "videoUrl": "" },
+      { "name": "Single Leg Stretch", "emoji": "\ud83e\uddb5", "anim": "bob", "videoUrl": "" },
+      { "name": "Hundred Modified", "emoji": "\ud83d\udcaf", "anim": "pulse", "videoUrl": "" },
+      { "name": "Roll Up", "emoji": "\ud83e\uddd8", "anim": "breathe", "videoUrl": "" },
+      { "name": "Side Leg Lift", "emoji": "\ud83e\uddbf", "anim": "sway", "videoUrl": "" }
+    ]
+  }
+}
