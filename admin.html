@@ -388,6 +388,38 @@
   .save-btn:hover { background: #A8674E; }
   .save-btn:active { transform: scale(0.97); }
   .save-btn:disabled { background: #B0A89E; cursor: not-allowed; opacity: 0.7; }
+
+  /* ===== TOKEN PROMPT ===== */
+  .token-overlay {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(45,42,38,0.5); backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .token-overlay.open { display: flex; }
+  .token-modal {
+    background: #FFFFFF; border-radius: 16px; padding: 32px 24px;
+    width: 100%; max-width: 380px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+    text-align: center;
+  }
+  .token-modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .token-modal p { font-size: 13px; color: #8A8279; margin-bottom: 20px; line-height: 1.5; }
+  .token-modal input {
+    width: 100%; padding: 12px 16px; border: 1.5px solid #D4CAC0;
+    border-radius: 10px; font-size: 14px; font-family: inherit;
+    outline: none; margin-bottom: 14px;
+  }
+  .token-modal input:focus { border-color: #C07A5C; }
+  .token-modal-btns { display: flex; gap: 10px; }
+  .token-modal-btns button {
+    flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;
+    font-weight: 600; cursor: pointer; font-family: inherit; border: none;
+  }
+  .token-cancel { background: #EDE8E2; color: #8A8279; }
+  .token-cancel:hover { background: #E0D6CC; }
+  .token-save { background: #C07A5C; color: #fff; }
+  .token-save:hover { background: #A8674E; }
   .reset-btn {
     padding: 12px 24px;
     background: transparent;
@@ -506,6 +538,19 @@
   <div class="save-bar">
     <button class="reset-btn" onclick="resetToDefaults()">Reset Defaults</button>
     <button class="save-btn" onclick="saveAllChanges()">Save All Changes</button>
+  </div>
+</div>
+
+<!-- Token Prompt -->
+<div class="token-overlay" id="tokenOverlay" onclick="if(event.target===this)closeTokenPrompt()">
+  <div class="token-modal">
+    <h3>GitHub Token Needed</h3>
+    <p>To save changes, enter a GitHub personal access token with <strong>repo</strong> scope. This is stored only in your browser session.</p>
+    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" onkeydown="if(event.key==='Enter')submitToken()">
+    <div class="token-modal-btns">
+      <button class="token-cancel" onclick="closeTokenPrompt()">Cancel</button>
+      <button class="token-save" onclick="submitToken()">Save & Continue</button>
+    </div>
   </div>
 </div>
 
@@ -903,10 +948,35 @@ function toggleCard(id) {
 }
 
 // ===== SAVE / RESET =====
+var _pendingSaveAfterToken = false;
+
+function openTokenPrompt() {
+  document.getElementById('tokenInput').value = '';
+  document.getElementById('tokenOverlay').classList.add('open');
+  setTimeout(function() { document.getElementById('tokenInput').focus(); }, 100);
+}
+
+function closeTokenPrompt() {
+  document.getElementById('tokenOverlay').classList.remove('open');
+  _pendingSaveAfterToken = false;
+}
+
+function submitToken() {
+  var val = document.getElementById('tokenInput').value.trim();
+  if (!val) return;
+  sessionStorage.setItem('gh_token', val);
+  closeTokenPrompt();
+  if (_pendingSaveAfterToken) {
+    _pendingSaveAfterToken = false;
+    saveAllChanges();
+  }
+}
+
 function saveAllChanges() {
   var token = sessionStorage.getItem('gh_token');
   if (!token) {
-    showToast('⚠️ No GitHub token — enter it on login');
+    _pendingSaveAfterToken = true;
+    openTokenPrompt();
     return;
   }
 
