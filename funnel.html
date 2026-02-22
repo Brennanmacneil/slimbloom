@@ -1243,7 +1243,7 @@
       <div style="text-align:center;font-size:36px;font-weight:800;color:#22c55e;">8-15 lbs</div>
       <div style="text-align:center;font-size:14px;color:#999;">in the first month</div>
     </div>
-    <button class="continue-btn" onclick="window.location.href='checkout.html'">GET MY PLAN</button>
+    <button class="continue-btn" onclick="saveFunnelAndGo()">GET MY PLAN</button>
   </div>
 
 </div>
@@ -1384,6 +1384,18 @@
       document.getElementById('target-display').textContent = Math.round(val * 0.453592);
       document.getElementById('target-unit').textContent = 'kg';
     }
+  }
+
+  function saveFunnelAndGo() {
+    var cw = document.getElementById('weight-display').textContent;
+    var cu = document.getElementById('weight-unit').textContent;
+    var gw = document.getElementById('target-display').textContent;
+    var gu = document.getElementById('target-unit').textContent;
+    localStorage.setItem('lwl_current_weight', cw);
+    localStorage.setItem('lwl_current_unit', cu);
+    localStorage.setItem('lwl_goal_weight', gw);
+    localStorage.setItem('lwl_goal_unit', gu);
+    window.location.href = 'checkout.html';
   }
 
   function goBack() {

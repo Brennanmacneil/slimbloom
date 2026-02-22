@@ -747,14 +747,14 @@
         <circle class="dot-start" cx="40" cy="30"/>
         <circle class="dot-end" cx="420" cy="125"/>
         <!-- labels -->
-        <text class="weight-val val-start" x="55" y="12">187 lbs</text>
-        <text class="weight-val val-end" x="380" y="100">155 lbs</text>
+        <text class="weight-val val-start" x="55" y="12" id="chart-current-weight">187 lbs</text>
+        <text class="weight-val val-end" x="380" y="100" id="chart-goal-weight">155 lbs</text>
         <text x="432" y="134" font-size="10" fill="#C07A5C" font-weight="600" opacity="0.6">goal</text>
       </svg>
     </div>
     <div class="weight-stats">
       <div class="weight-stat">
-        <div class="num">-32</div>
+        <div class="num" id="stat-lbs-to-lose">-32</div>
         <div class="lbl">lbs to lose</div>
       </div>
       <div class="weight-stat">
@@ -778,7 +778,7 @@
       </div>
       <div class="plan-meta-item">
         <div class="meta-label">Target weight</div>
-        <div class="meta-value">🎯 155 lbs</div>
+        <div class="meta-value" id="meta-goal-weight">🎯 155 lbs</div>
       </div>
       <div class="plan-meta-item">
         <div class="meta-label">Daily time</div>
@@ -1068,6 +1068,28 @@
 </a>
 
 <script>
+// ===== POPULATE WEIGHT FROM FUNNEL =====
+(function() {
+  var cw = localStorage.getItem('lwl_current_weight');
+  var cu = localStorage.getItem('lwl_current_unit') || 'lbs';
+  var gw = localStorage.getItem('lwl_goal_weight');
+  var gu = localStorage.getItem('lwl_goal_unit') || 'lbs';
+  if (cw && gw) {
+    var cwNum = parseInt(cw, 10);
+    var gwNum = parseInt(gw, 10);
+    var diff = cwNum - gwNum;
+    var el;
+    el = document.getElementById('chart-current-weight');
+    if (el) el.textContent = cwNum + ' ' + cu;
+    el = document.getElementById('chart-goal-weight');
+    if (el) el.textContent = gwNum + ' ' + gu;
+    el = document.getElementById('stat-lbs-to-lose');
+    if (el) el.textContent = '-' + diff;
+    el = document.getElementById('meta-goal-weight');
+    if (el) el.textContent = '🎯 ' + gwNum + ' ' + gu;
+  }
+})();
+
 var couponApplied = false;
 
 function applyCoupon() {
