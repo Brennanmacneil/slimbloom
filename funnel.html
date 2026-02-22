@@ -313,36 +313,50 @@
   .zone-container {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 24px;
     width: 100%;
     margin-bottom: 24px;
+    justify-content: center;
   }
   .zone-figure {
-    font-size: 120px;
-    line-height: 1;
-    text-align: center;
     flex-shrink: 0;
+    position: relative;
+    width: 180px;
+    height: 400px;
+  }
+  .zone-figure svg { width: 100%; height: 100%; }
+  .zone-figure .body-silhouette { fill: #D4CAC0; }
+  .zone-figure .zone-highlight {
+    fill: #C07A5C;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  .zone-figure .zone-highlight.active {
+    opacity: 0.55;
   }
   .zone-buttons {
     display: flex;
     flex-direction: column;
     gap: 8px;
     flex: 1;
+    max-width: 200px;
+    padding-top: 20px;
   }
   .zone-btn {
-    padding: 10px 16px;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
     background: #FFFFFF;
-    border: 1px solid #D4CAC0;
+    border: 2px solid #D4CAC0;
     color: #2D2A26;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     text-align: center;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
   }
   .zone-btn:hover { background: #F5EEE6; border-color: #B8AFA5; }
-  .zone-btn.selected { background: #FDF0E8; border-color: #C07A5C; }
+  .zone-btn.selected { background: #FDF0E8; border-color: #C07A5C; color: #C07A5C; }
 
   /* Continue Button */
   .continue-btn {
@@ -776,14 +790,43 @@
     <h2>Choose your target areas</h2>
     <p class="subtitle">Select all that apply</p>
     <div class="zone-container">
-      <div class="zone-figure">&#128105;</div>
+      <div class="zone-figure">
+        <svg viewBox="0 0 180 420" xmlns="http://www.w3.org/2000/svg">
+          <!-- Female body silhouette -->
+          <g class="body-silhouette">
+            <!-- Head -->
+            <ellipse cx="90" cy="32" rx="22" ry="28"/>
+            <!-- Neck -->
+            <rect x="80" y="58" width="20" height="14" rx="4"/>
+            <!-- Torso -->
+            <path d="M58,72 Q54,72 50,80 L44,120 Q42,140 46,160 L50,180 Q52,190 58,195 L62,200 Q70,208 80,210 L100,210 Q110,208 118,200 L122,195 Q128,190 130,180 L134,160 Q138,140 136,120 L130,80 Q126,72 122,72 Z"/>
+            <!-- Left arm -->
+            <path d="M50,80 Q40,82 34,95 L24,135 Q20,150 22,165 L24,180 Q26,188 30,190 Q34,192 36,188 L40,170 Q42,160 44,150 L50,120"/>
+            <!-- Right arm -->
+            <path d="M130,80 Q140,82 146,95 L156,135 Q160,150 158,165 L156,180 Q154,188 150,190 Q146,192 144,188 L140,170 Q138,160 136,150 L130,120"/>
+            <!-- Left leg -->
+            <path d="M68,210 Q62,215 58,230 L52,270 Q48,300 50,330 L52,360 Q53,375 56,390 Q58,400 62,405 Q68,410 72,405 Q74,400 73,390 L72,360 Q72,340 74,320 L78,280 Q80,260 82,240 L86,210 Z"/>
+            <!-- Right leg -->
+            <path d="M112,210 Q118,215 122,230 L128,270 Q132,300 130,330 L128,360 Q127,375 124,390 Q122,400 118,405 Q112,410 108,405 Q106,400 107,390 L108,360 Q108,340 106,320 L102,280 Q100,260 98,240 L94,210 Z"/>
+          </g>
+          <!-- Highlight zones -->
+          <ellipse class="zone-highlight" id="hl-arms-l" cx="34" cy="140" rx="14" ry="35"/>
+          <ellipse class="zone-highlight" id="hl-arms-r" cx="146" cy="140" rx="14" ry="35"/>
+          <ellipse class="zone-highlight" id="hl-belly" cx="90" cy="155" rx="32" ry="35"/>
+          <ellipse class="zone-highlight" id="hl-back" cx="90" cy="105" rx="34" ry="25"/>
+          <ellipse class="zone-highlight" id="hl-hips-l" cx="70" cy="225" rx="18" ry="28"/>
+          <ellipse class="zone-highlight" id="hl-hips-r" cx="110" cy="225" rx="18" ry="28"/>
+          <ellipse class="zone-highlight" id="hl-legs-l" cx="63" cy="330" rx="14" ry="55"/>
+          <ellipse class="zone-highlight" id="hl-legs-r" cx="117" cy="330" rx="14" ry="55"/>
+        </svg>
+      </div>
       <div class="zone-buttons">
-        <div class="zone-btn" onclick="toggleZone(this)">Arms</div>
-        <div class="zone-btn" onclick="toggleZone(this)">Belly</div>
-        <div class="zone-btn" onclick="toggleZone(this)">Back</div>
-        <div class="zone-btn" onclick="toggleZone(this)">Hips &amp; thighs</div>
-        <div class="zone-btn" onclick="toggleZone(this)">Legs</div>
-        <div class="zone-btn" onclick="toggleZone(this)">Whole body</div>
+        <div class="zone-btn" data-zone="arms" onclick="toggleZone(this)">Arms</div>
+        <div class="zone-btn" data-zone="belly" onclick="toggleZone(this)">Belly</div>
+        <div class="zone-btn" data-zone="back" onclick="toggleZone(this)">Back</div>
+        <div class="zone-btn" data-zone="hips" onclick="toggleZone(this)">Hips &amp; thighs</div>
+        <div class="zone-btn" data-zone="legs" onclick="toggleZone(this)">Legs</div>
+        <div class="zone-btn" data-zone="whole" onclick="toggleZone(this)">Whole body</div>
       </div>
     </div>
     <button class="continue-btn" id="continue-7" disabled onclick="goToStep(8)">CONTINUE</button>
@@ -1316,9 +1359,52 @@
   function toggleZone(el) {
     el.classList.toggle('selected');
     const step = el.closest('.step');
-    const selected = step.querySelectorAll('.zone-btn.selected').length;
     const stepNum = step.dataset.step;
-    const btn = document.getElementById(`continue-${stepNum}`);
+
+    // Map zone names to SVG highlight element IDs
+    var zoneMap = {
+      arms:  ['hl-arms-l', 'hl-arms-r'],
+      belly: ['hl-belly'],
+      back:  ['hl-back'],
+      hips:  ['hl-hips-l', 'hl-hips-r'],
+      legs:  ['hl-legs-l', 'hl-legs-r'],
+      whole: ['hl-arms-l','hl-arms-r','hl-belly','hl-back','hl-hips-l','hl-hips-r','hl-legs-l','hl-legs-r']
+    };
+
+    var zone = el.getAttribute('data-zone');
+    if (zone === 'whole') {
+      // "Whole body" toggles ALL highlights and ALL buttons
+      var isSelected = el.classList.contains('selected');
+      step.querySelectorAll('.zone-btn').forEach(function(b) {
+        if (isSelected) b.classList.add('selected');
+        else b.classList.remove('selected');
+      });
+      var allIds = zoneMap.whole;
+      allIds.forEach(function(id) {
+        var hlEl = document.getElementById(id);
+        if (hlEl) {
+          if (isSelected) hlEl.classList.add('active');
+          else hlEl.classList.remove('active');
+        }
+      });
+    } else if (zone && zoneMap[zone]) {
+      var isOn = el.classList.contains('selected');
+      zoneMap[zone].forEach(function(id) {
+        var hlEl = document.getElementById(id);
+        if (hlEl) {
+          if (isOn) hlEl.classList.add('active');
+          else hlEl.classList.remove('active');
+        }
+      });
+      // Uncheck "Whole body" if deselecting individual zone
+      if (!isOn) {
+        var wholeBtn = step.querySelector('.zone-btn[data-zone="whole"]');
+        if (wholeBtn) wholeBtn.classList.remove('selected');
+      }
+    }
+
+    var selected = step.querySelectorAll('.zone-btn.selected').length;
+    var btn = document.getElementById('continue-' + stepNum);
     if (btn) btn.disabled = selected === 0;
   }
 
