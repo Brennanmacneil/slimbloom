@@ -2564,6 +2564,17 @@
     if (e.key === 'Escape' && _activePanel) closeSettingsPanel();
   });
 
+  // ===== CHECK PAYMENT RETURN =====
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === 'true' || params.get('status') === 'success') {
+      localStorage.setItem('lwl_paid', 'true');
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(function() { showToast('🎉 Payment successful! Welcome to your plan!'); }, 500);
+    }
+  })();
+
   // ===== INIT =====
   _loadWorkoutData(function() {
     buildWeekStrip();

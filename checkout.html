@@ -16,6 +16,7 @@
 <meta name="twitter:title" content="Lazy Weight Loss — Your Personalized Plan">
 <meta name="twitter:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
 <meta name="twitter:image" content="https://lazyweightloss.com/og-image.png">
+  <script async defer src="https://js.whop.com/static/checkout/loader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     var SUPABASE_URL = 'https://vlfnixgkhfyidmhrglrj.supabase.co';
@@ -522,6 +523,39 @@
     .coupon-msg.success { display: block; color: #22c55e; }
     .coupon-msg.error { display: block; color: #ef4444; }
 
+    /* ===== WHOP CHECKOUT OVERLAY ===== */
+    .checkout-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6); z-index: 9999;
+      justify-content: center; align-items: center;
+      padding: 16px;
+    }
+    .checkout-overlay.active { display: flex; }
+    .checkout-panel {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto; position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .checkout-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid #E8E0D8;
+    }
+    .checkout-panel-header h3 {
+      font-size: 16px; font-weight: 700; color: #2D2A26; margin: 0;
+    }
+    .checkout-close {
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: #f0ebe5; cursor: pointer; font-size: 18px; color: #8A8279;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .checkout-close:hover { background: #e0d8ce; }
+    .checkout-embed-wrap {
+      min-height: 400px; padding: 0;
+    }
+    .checkout-embed-wrap div[data-whop-checkout-plan-id] {
+      min-height: 400px;
+    }
+
     /* ===== GUARANTEE ===== */
     .guarantee-section { text-align: center; padding: 40px 0; }
     .guarantee-badge { font-size: 64px; margin-bottom: 12px; }
@@ -756,7 +790,7 @@
   <!-- ===== PRICING PLANS ===== -->
   <section class="pricing-section" id="pricing">
     <h3>Start your positive change</h3>
-    <div class="plan-option" onclick="selectPlan(this)">
+    <div class="plan-option" data-plan-id="plan_VWsf3Cik0o7Vj" onclick="selectPlan(this)">
       <div class="radio"></div>
       <div class="plan-info">
         <div class="plan-name">4-WEEK PLAN</div>
@@ -770,7 +804,7 @@
     </div>
 
     <h3>Get visible results in 12 weeks</h3>
-    <div class="plan-option selected" onclick="selectPlan(this)">
+    <div class="plan-option selected" data-plan-id="plan_CGt8PI0ipZ9vR" onclick="selectPlan(this)">
       <div class="plan-tag">MOST POPULAR</div>
       <div class="radio"></div>
       <div class="plan-info">
@@ -786,7 +820,7 @@
     </div>
 
     <h3>Long-term transformation</h3>
-    <div class="plan-option" onclick="selectPlan(this)">
+    <div class="plan-option" data-plan-id="plan_KJiJ7FZ8lj9OR" onclick="selectPlan(this)">
       <div class="plan-tag" style="background:#2D2A26;">RECOMMENDED FOR YOU</div>
       <div class="radio"></div>
       <div class="plan-info">
@@ -997,6 +1031,17 @@
 
 <!-- FOOTER -->
 <div class="page">
+  <!-- ===== WHOP CHECKOUT OVERLAY ===== -->
+  <div class="checkout-overlay" id="checkoutOverlay" onclick="if(event.target===this)closeCheckout()">
+    <div class="checkout-panel">
+      <div class="checkout-panel-header">
+        <h3 id="checkoutTitle">Complete Your Purchase</h3>
+        <button class="checkout-close" onclick="closeCheckout()">&times;</button>
+      </div>
+      <div class="checkout-embed-wrap" id="checkoutEmbed"></div>
+    </div>
+  </div>
+
   <div class="footer">
     <div class="footer-links">
       <a href="privacy-policy.html">Privacy Policy</a>
@@ -1006,7 +1051,7 @@
     <div class="payment-icons">
       <span>VISA</span>
       <span>Mastercard</span>
-      <span>Stripe</span>
+      <span>Whop</span>
       <span>Apple Pay</span>
     </div>
     <div class="safe">Guaranteed Safe Checkout ✅</div>
@@ -1048,9 +1093,40 @@ function applyCoupon() {
 function handleGetPlan() {
   if (couponApplied) {
     window.location.href = 'dashboard.html';
-  } else {
-    alert('Redirecting to payment...');
+    return;
   }
+  var selected = document.querySelector('.plan-option.selected');
+  if (!selected) { alert('Please select a plan'); return; }
+  var planId = selected.getAttribute('data-plan-id');
+  var planName = selected.querySelector('.plan-name').textContent;
+  openCheckout(planId, planName);
+}
+
+function openCheckout(planId, planName) {
+  var overlay = document.getElementById('checkoutOverlay');
+  var embed = document.getElementById('checkoutEmbed');
+  var title = document.getElementById('checkoutTitle');
+  title.textContent = planName;
+  // Clear previous embed
+  embed.innerHTML = '';
+  // Create the Whop checkout div
+  var checkoutDiv = document.createElement('div');
+  checkoutDiv.setAttribute('data-whop-checkout-plan-id', planId);
+  checkoutDiv.setAttribute('data-whop-checkout-return-url', window.location.origin + '/dashboard.html?paid=true');
+  embed.appendChild(checkoutDiv);
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  // Re-trigger Whop loader to pick up the new div
+  if (window.Whop && window.Whop.mountCheckout) {
+    window.Whop.mountCheckout();
+  }
+}
+
+function closeCheckout() {
+  var overlay = document.getElementById('checkoutOverlay');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+  document.getElementById('checkoutEmbed').innerHTML = '';
 }
 
 function selectPlan(el) {
