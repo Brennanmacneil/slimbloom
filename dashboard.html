@@ -19,6 +19,7 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZm5peGdraGZ5aWRtaHJnbHJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODgzNTYsImV4cCI6MjA4NzI2NDM1Nn0.BKh3ogeNoPftTHQ3GCHLKAVhScnvElTnAp4gD09v4qA';
   var _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   var _currentUser = null;
+  var _currentSession = null;
 
   // Auth guard — redirect to checkout if not logged in
   _supabase.auth.getSession().then(function(res) {
@@ -26,6 +27,7 @@
       window.location.href = 'checkout.html';
     } else {
       _currentUser = res.data.session.user;
+      _currentSession = res.data.session;
       document.body.style.visibility = 'visible';
       populateProfile(_currentUser);
     }
@@ -38,6 +40,7 @@
     }
     if (session) {
       _currentUser = session.user;
+      _currentSession = session;
       populateProfile(_currentUser);
     }
   });
@@ -1433,28 +1436,74 @@
     <div class="settings-panel-title">Subscription</div>
   </div>
   <div class="settings-panel-body">
-    <div class="sp-card sp-plan-active">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div class="sp-card-title" style="margin-bottom:0;">Current Plan</div>
-        <span class="sp-plan-badge">Active</span>
+    <!-- Loading state -->
+    <div id="sub-loading" style="text-align:center;padding:40px 0;color:#8A8279;">
+      <div style="font-size:24px;margin-bottom:8px;">&#9696;</div>
+      Loading subscription data...
+    </div>
+
+    <!-- Active / Canceling subscription card -->
+    <div id="sub-active-card" style="display:none;">
+      <div class="sp-card sp-plan-active">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="sp-card-title" style="margin-bottom:0;">Current Plan</div>
+          <span class="sp-plan-badge" id="sub-status-badge">Active</span>
+        </div>
+        <div class="sp-row">
+          <span class="sp-row-label">Plan</span>
+          <span class="sp-row-value" id="sub-plan-name">—</span>
+        </div>
+        <div class="sp-row">
+          <span class="sp-row-label">Price</span>
+          <span class="sp-row-value" id="sub-price">—</span>
+        </div>
+        <div class="sp-row">
+          <span class="sp-row-label">Billing</span>
+          <span class="sp-row-value" id="sub-billing">—</span>
+        </div>
+        <div class="sp-row">
+          <span class="sp-row-label" id="sub-renewal-label">Next Renewal</span>
+          <span class="sp-row-value" id="sub-renewal-date">—</span>
+        </div>
       </div>
-      <div class="sp-row">
-        <span class="sp-row-label">Plan</span>
-        <span class="sp-row-value">12-Week Program</span>
+
+      <!-- Cancel button (hidden when already canceling/canceled) -->
+      <div id="sub-cancel-section" style="margin-top:8px;">
+        <button class="sp-save-btn" id="sub-cancel-btn"
+                style="background:#EDE8E2;color:#C07A5C;border:1.5px solid #C07A5C;"
+                onclick="handleCancelSubscription()">
+          Cancel Subscription
+        </button>
+        <p style="font-size:12px;color:#8A8279;text-align:center;margin-top:8px;">
+          You'll keep access until the end of your billing period.
+        </p>
       </div>
-      <div class="sp-row">
-        <span class="sp-row-label">Price</span>
-        <span class="sp-row-value">$39.99</span>
-      </div>
-      <div class="sp-row">
-        <span class="sp-row-label">Billing</span>
-        <span class="sp-row-value">One-time</span>
-      </div>
-      <div class="sp-row">
-        <span class="sp-row-label">Access Until</span>
-        <span class="sp-row-value" id="sub-access-until">—</span>
+
+      <!-- Canceling notice -->
+      <div id="sub-canceling-notice" style="display:none;margin-top:8px;">
+        <div class="sp-card" style="background:#FFF7ED;border-color:#F59E0B;">
+          <p style="font-size:14px;color:#92400E;line-height:1.5;margin:0;">
+            Your subscription will end on <strong id="sub-cancel-end-date">—</strong>.
+            You'll have full access until then.
+          </p>
+        </div>
       </div>
     </div>
+
+    <!-- No subscription state -->
+    <div id="sub-none-card" style="display:none;">
+      <div class="sp-card">
+        <div class="sp-card-title">No Active Subscription</div>
+        <p style="font-size:14px;color:#8A8279;line-height:1.5;margin-bottom:12px;">
+          You don't have an active subscription. Choose a plan to get started.
+        </p>
+        <button class="sp-save-btn" onclick="window.location.href='checkout.html'">
+          View Plans
+        </button>
+      </div>
+    </div>
+
+    <!-- What's Included (always shown) -->
     <div class="sp-card">
       <div class="sp-card-title">What's Included</div>
       <div class="sp-row">
@@ -1478,6 +1527,7 @@
         <span class="sp-row-value" style="color:#22c55e;">&#10003;</span>
       </div>
     </div>
+
     <div class="sp-card">
       <div class="sp-card-title">Need Help?</div>
       <p style="font-size:14px;color:#8A8279;line-height:1.5;margin-bottom:12px;">For billing questions or subscription changes, reach out to our support team.</p>
@@ -2464,15 +2514,137 @@
     setTimeout(function() { closeSettingsPanel(); }, 800);
   }
 
+  // ===== API HELPER =====
+  function apiCall(endpoint, method, body) {
+    var opts = {
+      method: method || 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + (_currentSession ? _currentSession.access_token : ''),
+        'Content-Type': 'application/json'
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    return fetch(endpoint, opts).then(function(r) { return r.json(); });
+  }
+
   // ===== SUBSCRIPTION =====
   function populateSubscription() {
-    var startDate = new Date();
-    if (_currentUser && _currentUser.created_at) {
-      startDate = new Date(_currentUser.created_at);
+    var loadingEl = document.getElementById('sub-loading');
+    var activeCard = document.getElementById('sub-active-card');
+    var noneCard = document.getElementById('sub-none-card');
+
+    // Show loading, hide cards
+    if (loadingEl) loadingEl.style.display = 'block';
+    if (activeCard) activeCard.style.display = 'none';
+    if (noneCard) noneCard.style.display = 'none';
+
+    apiCall('/api/subscription', 'GET').then(function(data) {
+      if (loadingEl) loadingEl.style.display = 'none';
+
+      if (!data.subscription) {
+        if (noneCard) noneCard.style.display = 'block';
+        return;
+      }
+
+      var sub = data.subscription;
+      if (activeCard) activeCard.style.display = 'block';
+
+      // Plan name
+      var planNameEl = document.getElementById('sub-plan-name');
+      if (planNameEl) planNameEl.textContent = sub.plan_name || 'Unknown Plan';
+
+      // Price
+      var priceEl = document.getElementById('sub-price');
+      var priceDollars = sub.plan_price_cents ? ('$' + (sub.plan_price_cents / 100).toFixed(2)) : '—';
+      if (priceEl) priceEl.textContent = priceDollars;
+
+      // Billing interval
+      var billingEl = document.getElementById('sub-billing');
+      var billingMap = { 'month': 'Monthly', '3-months': 'Every 3 Months', '6-months': 'Every 6 Months' };
+      if (billingEl) billingEl.textContent = billingMap[sub.plan_interval] || sub.plan_interval || '—';
+
+      // Status badge + cancel section
+      var badge = document.getElementById('sub-status-badge');
+      var cancelSection = document.getElementById('sub-cancel-section');
+      var cancelingNotice = document.getElementById('sub-canceling-notice');
+      var renewalLabel = document.getElementById('sub-renewal-label');
+
+      if (sub.status === 'active' && !sub.cancel_at_period_end) {
+        if (badge) { badge.textContent = 'Active'; badge.style.background = '#C07A5C'; }
+        if (cancelSection) cancelSection.style.display = 'block';
+        if (cancelingNotice) cancelingNotice.style.display = 'none';
+        if (renewalLabel) renewalLabel.textContent = 'Next Renewal';
+      } else if (sub.status === 'canceling' || sub.cancel_at_period_end) {
+        if (badge) { badge.textContent = 'Canceling'; badge.style.background = '#F59E0B'; }
+        if (cancelSection) cancelSection.style.display = 'none';
+        if (cancelingNotice) cancelingNotice.style.display = 'block';
+        if (renewalLabel) renewalLabel.textContent = 'Access Until';
+        if (sub.renewal_period_end) {
+          var endDateEl = document.getElementById('sub-cancel-end-date');
+          if (endDateEl) endDateEl.textContent = new Date(sub.renewal_period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+      } else if (sub.status === 'canceled' || sub.status === 'expired') {
+        if (badge) { badge.textContent = 'Expired'; badge.style.background = '#9CA3AF'; }
+        if (cancelSection) cancelSection.style.display = 'none';
+        if (cancelingNotice) cancelingNotice.style.display = 'none';
+        if (renewalLabel) renewalLabel.textContent = 'Ended';
+      } else if (sub.status === 'trialing') {
+        if (badge) { badge.textContent = 'Trial'; badge.style.background = '#3B82F6'; }
+        if (cancelSection) cancelSection.style.display = 'block';
+        if (cancelingNotice) cancelingNotice.style.display = 'none';
+        if (renewalLabel) renewalLabel.textContent = 'Trial Ends';
+      } else {
+        if (badge) { badge.textContent = sub.status || 'Unknown'; badge.style.background = '#8A8279'; }
+        if (cancelSection) cancelSection.style.display = 'none';
+        if (cancelingNotice) cancelingNotice.style.display = 'none';
+      }
+
+      // Renewal / end date
+      var renewalDateEl = document.getElementById('sub-renewal-date');
+      if (renewalDateEl && sub.renewal_period_end) {
+        renewalDateEl.textContent = new Date(sub.renewal_period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+    }).catch(function(err) {
+      console.error('Failed to load subscription:', err);
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (noneCard) noneCard.style.display = 'block';
+    });
+  }
+
+  function handleCancelSubscription() {
+    if (!confirm('Are you sure you want to cancel? You will keep access until the end of your billing period.')) {
+      return;
     }
-    var accessEnd = new Date(startDate);
-    accessEnd.setDate(accessEnd.getDate() + 84); // 12 weeks
-    document.getElementById('sub-access-until').textContent = accessEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    var btn = document.getElementById('sub-cancel-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Canceling...';
+    }
+
+    apiCall('/api/cancel-subscription', 'POST').then(function(data) {
+      if (data.success) {
+        var endStr = data.renewal_period_end
+          ? new Date(data.renewal_period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : 'the end of your billing period';
+        showToast('Subscription canceled. Access continues until ' + endStr);
+        populateSubscription();
+      } else {
+        showToast('Failed to cancel: ' + (data.error || 'Unknown error'));
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Cancel Subscription';
+        }
+      }
+    }).catch(function(err) {
+      console.error('Cancel error:', err);
+      showToast('Something went wrong. Please try again.');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Cancel Subscription';
+      }
+    });
   }
 
   // ===== CONTACT US =====
@@ -2571,7 +2743,17 @@
       localStorage.setItem('lwl_paid', 'true');
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
-      setTimeout(function() { showToast('🎉 Payment successful! Welcome to your plan!'); }, 500);
+      setTimeout(function() { showToast('Payment successful! Welcome to your plan!'); }, 500);
+      // Fetch subscription data from backend (delay to allow webhook processing)
+      setTimeout(function() {
+        if (_currentSession) {
+          apiCall('/api/subscription', 'GET').then(function(data) {
+            if (data.subscription) {
+              console.log('Subscription linked:', data.subscription.plan_name);
+            }
+          }).catch(function() {});
+        }
+      }, 3000);
     }
   })();
 

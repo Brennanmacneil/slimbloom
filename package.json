@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "dependencies": {
+    "svix": "^1.44.0",
+    "@supabase/supabase-js": "^2.49.0"
+  }
+}
