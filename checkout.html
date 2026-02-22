@@ -532,23 +532,23 @@
     }
     .checkout-overlay.active { display: flex; }
     .checkout-panel {
-      background: #fff; border-radius: 16px; width: 100%; max-width: 480px;
+      background: #1a1a1a; border-radius: 16px; width: 100%; max-width: 480px;
       max-height: 90vh; overflow-y: auto; position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
     }
     .checkout-panel-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px; border-bottom: 1px solid #E8E0D8;
+      padding: 16px 20px; border-bottom: 1px solid #333;
     }
     .checkout-panel-header h3 {
-      font-size: 16px; font-weight: 700; color: #2D2A26; margin: 0;
+      font-size: 16px; font-weight: 700; color: #fff; margin: 0;
     }
     .checkout-close {
       width: 32px; height: 32px; border-radius: 50%; border: none;
-      background: #f0ebe5; cursor: pointer; font-size: 18px; color: #8A8279;
+      background: #333; cursor: pointer; font-size: 18px; color: #999;
       display: flex; align-items: center; justify-content: center;
     }
-    .checkout-close:hover { background: #e0d8ce; }
+    .checkout-close:hover { background: #444; }
     .checkout-embed-wrap {
       min-height: 400px; padding: 0;
     }
@@ -1113,13 +1113,11 @@ function openCheckout(planId, planName) {
   var checkoutDiv = document.createElement('div');
   checkoutDiv.setAttribute('data-whop-checkout-plan-id', planId);
   checkoutDiv.setAttribute('data-whop-checkout-return-url', window.location.origin + '/dashboard.html?paid=true');
+  checkoutDiv.setAttribute('data-whop-checkout-theme', 'dark');
+  checkoutDiv.setAttribute('data-whop-checkout-theme-accent-color', '#C07A5C');
   embed.appendChild(checkoutDiv);
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
-  // Re-trigger Whop loader to pick up the new div
-  if (window.Whop && window.Whop.mountCheckout) {
-    window.Whop.mountCheckout();
-  }
 }
 
 function closeCheckout() {
