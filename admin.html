@@ -523,15 +523,15 @@
 </head>
 <body>
 
-<!-- ===== PASSWORD GATE ===== -->
+<!-- ===== LOGIN GATE ===== -->
 <div id="login-gate" class="login-gate">
   <div class="login-card">
     <div class="login-logo">Lazy<span>WeightLoss</span></div>
     <div class="login-subtitle">Admin Dashboard</div>
-    <input type="password" class="login-input" id="password-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')attemptLogin()">
-    <input type="password" class="login-input" id="github-token-input" placeholder="GitHub token (for saving)" style="margin-top:2px;font-size:13px;">
-    <button class="login-btn" onclick="attemptLogin()">Sign In</button>
-    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+    <input type="email" class="login-input" id="email-input" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('password-input').focus()">
+    <input type="password" class="login-input" id="password-input" placeholder="Password" style="margin-top:2px;" onkeydown="if(event.key==='Enter')attemptLogin()">
+    <button class="login-btn" id="login-btn" onclick="attemptLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
@@ -585,25 +585,14 @@
   </div>
 </div>
 
-<!-- Token Prompt -->
-<div class="token-overlay" id="tokenOverlay" onclick="if(event.target===this)closeTokenPrompt()">
-  <div class="token-modal">
-    <h3>GitHub Token Needed</h3>
-    <p>To save changes, enter a GitHub personal access token with <strong>repo</strong> scope. This is stored only in your browser session.</p>
-    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" onkeydown="if(event.key==='Enter')submitToken()">
-    <div class="token-modal-btns">
-      <button class="token-cancel" onclick="closeTokenPrompt()">Cancel</button>
-      <button class="token-save" onclick="submitToken()">Save & Continue</button>
-    </div>
-  </div>
-</div>
+<!-- Token prompt removed - GitHub token now stored server-side -->
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== ADMIN PASSWORD =====
-var ADMIN_PASSWORD = 'slimbloom2024';
+// ===== ADMIN SESSION =====
+var _adminSession = null;
 
 // ===== DEFAULT DATA (mirrors dashboard.html) =====
 var DEFAULTS = {
@@ -711,31 +700,49 @@ var selectedCategory = 'yoga';
 
 // ===== AUTH =====
 function attemptLogin() {
-  var input = document.getElementById('password-input').value;
-  var token = document.getElementById('github-token-input').value.trim();
-  if (input === ADMIN_PASSWORD) {
-    sessionStorage.setItem('admin_auth', 'true');
-    if (token) sessionStorage.setItem('gh_token', token);
-    document.getElementById('login-gate').style.display = 'none';
-    document.getElementById('admin-panel').style.display = 'block';
-    loadAndRender();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('password-input').value = '';
-    document.getElementById('password-input').focus();
+  var email = document.getElementById('email-input').value.trim();
+  var password = document.getElementById('password-input').value;
+  var errorEl = document.getElementById('login-error');
+  var btn = document.getElementById('login-btn');
+
+  if (!email || !password) {
+    errorEl.textContent = 'Please enter email and password.';
+    errorEl.style.display = 'block';
+    return;
   }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  errorEl.style.display = 'none';
+
+  _sb.auth.signInWithPassword({ email: email, password: password })
+    .then(function(result) {
+      if (result.error) {
+        errorEl.textContent = result.error.message || 'Login failed. Check your credentials.';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+        return;
+      }
+      _adminSession = result.data.session;
+      document.getElementById('login-gate').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      loadAndRender();
+    })
+    .catch(function(err) {
+      errorEl.textContent = 'Login failed: ' + err.message;
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    });
 }
 
 function doLogout() {
-  sessionStorage.removeItem('admin_auth');
-  location.reload();
+  _sb.auth.signOut().then(function() {
+    _adminSession = null;
+    location.reload();
+  });
 }
-
-// ===== GITHUB CONFIG =====
-var GH_OWNER = 'Brennanmacneil';
-var GH_REPO = 'slimbloom';
-var GH_FILE = 'workout-data.json';
-var GH_BRANCH = 'main';
 
 // ===== DATA LOADING (from workout-data.json) =====
 function loadCurrentData(cb) {
@@ -1081,35 +1088,9 @@ function toggleCard(id) {
 }
 
 // ===== SAVE / RESET =====
-var _pendingSaveAfterToken = false;
-
-function openTokenPrompt() {
-  document.getElementById('tokenInput').value = '';
-  document.getElementById('tokenOverlay').classList.add('open');
-  setTimeout(function() { document.getElementById('tokenInput').focus(); }, 100);
-}
-
-function closeTokenPrompt() {
-  document.getElementById('tokenOverlay').classList.remove('open');
-  _pendingSaveAfterToken = false;
-}
-
-function submitToken() {
-  var val = document.getElementById('tokenInput').value.trim();
-  if (!val) return;
-  sessionStorage.setItem('gh_token', val);
-  closeTokenPrompt();
-  if (_pendingSaveAfterToken) {
-    _pendingSaveAfterToken = false;
-    saveAllChanges();
-  }
-}
-
 function saveAllChanges() {
-  var token = sessionStorage.getItem('gh_token');
-  if (!token) {
-    _pendingSaveAfterToken = true;
-    openTokenPrompt();
+  if (!_adminSession) {
+    showToast('❌ Not logged in. Please refresh and sign in again.');
     return;
   }
 
@@ -1121,44 +1102,29 @@ function saveAllChanges() {
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving…';
 
-  var jsonData = JSON.stringify({
+  var payload = {
     schedule: currentData.schedule,
     library: currentData.library,
     exerciseDb: currentData.exerciseDb
-  }, null, 2);
+  };
 
-  // First get the current file SHA (required for updates)
-  fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH, {
-    headers: { 'Authorization': 'token ' + token }
+  fetch('/api/save-workout-data', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + _adminSession.access_token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
   })
-  .then(function(r) { return r.json(); })
-  .then(function(file) {
-    var sha = file.sha || '';
-    // Push the updated file
-    return fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update workout data from admin dashboard',
-        content: btoa(unescape(encodeURIComponent(jsonData))),
-        sha: sha,
-        branch: GH_BRANCH
-      })
-    });
-  })
-  .then(function(r) {
+  .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+  .then(function(result) {
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save All Changes';
-    if (r.ok) {
+    if (result.ok) {
       showToast('✅ Saved & published!');
       renderSchedule();
     } else {
-      r.json().then(function(err) {
-        showToast('❌ Save failed: ' + (err.message || 'Unknown error'));
-      });
+      showToast('❌ Save failed: ' + (result.data.error || 'Unknown error'));
     }
   })
   .catch(function(err) {
@@ -1200,12 +1166,15 @@ function loadAndRender() {
   });
 }
 
-// Check session auth on load
-if (sessionStorage.getItem('admin_auth') === 'true') {
-  document.getElementById('login-gate').style.display = 'none';
-  document.getElementById('admin-panel').style.display = 'block';
-  loadAndRender();
-}
+// Check for existing Supabase session on load
+_sb.auth.getSession().then(function(result) {
+  if (result.data && result.data.session) {
+    _adminSession = result.data.session;
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadAndRender();
+  }
+});
 </script>
 </body>
 </html>
