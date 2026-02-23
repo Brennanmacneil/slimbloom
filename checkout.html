@@ -127,6 +127,14 @@
       color: #C07A5C; font-weight: 600; text-decoration: none; cursor: pointer;
     }
     .login-new-user a:hover { text-decoration: underline; }
+    .login-forgot {
+      text-align: right; margin-top: 6px; margin-bottom: 2px;
+    }
+    .login-forgot a {
+      font-size: 13px; color: #C07A5C; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+    }
+    .login-forgot a:hover { text-decoration: underline; }
     .login-submit:disabled {
       opacity: 0.6; cursor: not-allowed;
     }
@@ -707,6 +715,7 @@
     <div class="login-modal-sub" id="loginSubtitle">Welcome back! Log in to your dashboard.</div>
     <input type="email" class="login-field" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
     <input type="password" class="login-field" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()">
+    <div class="login-forgot" id="loginForgot"><a onclick="handleForgotPassword()">Forgot password?</a></div>
     <button class="login-submit" id="loginSubmitBtn" onclick="handleAuth()">Log In</button>
     <div class="login-error-msg" id="loginError"></div>
     <div class="login-success-msg" id="loginSuccess"></div>
@@ -1326,14 +1335,17 @@ function updateAuthUI() {
   var btn = document.getElementById('loginSubmitBtn');
   var sub = document.getElementById('loginSubtitle');
   var toggle = document.getElementById('loginToggle');
+  var forgot = document.getElementById('loginForgot');
   if (_authMode === 'signup') {
     btn.textContent = 'Create Account';
     sub.textContent = 'Create your account to get started.';
     toggle.innerHTML = 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>';
+    if (forgot) forgot.style.display = 'none';
   } else {
     btn.textContent = 'Log In';
     sub.textContent = 'Welcome back! Log in to your dashboard.';
     toggle.innerHTML = 'New here? <a onclick="toggleAuthMode()">Create an account</a>';
+    if (forgot) forgot.style.display = 'block';
   }
 }
 
@@ -1397,6 +1409,36 @@ async function handleAuth() {
     errEl.style.display = 'block';
     btn.disabled = false;
     btn.textContent = _authMode === 'login' ? 'Log In' : 'Create Account';
+  }
+}
+
+async function handleForgotPassword() {
+  var email = document.getElementById('loginEmail').value.trim();
+  var errEl = document.getElementById('loginError');
+  var successEl = document.getElementById('loginSuccess');
+  errEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  if (!email) {
+    errEl.textContent = 'Please enter your email address first.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    var res = await _supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/dashboard.html'
+    });
+    if (res.error) {
+      errEl.textContent = res.error.message;
+      errEl.style.display = 'block';
+      return;
+    }
+    successEl.textContent = 'Password reset link sent! Check your email.';
+    successEl.style.display = 'block';
+  } catch (e) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
   }
 }
 </script>
