@@ -11,7 +11,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://lazyweightloss.com/funnel">
+<meta property="og:url" content="https://lazyweightloss.com/quiz">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Lazy Weight Loss — Your Personalized Plan">
 <meta name="twitter:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
@@ -1481,7 +1481,7 @@
     localStorage.setItem('lwl_current_unit', cu);
     localStorage.setItem('lwl_goal_weight', gw);
     localStorage.setItem('lwl_goal_unit', gu);
-    window.location.href = '/checkout';
+    window.location.href = '/plans';
   }
 
   function goBack() {
@@ -1541,7 +1541,7 @@
     var stepNum = parseInt(step.dataset.step);
     if (stepNum === 35) return; // no skip on loading screen
     var skip = document.createElement('a');
-    skip.href = '/checkout';
+    skip.href = '/plans';
     skip.className = 'skip-btn';
     skip.innerHTML = 'Skip to plan &rarr;';
     step.appendChild(skip);
