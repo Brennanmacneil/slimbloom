@@ -34,6 +34,11 @@
         window.location.href = '/home' + window.location.hash;
       }
     });
+
+    // Auto-open login modal if ?login=true
+    if (new URLSearchParams(window.location.search).get('login') === 'true') {
+      window.addEventListener('DOMContentLoaded', function() { openLoginModal(); });
+    }
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
