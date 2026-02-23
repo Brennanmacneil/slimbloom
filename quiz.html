@@ -16,6 +16,12 @@
 <meta name="twitter:title" content="Lazy Weight Loss — Your Personalized Plan">
 <meta name="twitter:description" content="A personalized weight loss plan designed for women 45+. Take the free quiz and get started today.">
 <meta name="twitter:image" content="https://lazyweightloss.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL = 'https://vlfnixgkhfyidmhrglrj.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZm5peGdraGZ5aWRtaHJnbHJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODgzNTYsImV4cCI6MjA4NzI2NDM1Nn0.BKh3ogeNoPftTHQ3GCHLKAVhScnvElTnAp4gD09v4qA';
+  var _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -117,6 +123,65 @@
     background: #C07A5C;
     color: #fff;
   }
+
+  /* Login Modal */
+  .login-overlay {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(45,42,38,0.5); backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .login-overlay.open { display: flex; }
+  .login-modal {
+    background: #FFFFFF; border-radius: 20px; padding: 36px 28px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+    text-align: center; position: relative;
+    animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes modalIn {
+    0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .login-modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; font-size: 22px; color: #8A8279;
+    cursor: pointer; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; transition: background 0.2s;
+  }
+  .login-modal-close:hover { background: #EDE8E2; }
+  .login-modal-logo { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .login-modal-logo span { color: #C07A5C; }
+  .login-modal-sub { font-size: 13px; color: #8A8279; margin-bottom: 24px; }
+  .login-field {
+    width: 100%; padding: 13px 16px; border: 1.5px solid #E0D6CC;
+    border-radius: 10px; font-size: 15px; font-family: inherit;
+    outline: none; transition: border-color 0.2s; margin-bottom: 12px;
+    background: #FAF6F1;
+  }
+  .login-field:focus { border-color: #C07A5C; }
+  .login-submit {
+    width: 100%; padding: 14px; background: #C07A5C; color: #fff;
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background 0.2s;
+    margin-top: 4px;
+  }
+  .login-submit:hover { background: #A8674E; }
+  .login-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .login-error-msg { font-size: 13px; color: #ef4444; margin-top: 10px; display: none; font-weight: 500; }
+  .login-success-msg { font-size: 13px; color: #22c55e; margin-top: 10px; display: none; font-weight: 500; }
+  .login-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 18px 0 14px; color: #B8AFA6; font-size: 12px;
+  }
+  .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: #E0D6CC; }
+  .login-new-user { font-size: 13px; color: #8A8279; }
+  .login-new-user a { color: #C07A5C; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .login-new-user a:hover { text-decoration: underline; }
+  .login-forgot { text-align: right; margin-top: 6px; margin-bottom: 2px; }
+  .login-forgot a { font-size: 13px; color: #C07A5C; font-weight: 500; text-decoration: none; cursor: pointer; }
+  .login-forgot a:hover { text-decoration: underline; }
 
   /* Progress Bar */
   .progress-bar {
@@ -677,13 +742,30 @@
 </head>
 <body>
 
+<!-- LOGIN MODAL -->
+<div class="login-overlay" id="loginOverlay" onclick="if(event.target===this)closeLoginModal()">
+  <div class="login-modal">
+    <button class="login-modal-close" onclick="closeLoginModal()">&times;</button>
+    <div class="login-modal-logo">Lazy<span>WeightLoss</span></div>
+    <div class="login-modal-sub" id="loginSubtitle">Welcome back! Log in to your dashboard.</div>
+    <input type="email" class="login-field" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+    <input type="password" class="login-field" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()">
+    <div class="login-forgot" id="loginForgot"><a onclick="handleForgotPassword()">Forgot password?</a></div>
+    <button class="login-submit" id="loginSubmitBtn" onclick="handleAuth()">Log In</button>
+    <div class="login-error-msg" id="loginError"></div>
+    <div class="login-success-msg" id="loginSuccess"></div>
+    <div class="login-divider">or</div>
+    <div class="login-new-user" id="loginToggle">New here? <a onclick="toggleAuthMode()">Create an account</a></div>
+  </div>
+</div>
+
 <div class="funnel-container" id="funnel">
 
   <!-- ========== STEP 1: Landing / Age Selection ========== -->
   <div class="step active" data-step="1">
     <div class="landing-nav">
       <div class="landing-nav-brand">Lazy<span>WeightLoss</span></div>
-      <a href="/plans?login=true" class="landing-nav-login">Log In</a>
+      <a href="javascript:void(0)" class="landing-nav-login" onclick="openLoginModal()">Log In</a>
     </div>
     <div style="padding: 0 20px; width:100%;">
       <h2 class="landing-title">Personalized weight loss plan for your age</h2>
@@ -1613,6 +1695,91 @@
 
   // Init
   updateHeader();
+
+  // ===== LOGIN MODAL =====
+  var _authMode = 'login';
+
+  function openLoginModal() {
+    _authMode = 'login';
+    updateAuthUI();
+    document.getElementById('loginOverlay').classList.add('open');
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginSuccess').style.display = 'none';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginSubmitBtn').disabled = false;
+    setTimeout(function() { document.getElementById('loginEmail').focus(); }, 100);
+  }
+
+  function closeLoginModal() {
+    document.getElementById('loginOverlay').classList.remove('open');
+  }
+
+  function toggleAuthMode() {
+    _authMode = _authMode === 'login' ? 'signup' : 'login';
+    updateAuthUI();
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginSuccess').style.display = 'none';
+  }
+
+  function updateAuthUI() {
+    var btn = document.getElementById('loginSubmitBtn');
+    var sub = document.getElementById('loginSubtitle');
+    var toggle = document.getElementById('loginToggle');
+    var forgot = document.getElementById('loginForgot');
+    if (_authMode === 'signup') {
+      btn.textContent = 'Create Account';
+      sub.textContent = 'Create your account to get started.';
+      toggle.innerHTML = 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>';
+      if (forgot) forgot.style.display = 'none';
+    } else {
+      btn.textContent = 'Log In';
+      sub.textContent = 'Welcome back! Log in to your dashboard.';
+      toggle.innerHTML = 'New here? <a onclick="toggleAuthMode()">Create an account</a>';
+      if (forgot) forgot.style.display = 'block';
+    }
+  }
+
+  async function handleAuth() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var pass = document.getElementById('loginPass').value;
+    var errEl = document.getElementById('loginError');
+    var successEl = document.getElementById('loginSuccess');
+    var btn = document.getElementById('loginSubmitBtn');
+    errEl.style.display = 'none';
+    successEl.style.display = 'none';
+    if (!email || !pass) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
+    if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+    btn.disabled = true;
+    btn.textContent = _authMode === 'login' ? 'Logging in...' : 'Creating account...';
+    try {
+      if (_authMode === 'signup') {
+        var res = await _supabase.auth.signUp({ email: email, password: pass });
+        if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; return; }
+        if (res.data.user && !res.data.session) { successEl.textContent = 'Check your email for a confirmation link, then log in!'; successEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; return; }
+        window.location.href = '/home';
+      } else {
+        var res = await _supabase.auth.signInWithPassword({ email: email, password: pass });
+        if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Log In'; return; }
+        window.location.href = '/home';
+      }
+    } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = _authMode === 'login' ? 'Log In' : 'Create Account'; }
+  }
+
+  async function handleForgotPassword() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var errEl = document.getElementById('loginError');
+    var successEl = document.getElementById('loginSuccess');
+    errEl.style.display = 'none';
+    successEl.style.display = 'none';
+    if (!email) { errEl.textContent = 'Please enter your email address first.'; errEl.style.display = 'block'; return; }
+    try {
+      var res = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/home' });
+      if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
+      successEl.textContent = 'Password reset link sent! Check your email.';
+      successEl.style.display = 'block';
+    } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; }
+  }
 </script>
 
 </body>
