@@ -22,15 +22,20 @@
   var _currentSession = null;
 
   // Auth guard — redirect to checkout if not logged in
+  // But skip redirect if URL hash contains recovery tokens (password reset flow)
+  var _hashParams = new URLSearchParams(window.location.hash.substring(1));
+  var _isRecovery = _hashParams.get('type') === 'recovery' || window.location.hash.includes('type=recovery');
+
   _supabase.auth.getSession().then(function(res) {
-    if (!res.data.session) {
+    if (!res.data.session && !_isRecovery) {
       window.location.href = 'checkout.html';
-    } else {
+    } else if (res.data.session) {
       _currentUser = res.data.session.user;
       _currentSession = res.data.session;
       document.body.style.visibility = 'visible';
       populateProfile(_currentUser);
     }
+    // If _isRecovery and no session yet, wait for onAuthStateChange to handle it
   });
 
   // Listen for auth state changes (e.g. token refresh, sign out)
@@ -39,15 +44,8 @@
       window.location.href = 'checkout.html';
     }
     if (event === 'PASSWORD_RECOVERY') {
-      var newPass = prompt('Enter your new password (min 6 characters):');
-      if (newPass && newPass.length >= 6) {
-        _supabase.auth.updateUser({ password: newPass }).then(function(res) {
-          if (res.error) { alert('Error: ' + res.error.message); }
-          else { alert('Password updated successfully!'); }
-        });
-      } else if (newPass) {
-        alert('Password must be at least 6 characters.');
-      }
+      document.body.style.visibility = 'visible';
+      showPasswordResetModal();
     }
     if (session) {
       _currentUser = session.user;
@@ -74,6 +72,48 @@
     if (greetEl) greetEl.textContent = 'Hi, ' + displayName;
     if (avatarEl) {
       avatarEl.textContent = displayName ? displayName.charAt(0).toUpperCase() : (email ? email.charAt(0).toUpperCase() : '👩');
+    }
+  }
+
+  function showPasswordResetModal() {
+    document.getElementById('pwResetOverlay').classList.add('active');
+  }
+
+  async function submitNewPassword() {
+    var pw = document.getElementById('pwResetNew').value;
+    var pw2 = document.getElementById('pwResetConfirm').value;
+    var errEl = document.getElementById('pwResetErr');
+    var okEl = document.getElementById('pwResetOk');
+    errEl.style.display = 'none';
+    okEl.style.display = 'none';
+
+    if (!pw || pw.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (pw !== pw2) {
+      errEl.textContent = 'Passwords do not match.';
+      errEl.style.display = 'block';
+      return;
+    }
+    try {
+      var res = await _supabase.auth.updateUser({ password: pw });
+      if (res.error) {
+        errEl.textContent = res.error.message;
+        errEl.style.display = 'block';
+        return;
+      }
+      okEl.textContent = 'Password updated! Redirecting...';
+      okEl.style.display = 'block';
+      setTimeout(function() {
+        document.getElementById('pwResetOverlay').classList.remove('active');
+        window.location.hash = '';
+        window.location.href = 'dashboard.html';
+      }, 1500);
+    } catch (e) {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
     }
   }
 
@@ -973,9 +1013,54 @@
     .player-controls { gap: 24px; }
     .completion-stats { gap: 24px; }
   }
+  /* Password reset modal */
+  .pw-reset-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55); z-index: 9999;
+    align-items: center; justify-content: center;
+  }
+  .pw-reset-overlay.active { display: flex; }
+  .pw-reset-box {
+    background: #fff; border-radius: 16px; padding: 36px 28px;
+    max-width: 380px; width: 90%; text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .pw-reset-box h2 { color: #2D2A26; font-size: 22px; margin: 0 0 8px; }
+  .pw-reset-box p { color: #7A756E; font-size: 14px; margin: 0 0 20px; }
+  .pw-reset-box input {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #E0D8CF;
+    border-radius: 10px; font-size: 15px; margin-bottom: 10px;
+    box-sizing: border-box; outline: none;
+  }
+  .pw-reset-box input:focus { border-color: #C07A5C; }
+  .pw-reset-box .pw-reset-btn {
+    width: 100%; padding: 13px; background: #C07A5C; color: #fff;
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 6px;
+  }
+  .pw-reset-box .pw-reset-btn:hover { background: #a8654a; }
+  .pw-reset-box .pw-reset-err {
+    color: #d44; font-size: 13px; margin-top: 8px; display: none;
+  }
+  .pw-reset-box .pw-reset-ok {
+    color: #2a8a4a; font-size: 13px; margin-top: 8px; display: none;
+  }
 </style>
 </head>
 <body>
+
+<!-- Password Reset Modal -->
+<div class="pw-reset-overlay" id="pwResetOverlay">
+  <div class="pw-reset-box">
+    <h2>Set New Password</h2>
+    <p>Enter your new password below.</p>
+    <input type="password" id="pwResetNew" placeholder="New password (min 6 characters)">
+    <input type="password" id="pwResetConfirm" placeholder="Confirm new password">
+    <button class="pw-reset-btn" onclick="submitNewPassword()">Update Password</button>
+    <div class="pw-reset-err" id="pwResetErr"></div>
+    <div class="pw-reset-ok" id="pwResetOk"></div>
+  </div>
+</div>
 
 <div class="app-container">
 
