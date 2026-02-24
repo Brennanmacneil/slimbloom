@@ -597,13 +597,13 @@ var _adminSession = null;
 // ===== DEFAULT DATA (mirrors dashboard.html) =====
 var DEFAULTS = {
   schedule: [
-    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'yoga', desc: 'Gentle stretching and breathing exercises designed for flexibility and calm. Perfect start to your day.', cal: 85 },
-    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', diffColor: '#22c55e', category: 'walking', desc: 'Brisk walk with intervals of faster pace. Focus on posture and arm movement for a full-body benefit.', cal: 120 },
-    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', diffColor: '#22c55e', category: 'chair', desc: 'Seated and standing exercises using a sturdy chair for support. Great for building strength safely.', cal: 75 },
-    { title: 'Rest & Recovery', emoji: '😌', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Light stretching and deep breathing. Let your body recover and rebuild. Active rest is important!', cal: 30, isRest: true },
-    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', diffColor: '#f59e0b', category: 'cardio', desc: 'Marching in place, side steps, and gentle movements that get your heart rate up without jarring your joints.', cal: 140 },
-    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'pilates', desc: 'Core-strengthening moves adapted for beginners. Focus on breathing and controlled movements.', cal: 95 },
-    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Head-to-toe stretching routine to improve flexibility and reduce stiffness. A perfect wind-down.', cal: 40 }
+    { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'yoga', desc: 'Gentle stretching and breathing exercises designed for flexibility and calm. Perfect start to your day.', cal: 85, imageUrl: '' },
+    { title: 'Walking Power Stroll', emoji: '🚶', duration: 20, difficulty: 'Beginner', diffColor: '#22c55e', category: 'walking', desc: 'Brisk walk with intervals of faster pace. Focus on posture and arm movement for a full-body benefit.', cal: 120, imageUrl: '' },
+    { title: 'Chair Strength Circuit', emoji: '🪑', duration: 12, difficulty: 'Beginner', diffColor: '#22c55e', category: 'chair', desc: 'Seated and standing exercises using a sturdy chair for support. Great for building strength safely.', cal: 75, imageUrl: '' },
+    { title: 'Rest & Recovery', emoji: '😌', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Light stretching and deep breathing. Let your body recover and rebuild. Active rest is important!', cal: 30, isRest: true, imageUrl: '' },
+    { title: 'Low-Impact Cardio', emoji: '❤️', duration: 20, difficulty: 'Moderate', diffColor: '#f59e0b', category: 'cardio', desc: 'Marching in place, side steps, and gentle movements that get your heart rate up without jarring your joints.', cal: 140, imageUrl: '' },
+    { title: 'Gentle Pilates Core', emoji: '🏋️', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'pilates', desc: 'Core-strengthening moves adapted for beginners. Focus on breathing and controlled movements.', cal: 95, imageUrl: '' },
+    { title: 'Full Body Stretch', emoji: '🤸', duration: 10, difficulty: 'Easy', diffColor: '#3b82f6', category: 'stretching', desc: 'Head-to-toe stretching routine to improve flexibility and reduce stiffness. A perfect wind-down.', cal: 40, imageUrl: '' }
   ],
   library: [
     { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', category: 'yoga', imageUrl: '' },
@@ -811,6 +811,19 @@ function renderSchedule() {
     html += '<div class="form-group"><label class="form-label">Category</label><select class="form-select" data-sched="' + i + '" data-field="category" onchange="updateScheduleField(this)">' + catOptions(w.category) + '</select></div>';
     html += '</div>';
     html += '<div class="form-row full">';
+    html += '<div class="form-group"><label class="form-label">Thumbnail Image</label>';
+    html += '<div class="img-url-row">';
+    html += '<input class="form-input" id="sched-img-input-' + i + '" data-sched="' + i + '" data-field="imageUrl" value="' + escHtml(w.imageUrl || '') + '" placeholder="Paste URL or upload below" onchange="updateScheduleField(this)" oninput="updateSchedImgPreview(' + i + ', this.value)">';
+    html += '<div class="img-preview" id="sched-img-preview-' + i + '">' + imgPreviewHtml(w.imageUrl || '', w.emoji) + '</div>';
+    html += '</div>';
+    html += '<div class="img-upload-area">';
+    html += '<input type="file" class="img-upload-file" id="sched-file-' + i + '" accept="image/*" onchange="uploadSchedThumbnail(' + i + ', this)">';
+    html += '<button type="button" class="img-upload-btn" id="sched-upload-btn-' + i + '" onclick="document.getElementById(\'sched-file-' + i + '\').click()">Upload Image</button>';
+    html += '<span class="img-upload-or">or paste a URL above</span>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="form-row full">';
     html += '<div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" data-sched="' + i + '" data-field="desc" onchange="updateScheduleField(this)">' + escHtml(w.desc) + '</textarea></div>';
     html += '</div>';
     html += '<div class="form-checkbox-row">';
@@ -962,6 +975,66 @@ async function uploadLibThumbnail(idx, fileInput) {
   }
 
   // Reset file input
+  fileInput.value = '';
+}
+
+function updateSchedImgPreview(idx, url) {
+  var el = document.getElementById('sched-img-preview-' + idx);
+  var emoji = currentData.schedule[idx] ? currentData.schedule[idx].emoji : '💪';
+  if (el) el.innerHTML = imgPreviewHtml(url, emoji);
+}
+
+async function uploadSchedThumbnail(idx, fileInput) {
+  var file = fileInput.files[0];
+  if (!file) return;
+
+  var btn = document.getElementById('sched-upload-btn-' + idx);
+  var origText = btn.textContent;
+  btn.textContent = 'Uploading…';
+  btn.disabled = true;
+  btn.classList.add('uploading');
+
+  try {
+    var ext = file.name.split('.').pop().toLowerCase();
+    var safeName = currentData.schedule[idx].title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/,'');
+    var fileName = 'sched-' + safeName + '-' + Date.now() + '.' + ext;
+
+    var { data, error } = await _sb.storage
+      .from(STORAGE_BUCKET)
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type
+      });
+
+    if (error) throw error;
+
+    var { data: urlData } = _sb.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(fileName);
+
+    var publicUrl = urlData.publicUrl;
+
+    currentData.schedule[idx].imageUrl = publicUrl;
+    var inputEl = document.getElementById('sched-img-input-' + idx);
+    if (inputEl) inputEl.value = publicUrl;
+    updateSchedImgPreview(idx, publicUrl);
+
+    btn.textContent = 'Uploaded ✓';
+    setTimeout(function() {
+      btn.textContent = 'Change Image';
+      btn.disabled = false;
+      btn.classList.remove('uploading');
+    }, 1500);
+
+    showToast('Image uploaded!');
+  } catch (err) {
+    btn.textContent = origText;
+    btn.disabled = false;
+    btn.classList.remove('uploading');
+    showToast('Upload failed: ' + (err.message || err));
+  }
+
   fileInput.value = '';
 }
 
