@@ -538,7 +538,17 @@
     padding: 8px 10px; background: #fff; border-radius: 8px;
     border: 1px solid #E8E0D8;
   }
-  .overview-row .form-input.short { max-width: 50px; padding: 6px 8px; font-size: 16px; text-align: center; }
+  .overview-img-thumb {
+    width: 44px; height: 44px; border-radius: 8px;
+    background: #F3EDE7; border: 1.5px dashed #D4CAC0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0; cursor: pointer;
+    overflow: hidden; transition: border-color 0.2s;
+  }
+  .overview-img-thumb:hover { border-color: #C07A5C; }
+  .overview-img-thumb img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 6px;
+  }
   .overview-name-input { flex: 1; padding: 6px 10px !important; font-size: 13px !important; }
   .overview-dur-input { width: 65px !important; max-width: 65px; padding: 6px 8px !important; font-size: 13px !important; text-align: center; }
   .overview-dur-label { font-size: 11px; color: #B0A89E; font-weight: 500; flex-shrink: 0; }
@@ -1121,12 +1131,23 @@ function removeLibraryItem(idx) {
 }
 
 // ===== OVERVIEW EXERCISES EDITOR =====
+function overviewImgHtml(imageUrl, emoji) {
+  if (imageUrl && imageUrl.trim()) {
+    return '<img src="' + escHtml(imageUrl) + '" onerror="this.parentElement.innerHTML=\'' + escHtml(emoji || '💪') + '\'">';
+  }
+  return emoji || '💪';
+}
+
 function renderOverviewRows(type, parentIdx, exercises) {
   if (!exercises || !exercises.length) return '<div class="overview-empty">No exercises yet. Click "Auto-fill" or "+ Add" to get started.</div>';
   var html = '';
   exercises.forEach(function(ex, i) {
+    var uid = type + '-' + parentIdx + '-' + i;
     html += '<div class="overview-row">';
-    html += '<input class="form-input short" data-type="' + type + '" data-parent="' + parentIdx + '" data-oidx="' + i + '" data-ofield="emoji" value="' + escHtml(ex.emoji || '💪') + '" onchange="updateOverviewField(this)" title="Emoji">';
+    html += '<div class="overview-img-thumb" id="ov-thumb-' + uid + '" onclick="document.getElementById(\'ov-file-' + uid + '\').click()" title="Click to upload image">';
+    html += overviewImgHtml(ex.imageUrl || '', ex.emoji);
+    html += '</div>';
+    html += '<input type="file" class="img-upload-file" id="ov-file-' + uid + '" accept="image/*" onchange="uploadOverviewImg(\'' + type + '\',' + parentIdx + ',' + i + ',this)">';
     html += '<input class="form-input overview-name-input" data-type="' + type + '" data-parent="' + parentIdx + '" data-oidx="' + i + '" data-ofield="name" value="' + escHtml(ex.name) + '" onchange="updateOverviewField(this)" placeholder="Exercise name">';
     html += '<input class="form-input overview-dur-input" type="number" min="1" data-type="' + type + '" data-parent="' + parentIdx + '" data-oidx="' + i + '" data-ofield="duration" value="' + (ex.duration || 30) + '" onchange="updateOverviewField(this)" title="Duration (sec)">';
     html += '<span class="overview-dur-label">sec</span>';
@@ -1150,10 +1171,47 @@ function updateOverviewField(el) {
   }
 }
 
+async function uploadOverviewImg(type, parentIdx, exIdx, fileInput) {
+  var file = fileInput.files[0];
+  if (!file) return;
+  var list = type === 'sched' ? currentData.schedule : currentData.library;
+  var ex = list[parentIdx].overviewExercises[exIdx];
+  var uid = type + '-' + parentIdx + '-' + exIdx;
+  var thumbEl = document.getElementById('ov-thumb-' + uid);
+  if (thumbEl) thumbEl.innerHTML = '<span style="font-size:11px;color:#8A8279">…</span>';
+
+  try {
+    var ext = file.name.split('.').pop().toLowerCase();
+    var safeName = ex.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/,'');
+    var fileName = 'ov-' + safeName + '-' + Date.now() + '.' + ext;
+
+    var { data, error } = await _sb.storage
+      .from(STORAGE_BUCKET)
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type
+      });
+    if (error) throw error;
+
+    var { data: urlData } = _sb.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(fileName);
+
+    ex.imageUrl = urlData.publicUrl;
+    if (thumbEl) thumbEl.innerHTML = overviewImgHtml(ex.imageUrl, ex.emoji);
+    showToast('Image uploaded!');
+  } catch (err) {
+    if (thumbEl) thumbEl.innerHTML = overviewImgHtml('', ex.emoji);
+    showToast('Upload failed: ' + (err.message || err));
+  }
+  fileInput.value = '';
+}
+
 function addOverviewEx(type, parentIdx) {
   var list = type === 'sched' ? currentData.schedule : currentData.library;
   if (!list[parentIdx].overviewExercises) list[parentIdx].overviewExercises = [];
-  list[parentIdx].overviewExercises.push({ name: 'New Exercise', emoji: '💪', duration: 30 });
+  list[parentIdx].overviewExercises.push({ name: 'New Exercise', emoji: '💪', duration: 30, imageUrl: '' });
   refreshOverviewList(type, parentIdx);
 }
 
