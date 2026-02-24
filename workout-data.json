@@ -127,7 +127,8 @@
         {
           "name": "Mountain Pose",
           "emoji": "🧘",
-          "duration": 113
+          "duration": 113,
+          "imageUrl": "https://vlfnixgkhfyidmhrglrj.supabase.co/storage/v1/object/public/workout-thumbnails/ov-mountain-pose-1771909367409.png"
         },
         {
           "name": "Forward Fold",
