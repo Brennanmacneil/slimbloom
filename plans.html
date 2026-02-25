@@ -286,6 +286,28 @@
       text-transform: uppercase; white-space: nowrap;
     }
 
+    .sale-ending-bar {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 10px 16px; margin-bottom: 14px;
+      background: #FFF0E6; border: 1px solid #F5D5C0;
+      border-radius: 10px;
+    }
+    .sale-ending-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #E74C3C; flex-shrink: 0;
+      animation: sale-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes sale-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .sale-ending-text {
+      font-size: 13px; color: #8A5A3A; font-weight: 500;
+    }
+    .sale-ending-text strong {
+      font-weight: 800; color: #C0392B;
+    }
+
     .cta-btn {
       display: block; width: 100%; padding: 18px;
       background: #C07A5C; color: #fff; border: none;
@@ -834,6 +856,11 @@
         <div class="price-new">$39.99</div>
         <div class="price-per-day"><span class="big">$0</span><span class="small">.47/day</span></div>
       </div>
+    </div>
+
+    <div class="sale-ending-bar">
+      <span class="sale-ending-dot"></span>
+      <span class="sale-ending-text">Only <strong>3</strong> left at this price — sale ends soon</span>
     </div>
 
     <h3>Long-term transformation</h3>
