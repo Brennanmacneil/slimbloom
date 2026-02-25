@@ -905,20 +905,14 @@
   }
   .player-video-bg video {
     position: absolute;
-    top: 50%; left: 50%;
-    min-width: 100%; min-height: 100%;
-    width: auto; height: auto;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
   }
   .player-video-bg iframe {
     position: absolute;
-    top: 50%; left: 50%;
-    width: 177.78vh;
-    height: 100vh;
-    min-width: 100vw;
-    min-height: 56.25vw;
-    transform: translate(-50%, -50%);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     border: none;
   }
   .player-video-bg.active { display: block; }
@@ -2155,6 +2149,10 @@
     if (!url) return null;
     // Direct video file (MP4, WebM, Cloudinary, etc.)
     if (/\.(mp4|webm|mov|m3u8)(\?|$)/i.test(url) || /res\.cloudinary\.com/i.test(url)) {
+      // Optimize Cloudinary videos for mobile — crisp quality, proper resolution
+      if (/res\.cloudinary\.com/i.test(url)) {
+        url = url.replace(/\/upload\//, '/upload/q_auto,f_auto/');
+      }
       return { type: 'direct', url: url };
     }
     var ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
@@ -2433,7 +2431,7 @@
     if (video) {
       if (video.type === 'direct') {
         // Native <video> — full control, no UI overlays
-        videoBg.innerHTML = '<video src="' + escHtml(video.url) + '" autoplay loop playsinline></video>';
+        videoBg.innerHTML = '<video src="' + escHtml(video.url) + '" autoplay loop playsinline webkit-playsinline preload="auto"></video>';
       } else {
         // YouTube/Vimeo iframe fallback
         var iframeSrc = '';
