@@ -727,6 +727,17 @@
     .age-grid { gap: 8px; }
   }
 
+  /* Small phones — stack landing nav */
+  @media (max-width: 399px) {
+    .landing-nav {
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 20px;
+    }
+    .landing-nav-login { width: 100%; text-align: center; }
+  }
+
   /* Small phones (iPhone SE / iPhone 8 — 375px wide) */
   @media (max-width: 380px) {
     .step h2 { font-size: 20px; margin: 10px 0 4px; }
