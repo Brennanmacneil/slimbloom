@@ -393,21 +393,27 @@
   .chip.selected { background: #FDF0E8; border-color: #C07A5C; color: #8B5A3C; }
 
   /* Multi-Select Body Zone */
-  .zone-buttons-top {
+  .zone-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    gap: 20px;
     width: 100%;
-    margin-bottom: 20px;
-    justify-content: center;
+    max-width: 480px;
+    margin: 0 auto 20px;
   }
   .zone-figure-img {
     position: relative;
-    width: 220px;
-    margin: 0 auto 24px;
+    flex: 0 0 45%;
+    max-width: 200px;
   }
   .zone-figure-img img {
     width: 100%; height: auto; display: block;
+  }
+  .zone-buttons-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .zone-overlay {
     position: absolute; top: 0; left: 0;
@@ -732,8 +738,9 @@
     .continue-btn { padding: 14px; font-size: 15px; min-height: 50px; margin-top: 12px; }
     .chips-container { gap: 8px; margin-bottom: 16px; }
     .chip { padding: 8px 14px; font-size: 13px; }
-    .zone-buttons-top { gap: 6px; margin-bottom: 12px; }
-    .zone-figure-img { width: 180px; }
+    .zone-row { gap: 14px; }
+    .zone-figure-img { flex: 0 0 40%; }
+    .zone-buttons-col { gap: 8px; }
     .zone-btn { padding: 9px 12px; font-size: 13px; }
     .numeric-display { font-size: 56px; }
     .numeric-input-group { margin-bottom: 14px; }
@@ -758,7 +765,9 @@
     .radio-card { padding: 12px 14px; margin-bottom: 6px; font-size: 14px; min-height: 44px; }
     .continue-btn { padding: 12px; font-size: 14px; min-height: 46px; }
     .numeric-display { font-size: 48px; }
-    .zone-figure-img { width: 150px; }
+    .zone-row { gap: 10px; }
+    .zone-figure-img { flex: 0 0 38%; }
+    .zone-buttons-col { gap: 6px; }
     .zone-btn { padding: 8px 10px; font-size: 12px; }
     .chip { padding: 7px 12px; font-size: 12px; }
   }
@@ -773,8 +782,9 @@
     .social-proof { padding: 10px 20px; }
     .social-proof .big-number { font-size: 36px; }
     .social-proof .emoji-graphic { font-size: 60px; }
-    .zone-figure-img { width: 150px; }
-    .zone-buttons-top { gap: 6px; margin-bottom: 8px; }
+    .zone-row { gap: 10px; margin-bottom: 10px; }
+    .zone-figure-img { flex: 0 0 35%; }
+    .zone-buttons-col { gap: 5px; }
     .zone-btn { padding: 7px 10px; }
     .chips-container { gap: 6px; margin-bottom: 10px; }
     .chip { padding: 6px 11px; }
@@ -962,26 +972,28 @@
   <div class="step" data-step="7" data-category="GOALS">
     <h2>Choose your target areas</h2>
     <p class="subtitle">Select all that apply</p>
-    <div class="zone-buttons-top">
-      <div class="zone-btn" data-zone="arms" onclick="toggleZone(this)">Arms</div>
-      <div class="zone-btn" data-zone="belly" onclick="toggleZone(this)">Belly</div>
-      <div class="zone-btn" data-zone="back" onclick="toggleZone(this)">Back</div>
-      <div class="zone-btn" data-zone="hips" onclick="toggleZone(this)">Hips &amp; thighs</div>
-      <div class="zone-btn" data-zone="legs" onclick="toggleZone(this)">Legs</div>
-      <div class="zone-btn" data-zone="whole" onclick="toggleZone(this)">Whole body</div>
-    </div>
-    <div class="zone-figure-img">
-      <img src="https://vlfnixgkhfyidmhrglrj.supabase.co/storage/v1/object/public/quiz-images/transparent%20back%20(page7).png" alt="Target areas">
-      <svg class="zone-overlay" viewBox="0 0 180 420" xmlns="http://www.w3.org/2000/svg">
-        <ellipse class="zone-highlight" id="hl-arms-l" cx="58" cy="155" rx="12" ry="35"/>
-        <ellipse class="zone-highlight" id="hl-arms-r" cx="122" cy="155" rx="12" ry="35"/>
-        <ellipse class="zone-highlight" id="hl-belly" cx="90" cy="180" rx="26" ry="28"/>
-        <ellipse class="zone-highlight" id="hl-back" cx="90" cy="120" rx="28" ry="22"/>
-        <ellipse class="zone-highlight" id="hl-hips-l" cx="72" cy="235" rx="18" ry="25"/>
-        <ellipse class="zone-highlight" id="hl-hips-r" cx="108" cy="235" rx="18" ry="25"/>
-        <ellipse class="zone-highlight" id="hl-legs-l" cx="74" cy="335" rx="13" ry="50"/>
-        <ellipse class="zone-highlight" id="hl-legs-r" cx="106" cy="335" rx="13" ry="50"/>
-      </svg>
+    <div class="zone-row">
+      <div class="zone-figure-img">
+        <img src="https://vlfnixgkhfyidmhrglrj.supabase.co/storage/v1/object/public/quiz-images/transparent%20back%20(page7).png" alt="Target areas">
+        <svg class="zone-overlay" viewBox="0 0 180 420" xmlns="http://www.w3.org/2000/svg">
+          <ellipse class="zone-highlight" id="hl-arms-l" cx="58" cy="155" rx="12" ry="35"/>
+          <ellipse class="zone-highlight" id="hl-arms-r" cx="122" cy="155" rx="12" ry="35"/>
+          <ellipse class="zone-highlight" id="hl-belly" cx="90" cy="180" rx="26" ry="28"/>
+          <ellipse class="zone-highlight" id="hl-back" cx="90" cy="120" rx="28" ry="22"/>
+          <ellipse class="zone-highlight" id="hl-hips-l" cx="72" cy="235" rx="18" ry="25"/>
+          <ellipse class="zone-highlight" id="hl-hips-r" cx="108" cy="235" rx="18" ry="25"/>
+          <ellipse class="zone-highlight" id="hl-legs-l" cx="74" cy="335" rx="13" ry="50"/>
+          <ellipse class="zone-highlight" id="hl-legs-r" cx="106" cy="335" rx="13" ry="50"/>
+        </svg>
+      </div>
+      <div class="zone-buttons-col">
+        <div class="zone-btn" data-zone="arms" onclick="toggleZone(this)">Arms</div>
+        <div class="zone-btn" data-zone="belly" onclick="toggleZone(this)">Belly</div>
+        <div class="zone-btn" data-zone="back" onclick="toggleZone(this)">Back</div>
+        <div class="zone-btn" data-zone="hips" onclick="toggleZone(this)">Hips &amp; thighs</div>
+        <div class="zone-btn" data-zone="legs" onclick="toggleZone(this)">Legs</div>
+        <div class="zone-btn" data-zone="whole" onclick="toggleZone(this)">Whole body</div>
+      </div>
     </div>
     <button class="continue-btn" id="continue-7" disabled onclick="goToStep(8)">CONTINUE</button>
   </div>
