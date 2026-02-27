@@ -89,24 +89,6 @@
   .landing-nav-brand span {
     color: #C07A5C;
   }
-  .landing-nav-buttons {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  .landing-nav-quiz {
-    background: #C07A5C;
-    color: #fff;
-    border: 1.5px solid #C07A5C;
-    padding: 8px 20px;
-    border-radius: 24px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-    cursor: pointer;
-    white-space: nowrap;
-  }
   .landing-nav-login {
     border: 1.5px solid #C07A5C;
     color: #C07A5C;
@@ -118,10 +100,8 @@
     text-decoration: none;
     transition: all 0.2s;
     cursor: pointer;
-    white-space: nowrap;
   }
   @media (hover: hover) {
-    .landing-nav-quiz:hover { background: #A8674E; border-color: #A8674E; }
     .landing-nav-login:hover { background: #C07A5C; color: #fff; }
   }
 
@@ -755,14 +735,7 @@
       align-items: center;
       padding: 12px 20px;
     }
-    .landing-nav-buttons {
-      flex-direction: column;
-      width: 100%;
-    }
-    .landing-nav-quiz, .landing-nav-login {
-      width: 100%;
-      text-align: center;
-    }
+    .landing-nav-login { width: 100%; text-align: center; }
   }
 
   /* Small phones (iPhone SE / iPhone 8 — 375px wide) */
@@ -838,10 +811,7 @@
   <div class="step active" data-step="1">
     <div class="landing-nav">
       <div class="landing-nav-brand">Lazy<span>WeightLoss</span></div>
-      <div class="landing-nav-buttons">
-        <button class="landing-nav-quiz" onclick="document.querySelector('.age-grid').scrollIntoView({behavior:'smooth'})">Take the Quiz</button>
-        <button class="landing-nav-login" onclick="openLoginModal()">Log In</button>
-      </div>
+      <button class="landing-nav-login" onclick="openLoginModal()">Log In</button>
     </div>
     <div style="padding: 0 20px; width:100%;">
       <h2 class="landing-title">Personalized weight loss plan for your age</h2>

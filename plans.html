@@ -65,13 +65,20 @@
       cursor: pointer; text-decoration: none; transition: all 0.2s;
       font-family: inherit;
     }
-    .nav-login:hover { background: #FDF0E8; }
+    @media (hover: hover) { .nav-login:hover { background: #FDF0E8; } }
     .nav-cta {
       background: #C07A5C; color: #fff; border: none; padding: 10px 20px;
       border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
-      text-decoration: none; transition: background 0.2s;
+      text-decoration: none; transition: background 0.2s; white-space: nowrap;
     }
-    .nav-cta:hover { background: #a8654a; }
+    @media (hover: hover) { .nav-cta:hover { background: #a8654a; } }
+
+    /* Stack nav buttons on iPhone 15 Pro (393px) and smaller */
+    @media (max-width: 393px) {
+      .nav { flex-wrap: wrap; justify-content: center; gap: 10px; }
+      .nav-right { width: 100%; flex-direction: column; }
+      .nav-cta, .nav-login { width: 100%; text-align: center; box-sizing: border-box; }
+    }
 
     /* ===== LOGIN MODAL ===== */
     .login-overlay {
