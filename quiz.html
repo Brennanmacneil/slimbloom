@@ -1478,7 +1478,7 @@
     // Auto-advance for single-select radio steps (no continue button)
     const btn = document.getElementById(`continue-${step}`);
     if (!btn) {
-      setTimeout(function(){ goToStep(step + 1); }, 350);
+      setTimeout(function(){ goToStep(step + 1); }, 150);
       return;
     }
     btn.disabled = false;
