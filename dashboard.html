@@ -1848,6 +1848,18 @@
     return d.innerHTML;
   }
 
+  // Convert Cloudinary video URLs to optimized thumbnail JPEGs
+  function thumbUrl(url) {
+    if (!url) return url;
+    // Cloudinary video → grab first frame as compressed 400px wide JPEG
+    if (/res\.cloudinary\.com\/.*\/video\/upload\//i.test(url)) {
+      return url.replace(/\/video\/upload\/(?:v\d+\/)?/, function(match) {
+        return match.replace('/upload/', '/upload/f_jpg,w_400,q_auto,so_0/');
+      });
+    }
+    return url;
+  }
+
   // ===== WORKOUT DATA (Defaults) =====
   var DEFAULT_WORKOUT_SCHEDULE = [
     { title: 'Morning Yoga Flow', emoji: '🧘', duration: 15, difficulty: 'Beginner', diffColor: '#22c55e', category: 'yoga', desc: 'Gentle stretching and breathing exercises designed for flexibility and calm. Perfect start to your day.', cal: 85 },
@@ -2096,7 +2108,7 @@
     list.forEach(function(w) {
       var card = document.createElement('div');
       card.className = 'workout-lib-card';
-      var thumbContent = w.imageUrl ? '<img src="' + escHtml(w.imageUrl) + '" alt="' + escHtml(w.title) + '" onerror="this.remove();this.parentElement.textContent=\'' + escHtml(w.emoji).replace(/'/g, '\\&#39;') + '\'">' : escHtml(w.emoji);
+      var thumbContent = w.imageUrl ? '<img src="' + escHtml(thumbUrl(w.imageUrl)) + '" alt="' + escHtml(w.title) + '" loading="lazy" onerror="this.remove();this.parentElement.textContent=\'' + escHtml(w.emoji).replace(/'/g, '\\&#39;') + '\'">' : escHtml(w.emoji);
       card.innerHTML =
         '<div class="workout-lib-thumb">' + thumbContent + '</div>' +
         '<div class="workout-lib-body">' +
@@ -2254,7 +2266,7 @@
     // Hero image
     var backBtnHtml = '<button class="preview-back-btn" id="preview-back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>';
     if (workoutData.imageUrl) {
-      heroEl.innerHTML = backBtnHtml + '<img src="' + escHtml(workoutData.imageUrl) + '" alt="' + escHtml(workoutData.title) + '" onerror="this.remove()">';
+      heroEl.innerHTML = backBtnHtml + '<img src="' + escHtml(thumbUrl(workoutData.imageUrl)) + '" alt="' + escHtml(workoutData.title) + '" onerror="this.remove()">';
     } else {
       heroEl.innerHTML = backBtnHtml + '<div class="preview-hero-emoji">' + escHtml(workoutData.emoji || '💪') + '</div>';
     }
@@ -2291,7 +2303,7 @@
         var durStr = Math.floor(durSec / 60) + ':' + ('0' + (durSec % 60)).slice(-2);
         var imgHtml;
         if (ex.imageUrl && ex.imageUrl.trim()) {
-          imgHtml = '<div class="preview-exercise-emoji preview-exercise-img"><img src="' + escHtml(ex.imageUrl) + '" alt="' + escHtml(ex.name) + '" onerror="this.parentElement.textContent=\'' + escHtml(ex.emoji || '💪') + '\'"></div>';
+          imgHtml = '<div class="preview-exercise-emoji preview-exercise-img"><img src="' + escHtml(thumbUrl(ex.imageUrl)) + '" alt="' + escHtml(ex.name) + '" loading="lazy" onerror="this.parentElement.textContent=\'' + escHtml(ex.emoji || '💪') + '\'"></div>';
         } else {
           imgHtml = '<div class="preview-exercise-emoji">' + escHtml(ex.emoji || '💪') + '</div>';
         }
