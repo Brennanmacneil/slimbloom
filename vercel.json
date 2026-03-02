@@ -1,6 +1,8 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/home", "destination": "/dashboard" }
+    { "source": "/home", "destination": "/dashboard" },
+    { "source": "/privacy", "destination": "/privacy-policy" },
+    { "source": "/terms", "destination": "/terms-of-use" }
   ]
 }
