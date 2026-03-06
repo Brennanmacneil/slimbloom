@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
   // Admin check: only allow the designated admin email
   const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
-  if (user.email.toLowerCase() !== adminEmail) {
+  if ((user.email || '').toLowerCase() !== adminEmail) {
     return res.status(403).json({ error: 'Not authorized as admin' });
   }
 

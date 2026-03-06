@@ -57,6 +57,7 @@
   function populateProfile(user) {
     if (!user) return;
     var email = user.email || '';
+    var phone = user.phone || '';
     var nameEl = document.querySelector('.profile-name');
     var avatarEl = document.querySelector('.profile-avatar');
     var greetEl = document.getElementById('topNavGreeting');
@@ -65,13 +66,20 @@
     try { var p = sessionStorage.getItem('lwl_profile'); if (p) savedProfile = JSON.parse(p); } catch(e) {}
     var displayName = (savedProfile && savedProfile.displayName) ? savedProfile.displayName : '';
     if (!displayName) {
-      displayName = email.split('@')[0];
-      displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+      if (email) {
+        displayName = email.split('@')[0];
+        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+      } else if (phone) {
+        var digits = phone.replace(/\D/g, '').slice(-10);
+        displayName = '(' + digits.slice(0,3) + ') ' + digits.slice(3,6) + '-' + digits.slice(6);
+      } else {
+        displayName = 'User';
+      }
     }
     if (nameEl) nameEl.textContent = displayName;
     if (greetEl) greetEl.textContent = 'Hi, ' + displayName;
     if (avatarEl) {
-      avatarEl.textContent = displayName ? displayName.charAt(0).toUpperCase() : (email ? email.charAt(0).toUpperCase() : '👩');
+      avatarEl.textContent = displayName ? displayName.charAt(0).toUpperCase() : '👩';
     }
   }
 
@@ -433,6 +441,7 @@
     border-radius: 25px;
     background: #FFFFFF;
     border: 1px solid #D4CAC0;
+    color: #8B5A3C;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;

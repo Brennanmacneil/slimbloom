@@ -156,6 +156,31 @@
       font-size: 13px; color: #22c55e; margin-top: 10px;
       display: none; font-weight: 500;
     }
+    .login-phone-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
+    .login-phone-prefix {
+      background: #F5EEE6; border: 1.5px solid #E0D6CC; border-radius: 10px;
+      padding: 13px 14px; font-size: 15px; font-weight: 600; color: #2D2A26;
+      white-space: nowrap;
+    }
+    .login-phone-row .login-field { margin-bottom: 0; flex: 1; }
+    .login-otp-input {
+      text-align: center; font-size: 24px; letter-spacing: 8px; font-weight: 600;
+    }
+    .login-otp-info {
+      font-size: 13px; color: #8A8279; margin-bottom: 16px; line-height: 1.5;
+    }
+    .login-otp-actions {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      margin-top: 14px; font-size: 13px;
+    }
+    .login-otp-actions a {
+      color: #C07A5C; font-weight: 500; text-decoration: none; cursor: pointer;
+    }
+    .login-otp-actions a:hover { text-decoration: underline; }
+    .login-otp-actions a.disabled { color: #B8AFA6; pointer-events: none; }
+    .login-otp-sep { color: #D4CAC0; }
 
     /* ===== CONTAINER ===== */
     .page { max-width: 600px; margin: 0 auto; padding: 0 20px; }
@@ -756,15 +781,41 @@
   <div class="login-modal">
     <button class="login-modal-close" onclick="closeLoginModal()">&times;</button>
     <div class="login-modal-logo">Lazy<span>WeightLoss</span></div>
-    <div class="login-modal-sub" id="loginSubtitle">Welcome back! Log in to your dashboard.</div>
-    <input type="email" class="login-field" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
-    <input type="password" class="login-field" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()">
-    <div class="login-forgot" id="loginForgot"><a onclick="handleForgotPassword()">Forgot password?</a></div>
-    <button class="login-submit" id="loginSubmitBtn" onclick="handleAuth()">Log In</button>
+    <div class="login-modal-sub" id="loginSubtitle">Enter your phone number to log in or create an account.</div>
+
+    <!-- PHONE VIEW (default) -->
+    <div id="loginPhoneView">
+      <div class="login-phone-row">
+        <div class="login-phone-prefix">+1</div>
+        <input type="tel" class="login-field" id="loginPhone" placeholder="(555) 123-4567" maxlength="14" oninput="formatLoginPhone(this)" onkeydown="if(event.key==='Enter'&&!document.getElementById('loginSendBtn').disabled)handleSendOtp()">
+      </div>
+      <button class="login-submit" id="loginSendBtn" onclick="handleSendOtp()" disabled>Send Code</button>
+    </div>
+
+    <!-- OTP VIEW -->
+    <div id="loginOtpView" style="display:none;">
+      <div class="login-otp-info">We sent a 6-digit code to <span id="loginOtpPhone"></span></div>
+      <input type="text" class="login-field login-otp-input" id="loginOtpCode" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)" onkeydown="if(event.key==='Enter')handleVerifyOtp()">
+      <button class="login-submit" id="loginVerifyBtn" onclick="handleVerifyOtp()">Verify Code</button>
+      <div class="login-otp-actions">
+        <a onclick="handleResendOtp()" id="loginResendLink">Resend code</a>
+        <span class="login-otp-sep">|</span>
+        <a onclick="showPhoneView()">Change number</a>
+      </div>
+    </div>
+
+    <!-- EMAIL FALLBACK VIEW -->
+    <div id="loginEmailView" style="display:none;">
+      <input type="email" class="login-field" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+      <input type="password" class="login-field" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')handleEmailAuth()">
+      <div class="login-forgot" id="loginForgot"><a onclick="handleForgotPassword()">Forgot password?</a></div>
+      <button class="login-submit" id="loginEmailBtn" onclick="handleEmailAuth()">Log In</button>
+    </div>
+
     <div class="login-error-msg" id="loginError"></div>
     <div class="login-success-msg" id="loginSuccess"></div>
-    <div class="login-divider">or</div>
-    <div class="login-new-user" id="loginToggle">New here? <a onclick="toggleAuthMode()">Create an account</a></div>
+    <div class="login-divider" id="loginDivider">or</div>
+    <div class="login-new-user" id="loginToggle"><a onclick="showEmailView()">Use email instead</a></div>
   </div>
 </div>
 
@@ -1183,16 +1234,8 @@ function applyCoupon() {
 
 function handleGetPlan() {
   if (couponApplied) {
-    // Open signup modal — user needs an account before accessing dashboard
-    _authMode = 'signup';
-    updateAuthUI();
-    document.getElementById('loginOverlay').classList.add('open');
-    document.getElementById('loginError').style.display = 'none';
-    document.getElementById('loginSuccess').style.display = 'none';
-    document.getElementById('loginEmail').value = '';
-    document.getElementById('loginPass').value = '';
-    document.getElementById('loginSubmitBtn').disabled = false;
-    setTimeout(function() { document.getElementById('loginEmail').focus(); }, 100);
+    // Open login modal — phone OTP handles both new/existing users
+    openLoginModal();
     return;
   }
   var selected = document.querySelector('.plan-option.selected');
@@ -1374,111 +1417,157 @@ document.addEventListener('click', function(e) {
   });
 })();
 
-// ===== LOGIN MODAL =====
-var _authMode = 'login'; // 'login' or 'signup'
+// ===== LOGIN MODAL (SMS OTP + Email Fallback) =====
+var _loginPhoneE164 = '';
+var _otpCooldown = false;
 
 function openLoginModal() {
-  _authMode = 'login';
-  updateAuthUI();
+  showPhoneView();
   document.getElementById('loginOverlay').classList.add('open');
   document.getElementById('loginError').style.display = 'none';
   document.getElementById('loginSuccess').style.display = 'none';
-  document.getElementById('loginEmail').value = '';
-  document.getElementById('loginPass').value = '';
-  document.getElementById('loginSubmitBtn').disabled = false;
-  setTimeout(function() { document.getElementById('loginEmail').focus(); }, 100);
+  document.getElementById('loginPhone').value = '';
+  document.getElementById('loginSendBtn').disabled = true;
+  setTimeout(function() { document.getElementById('loginPhone').focus(); }, 100);
 }
 
 function closeLoginModal() {
   document.getElementById('loginOverlay').classList.remove('open');
 }
 
-function toggleAuthMode() {
-  _authMode = _authMode === 'login' ? 'signup' : 'login';
-  updateAuthUI();
+function showPhoneView() {
+  document.getElementById('loginPhoneView').style.display = 'block';
+  document.getElementById('loginOtpView').style.display = 'none';
+  document.getElementById('loginEmailView').style.display = 'none';
+  document.getElementById('loginDivider').style.display = 'flex';
+  document.getElementById('loginToggle').style.display = 'block';
+  document.getElementById('loginToggle').innerHTML = '<a onclick="showEmailView()">Use email instead</a>';
+  document.getElementById('loginSubtitle').textContent = 'Enter your phone number to log in or create an account.';
   document.getElementById('loginError').style.display = 'none';
   document.getElementById('loginSuccess').style.display = 'none';
 }
 
-function updateAuthUI() {
-  var btn = document.getElementById('loginSubmitBtn');
-  var sub = document.getElementById('loginSubtitle');
-  var toggle = document.getElementById('loginToggle');
-  var forgot = document.getElementById('loginForgot');
-  if (_authMode === 'signup') {
-    btn.textContent = 'Create Account';
-    sub.textContent = 'Create your account to get started.';
-    toggle.innerHTML = 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>';
-    if (forgot) forgot.style.display = 'none';
-  } else {
-    btn.textContent = 'Log In';
-    sub.textContent = 'Welcome back! Log in to your dashboard.';
-    toggle.innerHTML = 'New here? <a onclick="toggleAuthMode()">Create an account</a>';
-    if (forgot) forgot.style.display = 'block';
-  }
+function showOtpView(phoneFormatted) {
+  document.getElementById('loginPhoneView').style.display = 'none';
+  document.getElementById('loginOtpView').style.display = 'block';
+  document.getElementById('loginEmailView').style.display = 'none';
+  document.getElementById('loginDivider').style.display = 'none';
+  document.getElementById('loginToggle').style.display = 'none';
+  document.getElementById('loginOtpPhone').textContent = phoneFormatted;
+  document.getElementById('loginOtpCode').value = '';
+  document.getElementById('loginSubtitle').textContent = 'Enter the code we texted you.';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginSuccess').style.display = 'none';
+  setTimeout(function() { document.getElementById('loginOtpCode').focus(); }, 100);
 }
 
-async function handleAuth() {
+function showEmailView() {
+  document.getElementById('loginPhoneView').style.display = 'none';
+  document.getElementById('loginOtpView').style.display = 'none';
+  document.getElementById('loginEmailView').style.display = 'block';
+  document.getElementById('loginDivider').style.display = 'flex';
+  document.getElementById('loginToggle').style.display = 'block';
+  document.getElementById('loginToggle').innerHTML = '<a onclick="showPhoneView()">Use phone number instead</a>';
+  document.getElementById('loginSubtitle').textContent = 'Log in with your email and password.';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginSuccess').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+  setTimeout(function() { document.getElementById('loginEmail').focus(); }, 100);
+}
+
+function formatLoginPhone(el) {
+  var digits = el.value.replace(/\D/g, '').slice(0, 10);
+  var formatted = '';
+  if (digits.length > 0) formatted = '(' + digits.slice(0, 3);
+  if (digits.length >= 3) formatted += ') ';
+  if (digits.length > 3) formatted += digits.slice(3, 6);
+  if (digits.length >= 6) formatted += '-' + digits.slice(6);
+  el.value = formatted;
+  document.getElementById('loginSendBtn').disabled = (digits.length !== 10);
+}
+
+async function handleSendOtp() {
+  var el = document.getElementById('loginPhone');
+  var digits = el.value.replace(/\D/g, '');
+  var errEl = document.getElementById('loginError');
+  var btn = document.getElementById('loginSendBtn');
+  errEl.style.display = 'none';
+  if (digits.length !== 10) { errEl.textContent = 'Please enter a valid 10-digit phone number.'; errEl.style.display = 'block'; return; }
+  _loginPhoneE164 = '+1' + digits;
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    var res = await _supabase.auth.signInWithOtp({ phone: _loginPhoneE164 });
+    if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Send Code'; return; }
+    showOtpView(el.value);
+    btn.disabled = false;
+    btn.textContent = 'Send Code';
+    startResendCooldown();
+  } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Send Code'; }
+}
+
+async function handleVerifyOtp() {
+  var code = document.getElementById('loginOtpCode').value.trim();
+  var errEl = document.getElementById('loginError');
+  var btn = document.getElementById('loginVerifyBtn');
+  errEl.style.display = 'none';
+  if (!code || code.length !== 6) { errEl.textContent = 'Please enter the 6-digit code.'; errEl.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  try {
+    var res = await _supabase.auth.verifyOtp({ phone: _loginPhoneE164, token: code, type: 'sms' });
+    if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Verify Code'; return; }
+    window.location.href = '/home';
+  } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Verify Code'; }
+}
+
+async function handleResendOtp() {
+  if (_otpCooldown) return;
+  var errEl = document.getElementById('loginError');
+  var successEl = document.getElementById('loginSuccess');
+  errEl.style.display = 'none';
+  try {
+    var res = await _supabase.auth.signInWithOtp({ phone: _loginPhoneE164 });
+    if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
+    successEl.textContent = 'New code sent!';
+    successEl.style.display = 'block';
+    startResendCooldown();
+  } catch (e) { errEl.textContent = 'Failed to resend. Please try again.'; errEl.style.display = 'block'; }
+}
+
+function startResendCooldown() {
+  _otpCooldown = true;
+  var link = document.getElementById('loginResendLink');
+  var seconds = 60;
+  link.classList.add('disabled');
+  link.textContent = 'Resend code (' + seconds + 's)';
+  var interval = setInterval(function() {
+    seconds--;
+    link.textContent = 'Resend code (' + seconds + 's)';
+    if (seconds <= 0) {
+      clearInterval(interval);
+      _otpCooldown = false;
+      link.classList.remove('disabled');
+      link.textContent = 'Resend code';
+    }
+  }, 1000);
+}
+
+async function handleEmailAuth() {
   var email = document.getElementById('loginEmail').value.trim();
   var pass = document.getElementById('loginPass').value;
   var errEl = document.getElementById('loginError');
-  var successEl = document.getElementById('loginSuccess');
-  var btn = document.getElementById('loginSubmitBtn');
-
+  var btn = document.getElementById('loginEmailBtn');
   errEl.style.display = 'none';
-  successEl.style.display = 'none';
-
-  if (!email || !pass) {
-    errEl.textContent = 'Please enter your email and password.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (pass.length < 6) {
-    errEl.textContent = 'Password must be at least 6 characters.';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  if (!email || !pass) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
   btn.disabled = true;
-  btn.textContent = _authMode === 'login' ? 'Logging in...' : 'Creating account...';
-
+  btn.textContent = 'Logging in...';
   try {
-    if (_authMode === 'signup') {
-      var res = await _supabase.auth.signUp({ email: email, password: pass });
-      if (res.error) {
-        errEl.textContent = res.error.message;
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
-        return;
-      }
-      // Check if email confirmation is needed
-      if (res.data.user && !res.data.session) {
-        successEl.textContent = 'Check your email for a confirmation link, then log in!';
-        successEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
-        return;
-      }
-      // If auto-confirmed, go to dashboard
-      window.location.href = '/home';
-    } else {
-      var res = await _supabase.auth.signInWithPassword({ email: email, password: pass });
-      if (res.error) {
-        errEl.textContent = res.error.message;
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Log In';
-        return;
-      }
-      window.location.href = '/home';
-    }
-  } catch (e) {
-    errEl.textContent = 'Something went wrong. Please try again.';
-    errEl.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = _authMode === 'login' ? 'Log In' : 'Create Account';
-  }
+    var res = await _supabase.auth.signInWithPassword({ email: email, password: pass });
+    if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Log In'; return; }
+    window.location.href = '/home';
+  } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Log In'; }
 }
 
 async function handleForgotPassword() {
@@ -1487,28 +1576,13 @@ async function handleForgotPassword() {
   var successEl = document.getElementById('loginSuccess');
   errEl.style.display = 'none';
   successEl.style.display = 'none';
-
-  if (!email) {
-    errEl.textContent = 'Please enter your email address first.';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  if (!email) { errEl.textContent = 'Please enter your email address first.'; errEl.style.display = 'block'; return; }
   try {
-    var res = await _supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/home'
-    });
-    if (res.error) {
-      errEl.textContent = res.error.message;
-      errEl.style.display = 'block';
-      return;
-    }
+    var res = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/home' });
+    if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
     successEl.textContent = 'Password reset link sent! Check your email.';
     successEl.style.display = 'block';
-  } catch (e) {
-    errEl.textContent = 'Something went wrong. Please try again.';
-    errEl.style.display = 'block';
-  }
+  } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; }
 }
 </script>
 </body>

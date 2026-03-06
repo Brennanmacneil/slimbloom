@@ -92,6 +92,46 @@ export default async function handler(req, res) {
     }
   }
 
-  // 7. No subscription found
+  // 7. Phone-based lazy linking: for phone-only users (no email)
+  if (user.phone) {
+    // Find converted phone lead matching this user's phone
+    const { data: phoneLeads } = await supabase
+      .from('phone_leads')
+      .select('*')
+      .eq('phone', user.phone)
+      .eq('converted', true)
+      .order('converted_at', { ascending: false })
+      .limit(1);
+
+    if (phoneLeads && phoneLeads.length > 0) {
+      // Find an unlinked membership created around the same time
+      const { data: unlinkedMemberships } = await supabase
+        .from('memberships')
+        .select('*')
+        .is('user_id', null)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (unlinkedMemberships && unlinkedMemberships.length > 0) {
+        // Link the most recent unlinked membership
+        const membership = unlinkedMemberships[0];
+        const { error: linkError } = await supabase
+          .from('memberships')
+          .update({ user_id: user.id })
+          .eq('id', membership.id);
+
+        if (linkError) {
+          console.error('Failed to phone-link membership:', linkError);
+        } else {
+          console.log(`Phone-linked membership ${membership.whop_membership_id} to user ${user.id}`);
+        }
+
+        membership.user_id = user.id;
+        return res.status(200).json({ subscription: membership });
+      }
+    }
+  }
+
+  // 8. No subscription found
   return res.status(200).json({ subscription: null });
 }
