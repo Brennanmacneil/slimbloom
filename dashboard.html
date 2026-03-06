@@ -26,31 +26,38 @@
   var _hashParams = new URLSearchParams(window.location.hash.substring(1));
   var _isRecovery = _hashParams.get('type') === 'recovery' || window.location.hash.includes('type=recovery');
 
+  var _subscriptionVerified = false;
+
+  function verifySubscription(session) {
+    return fetch('/api/subscription', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (!data.subscription) {
+        _supabase.auth.signOut().then(function() {
+          window.location.href = '/plans?noplan=1';
+        });
+        return false;
+      }
+      _subscriptionVerified = true;
+      document.body.style.visibility = 'visible';
+      populateProfile(_currentUser);
+      checkPaymentReturn();
+      return true;
+    }).catch(function() {
+      // API error — redirect to plans (fail closed)
+      window.location.href = '/plans';
+      return false;
+    });
+  }
+
   _supabase.auth.getSession().then(function(res) {
     if (!res.data.session && !_isRecovery) {
       window.location.href = '/plans';
     } else if (res.data.session) {
       _currentUser = res.data.session.user;
       _currentSession = res.data.session;
-      // Verify user has an active subscription before showing dashboard
-      fetch('/api/subscription', {
-        method: 'GET',
-        headers: { 'Authorization': 'Bearer ' + res.data.session.access_token, 'Content-Type': 'application/json' }
-      }).then(function(r) { return r.json(); }).then(function(data) {
-        if (!data.subscription) {
-          // No subscription — sign out and redirect to plans
-          _supabase.auth.signOut().then(function() {
-            window.location.href = '/plans?noplan=1';
-          });
-          return;
-        }
-        document.body.style.visibility = 'visible';
-        populateProfile(_currentUser);
-      }).catch(function() {
-        // API error — still show dashboard to avoid locking out users
-        document.body.style.visibility = 'visible';
-        populateProfile(_currentUser);
-      });
+      verifySubscription(res.data.session);
     }
     // If _isRecovery and no session yet, wait for onAuthStateChange to handle it
   });
@@ -61,13 +68,21 @@
       window.location.href = '/plans';
     }
     if (event === 'PASSWORD_RECOVERY') {
-      document.body.style.visibility = 'visible';
-      showPasswordResetModal();
+      // Only show password reset if subscription already verified, otherwise verify first
+      if (_subscriptionVerified) {
+        showPasswordResetModal();
+      } else if (session) {
+        _currentUser = session.user;
+        _currentSession = session;
+        verifySubscription(session).then(function(ok) {
+          if (ok) showPasswordResetModal();
+        });
+      }
     }
     if (session) {
       _currentUser = session.user;
       _currentSession = session;
-      populateProfile(_currentUser);
+      // Don't show body here — verifySubscription handles visibility
     }
   });
 
@@ -3296,7 +3311,8 @@
   });
 
   // ===== CHECK PAYMENT RETURN =====
-  (function() {
+  // Runs after subscription is verified (called from verifySubscription on success)
+  function checkPaymentReturn() {
     var params = new URLSearchParams(window.location.search);
     if (params.get('paid') === 'true' || params.get('status') === 'success') {
       sessionStorage.setItem('lwl_paid', 'true');
@@ -3324,7 +3340,7 @@
         }
       }, 3000);
     }
-  })();
+  }
 
   // ===== INIT =====
   _loadWorkoutData(function() {
