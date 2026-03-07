@@ -1528,6 +1528,17 @@ async function handleVerifyOtp() {
   try {
     var res = await _supabase.auth.verifyOtp({ phone: _loginPhoneE164, token: code, type: 'sms' });
     if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Verify Code'; return; }
+    // If coupon was applied, activate it before redirecting
+    if (couponApplied) {
+      btn.textContent = 'Activating...';
+      var session = res.data.session;
+      var couponRes = await fetch('/api/activate-coupon', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coupon: document.getElementById('couponInput').value.trim() })
+      }).then(function(r) { return r.json(); });
+      if (couponRes.error) { errEl.textContent = couponRes.error; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Verify Code'; return; }
+    }
     window.location.href = '/home';
   } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Verify Code'; }
 }
@@ -1576,6 +1587,17 @@ async function handleEmailAuth() {
   try {
     var res = await _supabase.auth.signInWithPassword({ email: email, password: pass });
     if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Log In'; return; }
+    // If coupon was applied, activate it before redirecting
+    if (couponApplied) {
+      btn.textContent = 'Activating...';
+      var session = res.data.session;
+      var couponRes = await fetch('/api/activate-coupon', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coupon: document.getElementById('couponInput').value.trim() })
+      }).then(function(r) { return r.json(); });
+      if (couponRes.error) { errEl.textContent = couponRes.error; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Log In'; return; }
+    }
     window.location.href = '/home';
   } catch (e) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Log In'; }
 }
