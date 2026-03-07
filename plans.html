@@ -862,7 +862,7 @@
         <div class="lbl">lbs to lose</div>
       </div>
       <div class="weight-stat">
-        <div class="num">12</div>
+        <div class="num" id="stat-weeks">12</div>
         <div class="lbl">weeks</div>
       </div>
       <div class="weight-stat">
@@ -874,7 +874,7 @@
 
   <!-- ===== PLAN READY ===== -->
   <section class="plan-ready">
-    <h2>You're only 6 weeks away from your dream body, here's the plan!</h2>
+    <h2 id="plan-headline">You're only 6 weeks away from your dream body, here's the plan!</h2>
     <div class="plan-meta">
       <div class="plan-meta-item">
         <div class="meta-label">Level</div>
@@ -1198,6 +1198,7 @@
     var cwNum = parseInt(cw, 10);
     var gwNum = parseInt(gw, 10);
     var diff = cwNum - gwNum;
+    if (diff < 0) diff = 0;
     var el;
     el = document.getElementById('chart-current-weight');
     if (el) el.textContent = cwNum + ' ' + cu;
@@ -1207,6 +1208,25 @@
     if (el) el.textContent = '-' + diff;
     el = document.getElementById('meta-goal-weight');
     if (el) el.textContent = '🎯 ' + gwNum + ' ' + gu;
+
+    // Calculate realistic timeline at 2-3 lbs/week
+    var minWeeks = Math.ceil(diff / 3);
+    var maxWeeks = Math.ceil(diff / 2);
+    var weeksText;
+    if (diff <= 0) {
+      weeksText = '0';
+    } else if (maxWeeks - minWeeks <= 1) {
+      // Close enough — show single number
+      weeksText = '' + maxWeeks;
+    } else {
+      weeksText = minWeeks + '-' + maxWeeks;
+    }
+    el = document.getElementById('stat-weeks');
+    if (el) el.textContent = weeksText;
+
+    // Update headline
+    el = document.getElementById('plan-headline');
+    if (el) el.textContent = "You're only " + weeksText + " weeks away from your dream body, here's the plan!";
   }
 })();
 
