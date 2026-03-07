@@ -61,6 +61,9 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'No campaign message found' }), { status: 404 })
     }
 
+    // Wait 60 seconds before sending so it doesn't feel instant/automated
+    await new Promise(resolve => setTimeout(resolve, 60000))
+
     // Send the welcome SMS
     const twilioSid = await sendTwilioSMS(phone, campaign.message_template)
 
